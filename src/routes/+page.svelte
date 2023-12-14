@@ -3,7 +3,11 @@
 
 
 <script>
-	import Treemap from '../components/treemap.svelte';
+	import Treemapj from '../components/PhylogeneticTree.svelte';
+	// import TreemapEx from '../components/exampleTree.svelte';
+	// import Treemap100 from '../components/anotherTree.svelte';
+	// import CircularTree from '../components/circularTree.svelte';
 </script>
 
-<Treemap/>
+<Treemapj/>
+<!-- <TreemapEx/> -->
