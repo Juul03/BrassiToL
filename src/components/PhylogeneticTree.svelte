@@ -78,7 +78,7 @@
       .style("width", "100%")
       .style("height", "auto");
 
-      svg
+    svg
       .append("g")
       .attr("fill", "none")
       .attr("stroke", "#000")
@@ -96,7 +96,10 @@
       .selectAll("circle")
       .data(root.descendants())
       .join("circle")
-      .attr("transform", (d) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)`)
+      .attr(
+        "transform",
+        (d) => `rotate(${(d.x * 180) / Math.PI - 90}) translate(${d.y},0)`
+      )
       .attr("fill", (d) => (d.children ? "#555" : "#999"))
       .attr("r", 2);
 
@@ -106,7 +109,6 @@
 
 <h2>Test Kaas</h2>
 <div id="phyloTree" />
-
 
 <style>
   #phyloTree {
