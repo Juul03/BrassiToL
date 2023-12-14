@@ -80,19 +80,16 @@
 
       svg
       .append("g")
-      .attr("fill", "red")
+      .attr("fill", "none")
       .attr("stroke", "#000")
       .attr("stroke-opacity", 0.4)
-      .selectAll("path")
+      .selectAll("line")
       .data(root.links())
-      .join("path")
-      .attr(
-        "d",
-        d3
-          .linkRadial()
-          .angle((d) => d.x)
-          .radius((d) => d.y)
-      );
+      .join("line")
+      .attr("x1", (d) => d.source.y * Math.cos(d.source.x - Math.PI / 2))
+      .attr("y1", (d) => d.source.y * Math.sin(d.source.x - Math.PI / 2))
+      .attr("x2", (d) => d.target.y * Math.cos(d.target.x - Math.PI / 2))
+      .attr("y2", (d) => d.target.y * Math.sin(d.target.x - Math.PI / 2));
 
     svg
       .append("g")
