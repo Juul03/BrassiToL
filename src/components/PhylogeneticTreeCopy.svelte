@@ -48,7 +48,7 @@
 
   onMount(() => {
     const svg = createPhylogeneticTree(parsedData);
-    document.querySelector("#phyloTree").appendChild(svg.node());
+    // document.querySelector("#phyloTree").appendChild(svg.node());
   });
 
   const createPhylogeneticTree = (data) => {
@@ -64,9 +64,51 @@
           a.value - b.value || d3.ascending(a.data.length, b.data.length)
       );
 
+    // Formulas
+    const cluster = d3
+      .cluster()
+      .size([360, innerRadius])
+      .separation((a, b) => 1);
+
+    // Set the radius of each node by recursively summing and scaling the distance from the root.
+    const setRadius = (d, y0, k) => {
+      d.radius = (y0 += d.data.length) * k;
+      if (d.children) d.children.forEach((d) => setRadius(d, y0, k));
+    };
+
+    const color = d3.scaleOrdinal()
+    .domain(["Brassicaceae", "", ""])
+    .range(d3.schemeCategory10)
+
+    // Set the color of each node by recursively inheriting.
+    const setColor = (d) => {
+      var name = d.data.name;
+      d.color =
+        color.domain().indexOf(name) >= 0
+          ? color(name)
+          : d.parent
+          ? d.parent.color
+          : null;
+      if (d.children) d.children.forEach(setColor);
+    };
+
+    // Compute the maximum cumulative length of any node in the tree.
+    const maxLength = (d) => {
+      return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
+    }
+
     cluster(root);
     setRadius(root, (root.data.length = 0), innerRadius / maxLength(root));
     setColor(root);
+
+    const svg = d3.create("svg")
+      .attr("viewBox", [-outerRadius, -outerRadius, width, width])
+      .attr("font-family", "sans-serif")
+      .attr("font-size", 10);
+
+    const update = createPhylogeneticTree.update(showLength)
+
+    return Object.assign(svg.node(), {update});
   };
 </script>
 
