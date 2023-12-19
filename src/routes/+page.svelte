@@ -1,9 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
-
-
 <script>
-	import Treemap from '../components/treemap.svelte';
+	import Treemapj from '../components/phylogeneticTree.svelte';
 </script>
 
-<Treemap/>
+<h1>Phylogentic Tree Brassicaceae</h1>
+
+<Treemapj/>
