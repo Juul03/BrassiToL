@@ -45,4 +45,26 @@
     console.log(growthFilterh);
     console.log(growthFilterw);
   };
+
+  let selectedFamilies = {};
+
+const handleItemSelection = (event, family) => {
+  selectedFamilies = {
+    ...selectedFamilies,
+    [family]: event.target.checked
+  };
+  console.log(selectedFamilies);
+};
 </script>
+
+<h3>Select Items:</h3>
+{#each uniqueFamilies as family}
+  <label>
+    <input
+      type="checkbox"
+      bind:checked={selectedFamilies[family]}
+      on:change={(event) => handleItemSelection(event, family)}
+    />
+    {family}
+  </label>
+{/each}
