@@ -47,6 +47,7 @@
   };
 
   let selectedFamilies = {};
+  let treemap = { Akaniaceae: 20, subtree: { Brassicaceae: 30, Limnanthaceae: 60 } };
 
 const handleItemSelection = (event, family) => {
   selectedFamilies = {
@@ -54,7 +55,30 @@ const handleItemSelection = (event, family) => {
     [family]: event.target.checked
   };
   console.log(selectedFamilies);
+  console.log('treemap before', treemap);
+  treemap = filterTreemap(treemap);
+  console.log('treemap after', treemap);
 };
+
+// Function to filter the treemap based on selected families
+function filterTreemap(tree) {
+  if (!tree || typeof tree !== 'object') {
+    return null;
+  }
+
+  // Filter out keys that are not selected in selectedFamilies
+  for (const key in tree) {
+    if (tree.hasOwnProperty(key)) {
+      if (!selectedFamilies[key]) {
+        delete tree[key];
+      } else {
+        tree[key] = filterTreemap(tree[key]);
+      }
+    }
+  }
+
+  return tree;
+}
 </script>
 
 <h3>Select Items:</h3>
