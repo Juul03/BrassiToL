@@ -157,7 +157,7 @@
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
 
-    function update(checked) {
+    let update = (checked) => {
       const t = d3.transition().duration(750);
       linkExtension
         .transition(t)
@@ -165,7 +165,7 @@
       link.transition(t).attr("d", checked ? linkVariable : linkConstant);
     }
 
-    function mouseovered(active) {
+    let mouseovered = (active) => {
       return function (event, d) {
         d3.select(this).classed("label--active", active);
         d3.select(d.linkExtensionNode)
@@ -210,7 +210,7 @@
 
   let color = d3
     .scaleOrdinal()
-    .domain(["Bacteria", "Eukaryota", "Archaea"])
+    .domain(["Brassicaceae", "Outgroup 1", "Outgroup 2"])
     .range(d3.schemeCategory10);
 
   let legend = (svg) => {
