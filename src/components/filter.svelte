@@ -62,13 +62,22 @@
   let selectedFamilies = {};
 
   const handleItemSelection = (event, family) => {
-    selectedFamilies = {
-      ...selectedFamilies,
-      [family]: event.target.checked,
-    };
+  const isChecked = event.target.checked;
 
-    updateSelectedFamilies(selectedFamilies);
+  selectedFamilies = {
+    ...selectedFamilies,
+    [family]: isChecked,
   };
+
+  // Get an array of keys where the value is true (i.e., selected families)
+  const selectedKeys = Object.keys(selectedFamilies).filter(
+    (key) => selectedFamilies[key]
+  );
+
+  // Update the selectedFamiliesStore with the updated value
+  updateSelectedFamilies(selectedKeys);
+};
+
 
   // Function to filter the treemap based on selected families
   function filterTreemap(tree) {
