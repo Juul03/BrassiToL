@@ -1,6 +1,10 @@
 <script>
   import { redirect } from "@sveltejs/kit";
   import { onMount } from "svelte";
+  import {
+    selectedFamiliesStore,
+    updateSelectedFamilies,
+  } from "$lib/selectedFamiliesStore";
 
   let metaData = [];
   let uniqueFamilies = [];
@@ -25,8 +29,17 @@
 
   onMount(async () => {
     fetchJSONData();
-  });
 
+    const unsubscribe = selectedFamiliesStore.subscribe((value) => {
+      console.log("Updated selectedFamiliesStore:", value);
+      // You can perform further actions whenever selectedFamiliesStore changes
+      // For instance, update other components or trigger other functions here
+    });
+
+    return () => {
+      unsubscribe(); // Unsubscribe when the component is destroyed
+    };
+  });
 
   const findUniqueFamilies = () => {
     const families = metaData.map((sample) => sample.FAMILY);
@@ -47,38 +60,35 @@
   };
 
   let selectedFamilies = {};
-  let treemap = { Akaniaceae: 20, subtree: { Brassicaceae: 30, Limnanthaceae: 60 } };
 
-const handleItemSelection = (event, family) => {
-  selectedFamilies = {
-    ...selectedFamilies,
-    [family]: event.target.checked
+  const handleItemSelection = (event, family) => {
+    selectedFamilies = {
+      ...selectedFamilies,
+      [family]: event.target.checked,
+    };
+
+    updateSelectedFamilies(selectedFamilies);
   };
-  console.log(selectedFamilies);
-  console.log('treemap before', treemap);
-  treemap = filterTreemap(treemap);
-  console.log('treemap after', treemap);
-};
 
-// Function to filter the treemap based on selected families
-function filterTreemap(tree) {
-  if (!tree || typeof tree !== 'object') {
-    return null;
-  }
+  // Function to filter the treemap based on selected families
+  function filterTreemap(tree) {
+    if (!tree || typeof tree !== "object") {
+      return null;
+    }
 
-  // Filter out keys that are not selected in selectedFamilies
-  for (const key in tree) {
-    if (tree.hasOwnProperty(key)) {
-      if (!selectedFamilies[key]) {
-        delete tree[key];
-      } else {
-        tree[key] = filterTreemap(tree[key]);
+    // Filter out keys that are not selected in selectedFamilies
+    for (const key in tree) {
+      if (tree.hasOwnProperty(key)) {
+        if (!selectedFamilies[key]) {
+          delete tree[key];
+        } else {
+          tree[key] = filterTreemap(tree[key]);
+        }
       }
     }
-  }
 
-  return tree;
-}
+    return tree;
+  }
 </script>
 
 <h3>Select Items:</h3>

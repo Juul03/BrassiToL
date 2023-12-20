@@ -1,6 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import * as d3 from "d3";
+  import { selectedFamiliesStore } from "$lib/selectedFamiliesStore";
+
+  let selectedFamilies = {};
 
   let phyloTreeData;
   let parsedData;
@@ -64,6 +67,13 @@
   }
 
   onMount(async () => {
+    const unsubscribe = selectedFamiliesStore.subscribe(value => {
+      selectedFamilies = value;
+      // This will log the updated selectedFamilies whenever it changes
+      console.log("phylo Selected Families:", selectedFamilies);
+      // Perform any other actions with the updated selectedFamilies here
+    });
+
     await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
     const svg = createPhylogeneticTree(parsedData);
     const container = document.querySelector("#phyloTree");
@@ -113,6 +123,25 @@
 
 `);
 
+    let update = (checked) => {
+      const t = d3.transition().duration(750);
+      linkExtension
+        .transition(t)
+        .attr("d", checked ? linkExtensionVariable : linkExtensionConstant);
+      link.transition(t).attr("d", checked ? linkVariable : linkConstant);
+    };
+
+    let mouseovered = (active) => {
+      return function (event, d) {
+        d3.select(this).classed("label--active", active);
+        d3.select(d.linkExtensionNode)
+          .classed("link-extension--active", active)
+          .raise();
+        do d3.select(d.linkNode).classed("link--active", active).raise();
+        while ((d = d.parent));
+      };
+    };
+
     const linkExtension = svg
       .append("g")
       .attr("fill", "none")
@@ -156,25 +185,6 @@
       .text((d) => d.data.name.replace(/_/g, " "))
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
-
-    let update = (checked) => {
-      const t = d3.transition().duration(750);
-      linkExtension
-        .transition(t)
-        .attr("d", checked ? linkExtensionVariable : linkExtensionConstant);
-      link.transition(t).attr("d", checked ? linkVariable : linkConstant);
-    }
-
-    let mouseovered = (active) => {
-      return function (event, d) {
-        d3.select(this).classed("label--active", active);
-        d3.select(d.linkExtensionNode)
-          .classed("link-extension--active", active)
-          .raise();
-        do d3.select(d.linkNode).classed("link--active", active).raise();
-        while ((d = d.parent));
-      };
-    }
 
     return Object.assign(svg.node(), { update });
   };
