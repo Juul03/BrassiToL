@@ -100,7 +100,7 @@
   }
 </script>
 
-<h3>Select Items:</h3>
+<h3>Family</h3>
 {#each uniqueFamilies as family}
   <label>
     <input
