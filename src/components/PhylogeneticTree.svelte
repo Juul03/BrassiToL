@@ -101,7 +101,7 @@
       // Perform any other actions with the updated selectedFamilies here
     });
 
-    await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
+    await fetchPhylotreeData();
     await fetchAllSpecieData();
 
     const svg = createPhylogeneticTree(parsedData);
@@ -138,7 +138,7 @@
     svg.append("style").text(`
 
 .link--active {
-  stroke: #000 !important;
+  stroke: #999 !important;
   stroke-width: 1.5px;
 }
 
@@ -148,6 +148,7 @@
 
 .label--active {
   font-weight: bold;
+  color: red;
 }
 
 `);
@@ -161,9 +162,14 @@
     };
 
     let mouseovered = (active) => {
+      console.log("hovered");
       return function (event, d) {
+        console.log("Mouseover event:", event);
+        console.log("Data:", d);
+
         d3.select(this).classed("label--active", active);
         d3.select(d.linkExtensionNode)
+          .style("color", "red")
           .classed("link-extension--active", active)
           .raise();
         do d3.select(d.linkNode).classed("link--active", active).raise();
@@ -179,7 +185,7 @@
       .selectAll("path")
       .data(root.links().filter((d) => !d.target.children))
       .join("path")
-      .each(function (d) {
+      .each((d) => {
         d.target.linkExtensionNode = this;
       })
       .attr("d", linkExtensionConstant);
