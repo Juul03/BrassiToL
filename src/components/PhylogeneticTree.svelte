@@ -51,7 +51,7 @@
       console.log(foundDataPoint.SPECIES_NAME_PRINT);
       return foundDataPoint.SPECIES_NAME_PRINT;
     }
-    return null;
+    return sample;
   };
 
   const width = 900;
