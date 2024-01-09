@@ -127,14 +127,14 @@
 
     svg.append("style").text(`
 
-.link--active {
-  stroke: blue !important;
-  stroke-width: 1.5px;
-}
+// .link--active {
+//   stroke: blue !important;
+//   stroke-width: 1.5px;
+// }
 
-.link-extension--active {
-  stroke-opacity: .6;
-}
+// .link-extension--active {
+//   stroke-opacity: .6;
+// }
 
 .label--active {
   font-weight: bold;
@@ -228,27 +228,54 @@
       };
     }
 
-    function clicked(active) {
-      return function (event, d) {
-        const isActive = d3.select(this).classed("label--active");
-        d3.select(this).classed("label--active", !isActive);
+    const colors = ["blue", "green", "yellow"];
+let colorCounter = 0;
 
-        const clickedPath = d3.select(d.linkExtensionNode);
-        const isSelected = clickedPath.classed("link-extension--active");
+function clicked(active) {
+  return function (event, d) {
+    const isActive = d3.select(this).classed("label--active");
+    d3.select(this).classed("label--active", !isActive);
 
-        clickedPath.classed("link-extension--active", !isSelected).raise();
+    const clickedPath = d3.select(d.linkExtensionNode);
+    const isSelected = clickedPath.classed("link-extension--active");
 
-        let ancestor = d;
-        while (ancestor) {
-          if (ancestor.linkNode) {
-            d3.select(ancestor.linkNode)
-              .classed("link--active", !isSelected)
-              .raise();
-          }
-          ancestor = ancestor.parent;
+    if (!isSelected) {
+      clickedPath.classed("link-extension--active", true)
+        .raise()
+        .style("stroke", colors[colorCounter]);
+
+      let ancestor = d;
+      while (ancestor) {
+        if (ancestor.linkNode) {
+          d3.select(ancestor.linkNode).classed("link--active", true).raise()
+            .style("stroke", colors[colorCounter]);
         }
-      };
+        ancestor = ancestor.parent;
+      }
+    } else {
+      clickedPath.classed("link-extension--active", false).style("stroke", "black");
+
+      let ancestor = d;
+      while (ancestor) {
+        if (ancestor.linkNode) {
+          d3.select(ancestor.linkNode).classed("link--active", false).style("stroke", "black");
+        }
+        ancestor = ancestor.parent;
+      }
     }
+
+    // Apply colors based on the click order
+    if (!isActive) {
+      d3.select(this).style("fill", colors[colorCounter]);
+      colorCounter = (colorCounter + 1) % colors.length;
+    } else {
+      // Reset text color to black when deselected
+      d3.select(this).style("fill", "black");
+    }
+  };
+}
+
+
 
     return Object.assign(svg.node(), { update });
   };
