@@ -3,7 +3,7 @@
 	import Treemapj from '../components/PhylogeneticTree.svelte';
 </script>
 
-<h1>Phylogentic Tree Brassicaceae</h1>
+<h1>Phylogenetic Tree Brassicaceae</h1>
 
 <Filter/>
 <Treemapj/>

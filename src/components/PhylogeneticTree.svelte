@@ -210,7 +210,7 @@
 
   let color = d3
     .scaleOrdinal()
-    .domain(["Bacteria", "Eukaryota", "Archaea"])
+    .domain(["Brassicaceae", "Outgroup 1", "Outgroup 2"])
     .range(d3.schemeCategory10);
 
   let legend = (svg) => {
