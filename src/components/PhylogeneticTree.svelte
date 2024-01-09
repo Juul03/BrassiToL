@@ -31,7 +31,6 @@
       const response = await fetch("/data/metadataBrassiToL.json");
       if (response.ok) {
         allSpecieData = await response.json();
-        console.log("exceldata", allSpecieData);
       } else {
         console.error("Failed to fetch data:", response.status);
       }
@@ -90,9 +89,22 @@
     } else {
       console.error("Container not found");
     }
+
+    let findOutgroups = () => {
+      allSpecieData.find((data) => {
+        if (data.FAMILY !== "Brassicaceae") {
+          console.log("Not Brassicaceae: " + data.FAMILY);
+        } else {
+          console.log("Brassicaceae found");
+        }
+      });
+    };
+
+    findOutgroups();
   });
 
   const createPhylogeneticTree = (data) => {
+    console.log("IN functie", data);
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -116,7 +128,7 @@
     svg.append("style").text(`
 
 .link--active {
-  stroke: #000 !important;
+  stroke: blue !important;
   stroke-width: 1.5px;
 }
 
@@ -161,7 +173,6 @@
         (datapoint) => datapoint.SAMPLE === sample
       );
       if (foundDataPoint) {
-        console.log(foundDataPoint.SPECIES_NAME_PRINT);
         return foundDataPoint.SPECIES_NAME_PRINT;
       }
       return sample;
@@ -183,8 +194,10 @@
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-      .on("mouseover", mouseovered(true))
-      .on("mouseout", mouseovered(false));
+      .on("click", clicked(true))
+      // HOVER AND CLICK dont work at the same time
+      // .on("mouseover", mouseovered(true))
+      // .on("mouseout", mouseovered(false));
 
     function update(checked) {
       const t = d3.transition().duration(750);
@@ -197,11 +210,43 @@
     function mouseovered(active) {
       return function (event, d) {
         d3.select(this).classed("label--active", active);
-        d3.select(d.linkExtensionNode)
-          .classed("link-extension--active", active)
-          .raise();
-        do d3.select(d.linkNode).classed("link--active", active).raise();
-        while ((d = d.parent));
+
+        const clickedPath = d3.select(d.linkExtensionNode);
+        const isSelected = clickedPath.classed("link-extension--active");
+
+        clickedPath.classed("link-extension--active", !isSelected).raise();
+
+        let ancestor = d;
+        while (ancestor) {
+          if (ancestor.linkNode) {
+            d3.select(ancestor.linkNode)
+              .classed("link--active", active)
+              .raise();
+          }
+          ancestor = ancestor.parent;
+        }
+      };
+    }
+
+    function clicked(active) {
+      return function (event, d) {
+        const isActive = d3.select(this).classed("label--active");
+        d3.select(this).classed("label--active", !isActive);
+
+        const clickedPath = d3.select(d.linkExtensionNode);
+        const isSelected = clickedPath.classed("link-extension--active");
+
+        clickedPath.classed("link-extension--active", !isSelected).raise();
+
+        let ancestor = d;
+        while (ancestor) {
+          if (ancestor.linkNode) {
+            d3.select(ancestor.linkNode)
+              .classed("link--active", !isSelected)
+              .raise();
+          }
+          ancestor = ancestor.parent;
+        }
       };
     }
 
