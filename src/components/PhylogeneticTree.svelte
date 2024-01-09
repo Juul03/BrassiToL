@@ -1,9 +1,6 @@
 <script>
   import { onMount } from "svelte";
   import * as d3 from "d3";
-  import { selectedFamiliesStore } from "$lib/selectedFamiliesStore";
-
-  let selectedFamilies = {};
 
   let phyloTreeData;
   let parsedData;
@@ -41,17 +38,6 @@
     } catch (error) {
       console.error("Error fetching data:", error);
     }
-  };
-
-  let matchSampleWithSpecie = (sample, data) => {
-    const foundDataPoint = data.find(
-      (datapoint) => datapoint.SAMPLE === sample
-    );
-    if (foundDataPoint) {
-      console.log(foundDataPoint.SPECIES_NAME_PRINT);
-      return foundDataPoint.SPECIES_NAME_PRINT;
-    }
-    return sample;
   };
 
   const width = 900;
@@ -94,16 +80,8 @@
   }
 
   onMount(async () => {
-    const unsubscribe = selectedFamiliesStore.subscribe((value) => {
-      selectedFamilies = value;
-      // This will log the updated selectedFamilies whenever it changes
-      console.log("phylo Selected Families:", selectedFamilies);
-      // Perform any other actions with the updated selectedFamilies here
-    });
-
-    await fetchPhylotreeData();
     await fetchAllSpecieData();
-
+    await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
     const svg = createPhylogeneticTree(parsedData);
     const container = document.querySelector("#phyloTree");
 
@@ -138,7 +116,7 @@
     svg.append("style").text(`
 
 .link--active {
-  stroke: #999 !important;
+  stroke: #000 !important;
   stroke-width: 1.5px;
 }
 
@@ -152,52 +130,42 @@
 
 `);
 
-    let update = (checked) => {
-      const t = d3.transition().duration(750);
-      linkExtension
-        .transition(t)
-        .attr("d", checked ? linkExtensionVariable : linkExtensionConstant);
-      link.transition(t).attr("d", checked ? linkVariable : linkConstant);
-    };
-
-    let mouseovered = (active) => {
-      console.log("hovered");
-      return function (event, d) {
-        d3.select(this).classed("label--active", active);
-        console.log("node" + d.linkExtensionNode);
-        d3.select(d.linkExtensionNode)
-          .classed("link-extension--active", active)
-          .raise();
-        do d3.select(d.linkNode).classed("link--active", active).raise();
-        while ((d = d.parent));
-      };
-    };
-
-    // GEBeurt niks als je aanpaast of toevoegd
-    // const linkExtension = svg
-    //   .append("g")
-    //   .attr("fill", "none")
-    //   .attr("stroke", "green")
-    //   .attr("stroke-opacity", 0.25)
-    //   .selectAll("path")
-    //   .data(root.links().filter((d) => !d.target.children))
-    //   .join("path")
-    //   .each((d) => {
-    //     d.target.linkExtensionNode = this;
-    //   })
-    //   .attr("d", linkExtensionConstant);
+    const linkExtension = svg
+      .append("g")
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-opacity", 0.25)
+      .selectAll("path")
+      .data(root.links().filter((d) => !d.target.children))
+      .join("path")
+      .each(function (d) {
+        d.target.linkExtensionNode = this;
+      })
+      .attr("d", linkExtensionConstant);
 
     const link = svg
       .append("g")
       .attr("fill", "none")
-      .attr("stroke", "red")
+      .attr("stroke", "#000")
       .selectAll("path")
       .data(root.links())
       .join("path")
-      .each((d) => {
+      .each(function (d) {
         d.target.linkNode = this;
       })
-      .attr("d", linkConstant);
+      .attr("d", linkConstant)
+      .attr("stroke", (d) => d.target.color);
+
+    let matchSampleWithSpecie = (sample, data) => {
+      const foundDataPoint = data.find(
+        (datapoint) => datapoint.SAMPLE === sample
+      );
+      if (foundDataPoint) {
+        console.log(foundDataPoint.SPECIES_NAME_PRINT);
+        return foundDataPoint.SPECIES_NAME_PRINT;
+      }
+      return sample;
+    };
 
     svg
       .append("g")
@@ -214,9 +182,28 @@
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .text((d) => d.data.name.replace(/_/g, " "))
-      // .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
+      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
+
+    function update(checked) {
+      const t = d3.transition().duration(750);
+      linkExtension
+        .transition(t)
+        .attr("d", checked ? linkExtensionVariable : linkExtensionConstant);
+      link.transition(t).attr("d", checked ? linkVariable : linkConstant);
+    }
+
+    function mouseovered(active) {
+      return function (event, d) {
+        d3.select(this).classed("label--active", active);
+        d3.select(d.linkExtensionNode)
+          .classed("link-extension--active", active)
+          .raise();
+        do d3.select(d.linkNode).classed("link--active", active).raise();
+        while ((d = d.parent));
+      };
+    }
 
     return Object.assign(svg.node(), { update });
   };
@@ -252,7 +239,7 @@
 
   let color = d3
     .scaleOrdinal()
-    .domain(["Brassicaceae", "Outgroup 1", "Outgroup 2"])
+    .domain(["Bacteria", "Eukaryota", "Archaea"])
     .range(d3.schemeCategory10);
 
   let legend = (svg) => {
@@ -312,7 +299,7 @@
   };
 </script>
 
-<h2>Phylogenetic tree Brassicaseae</h2>
+<h2>Phylogenetic tree</h2>
 <div id="phyloTree" />
 
 <style>
