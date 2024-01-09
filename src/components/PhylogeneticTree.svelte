@@ -8,6 +8,8 @@
   let phyloTreeData;
   let parsedData;
 
+  let allSpecieData;
+
   const fetchPhylotreeData = async () => {
     try {
       const response = await fetch("/data/BrassiToL_easy.tree");
@@ -25,6 +27,31 @@
     } catch (error) {
       console.error("Error fetching data:", error);
     }
+  };
+
+  const fetchAllSpecieData = async () => {
+    try {
+      const response = await fetch("/data/metadataBrassiToL.json");
+      if (response.ok) {
+        allSpecieData = await response.json();
+        console.log("exceldata", allSpecieData);
+      } else {
+        console.error("Failed to fetch data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  let matchSampleWithSpecie = (sample, data) => {
+    const foundDataPoint = data.find(
+      (datapoint) => datapoint.SAMPLE === sample
+    );
+    if (foundDataPoint) {
+      console.log(foundDataPoint.SPECIES_NAME_PRINT);
+      return foundDataPoint.SPECIES_NAME_PRINT;
+    }
+    return null;
   };
 
   const width = 900;
@@ -67,7 +94,7 @@
   }
 
   onMount(async () => {
-    const unsubscribe = selectedFamiliesStore.subscribe(value => {
+    const unsubscribe = selectedFamiliesStore.subscribe((value) => {
       selectedFamilies = value;
       // This will log the updated selectedFamilies whenever it changes
       console.log("phylo Selected Families:", selectedFamilies);
@@ -75,6 +102,8 @@
     });
 
     await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
+    await fetchAllSpecieData();
+
     const svg = createPhylogeneticTree(parsedData);
     const container = document.querySelector("#phyloTree");
 
@@ -162,7 +191,7 @@
       .selectAll("path")
       .data(root.links())
       .join("path")
-      .each(function (d) {
+      .each((d) => {
         d.target.linkNode = this;
       })
       .attr("d", linkConstant)
@@ -182,7 +211,7 @@
           }`
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
-      .text((d) => d.data.name.replace(/_/g, " "))
+      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
 
