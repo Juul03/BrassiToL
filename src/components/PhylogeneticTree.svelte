@@ -113,18 +113,18 @@
 
 `);
 
-    const linkExtension = svg
-      .append("g")
-      .attr("fill", "none")
-      .attr("stroke", "#000")
-      .attr("stroke-opacity", 0.25)
-      .selectAll("path")
-      .data(root.links().filter((d) => !d.target.children))
-      .join("path")
-      .each(function (d) {
-        d.target.linkExtensionNode = this;
-      })
-      .attr("d", linkExtensionConstant);
+    // const linkExtension = svg
+    //   .append("g")
+    //   .attr("fill", "none")
+    //   .attr("stroke", "#000")
+    //   .attr("stroke-opacity", 0.25)
+    //   .selectAll("path")
+    //   .data(root.links().filter((d) => !d.target.children))
+    //   .join("path")
+    //   .each(function (d) {
+    //     d.target.linkExtensionNode = this;
+    //   })
+    //   .attr("d", linkExtensionConstant);
 
     const link = svg
       .append("g")
