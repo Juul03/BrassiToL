@@ -80,31 +80,71 @@
 
   onMount(async () => {
     await fetchAllSpecieData();
-    await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
-    const svg = createPhylogeneticTree(parsedData);
-    const container = document.querySelector("#phyloTree");
+    await fetchPhylotreeData();
 
-    if (container) {
-      container.appendChild(svg);
-    } else {
-      console.error("Container not found");
-    }
+    const filterOutgroupsFromParsedData = (data, nodesToRemove) => {
+      const removeNode = (node) => {
+        if (node.branchset) {
+          node.branchset = node.branchset.filter((child) => {
+            return !nodesToRemove.includes(child.name);
+          });
+          node.branchset.forEach(removeNode);
+        }
+      }
+
+      const updatedData = JSON.parse(JSON.stringify(data));
+      removeNode(updatedData);
+      return updatedData;
+    };
 
     let findOutgroups = () => {
-      allSpecieData.find((data) => {
-        if (data.FAMILY !== "Brassicaceae") {
-          console.log("Not Brassicaceae: " + data.FAMILY);
+      const outgroupData = allSpecieData.filter(
+        (data) => data.FAMILY !== "Brassicaceae"
+      );
+
+      if (outgroupData.length > 0) {
+        console.log(
+          "Outgroups found:",
+          outgroupData.map((data) => data.FAMILY)
+        );
+
+        const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+        const filteredParsedData = filterOutgroupsFromParsedData(
+          parsedData,
+          // Hieronder moet eigenlijk outgroupSamples staa, maar als ik dat aanpas
+          // Gaat er wat mis met het verwijderen van de outgroups, zo handmatig lukt het wel
+          // TODO: nog naar kijken
+          ["PAFTOL_014331", "MYZV"]
+        );
+
+        // Create phylogenetic tree without the outgroups
+        const svg = createPhylogeneticTree(filteredParsedData);
+        const container = document.querySelector("#phyloTree");
+
+        if (container) {
+          container.appendChild(svg);
         } else {
-          console.log("Brassicaceae found");
+          console.error("Container not found");
         }
-      });
+      } else {
+        console.log("No outgroups found");
+        // Create phylogenetic tree with all data if no outgroups found
+        const svg = createPhylogeneticTree(parsedData);
+        const container = document.querySelector("#phyloTree");
+
+        if (container) {
+          container.appendChild(svg);
+        } else {
+          console.error("Container not found");
+        }
+      }
     };
 
     findOutgroups();
+
   });
 
   const createPhylogeneticTree = (data) => {
-    console.log("IN functie", data);
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -141,6 +181,10 @@
 }
 
 `);
+
+
+    // Remove the previous paths before adding the updated paths
+    svg.selectAll("path").remove();
 
     const linkExtension = svg
       .append("g")
@@ -195,10 +239,10 @@
       .attr("font-size", ".3rem")
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-      .on("click", clicked(true))
-      // HOVER AND CLICK dont work at the same time
-      // .on("mouseover", mouseovered(true))
-      // .on("mouseout", mouseovered(false));
+      .on("click", clicked(true));
+    // HOVER AND CLICK dont work at the same time
+    // .on("mouseover", mouseovered(true))
+    // .on("mouseout", mouseovered(false));
 
     function update(checked) {
       const t = d3.transition().duration(750);
@@ -230,53 +274,58 @@
     }
 
     const colors = ["blue", "red", "yellow"];
-let colorCounter = 0;
+    let colorCounter = 0;
 
-function clicked(active) {
-  return function (event, d) {
-    const isActive = d3.select(this).classed("label--active");
-    d3.select(this).classed("label--active", !isActive);
+    function clicked(active) {
+      return function (event, d) {
+        const isActive = d3.select(this).classed("label--active");
+        d3.select(this).classed("label--active", !isActive);
 
-    const clickedPath = d3.select(d.linkExtensionNode);
-    const isSelected = clickedPath.classed("link-extension--active");
+        const clickedPath = d3.select(d.linkExtensionNode);
+        const isSelected = clickedPath.classed("link-extension--active");
 
-    if (!isSelected) {
-      clickedPath.classed("link-extension--active", true)
-        .raise()
-        .style("stroke", colors[colorCounter]);
-
-      let ancestor = d;
-      while (ancestor) {
-        if (ancestor.linkNode) {
-          d3.select(ancestor.linkNode).classed("link--active", true).raise()
+        if (!isSelected) {
+          clickedPath
+            .classed("link-extension--active", true)
+            .raise()
             .style("stroke", colors[colorCounter]);
+
+          let ancestor = d;
+          while (ancestor) {
+            if (ancestor.linkNode) {
+              d3.select(ancestor.linkNode)
+                .classed("link--active", true)
+                .raise()
+                .style("stroke", colors[colorCounter]);
+            }
+            ancestor = ancestor.parent;
+          }
+        } else {
+          clickedPath
+            .classed("link-extension--active", false)
+            .style("stroke", "black");
+
+          let ancestor = d;
+          while (ancestor) {
+            if (ancestor.linkNode) {
+              d3.select(ancestor.linkNode)
+                .classed("link--active", false)
+                .style("stroke", "black");
+            }
+            ancestor = ancestor.parent;
+          }
         }
-        ancestor = ancestor.parent;
-      }
-    } else {
-      clickedPath.classed("link-extension--active", false).style("stroke", "black");
 
-      let ancestor = d;
-      while (ancestor) {
-        if (ancestor.linkNode) {
-          d3.select(ancestor.linkNode).classed("link--active", false).style("stroke", "black");
+        // Apply colors based on the click order
+        if (!isActive) {
+          d3.select(this).style("fill", colors[colorCounter]);
+          colorCounter = (colorCounter + 1) % colors.length;
+        } else {
+          // Reset text color to black when deselected
+          d3.select(this).style("fill", "black");
         }
-        ancestor = ancestor.parent;
-      }
+      };
     }
-
-    // Apply colors based on the click order
-    if (!isActive) {
-      d3.select(this).style("fill", colors[colorCounter]);
-      colorCounter = (colorCounter + 1) % colors.length;
-    } else {
-      // Reset text color to black when deselected
-      d3.select(this).style("fill", "black");
-    }
-  };
-}
-
-
 
     return Object.assign(svg.node(), { update });
   };
