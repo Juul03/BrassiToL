@@ -192,6 +192,7 @@
           }`
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
+      .attr("font-size", ".3rem")
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       .on("click", clicked(true))
@@ -228,7 +229,7 @@
       };
     }
 
-    const colors = ["blue", "green", "yellow"];
+    const colors = ["blue", "red", "yellow"];
 let colorCounter = 0;
 
 function clicked(active) {
