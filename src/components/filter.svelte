@@ -80,7 +80,7 @@
 
 
   // Function to filter the treemap based on selected families
-  function filterTreemap(tree) {
+  const filterTreemap = (tree) => {
     if (!tree || typeof tree !== "object") {
       return null;
     }
