@@ -290,27 +290,25 @@
 
   // Set the color of each node by recursively inheriting.
   let setColor = (d) => {
-    var name = d.data.name;
+    const name = d.data.name;
+    const supertribe = getSupertribe(name);
     d.color =
-      color.domain().indexOf(name) >= 0
-        ? color(name)
+      supertribe !== null
+        ? color(supertribe)
         : d.parent
-          ? d.parent.color
-          : null;
+        ? d.parent.color
+        : null;
     if (d.children) d.children.forEach(setColor);
   };
 
-  let color = d3
-    .scaleOrdinal()
-    .domain([
-      "Supertribe 1",
-      "Supertribe 2",
-      "Supertribe 3",
-      "Supertribe 4",
-      "Supertribe 5",
-      "Supertribe 6",
-    ])
-    .range(d3.schemeCategory10);
+  let getSupertribe = (sample) => {
+    const foundDataPoint = allSpecieData.find(
+      (datapoint) => datapoint.SAMPLE === sample
+    );
+    return foundDataPoint ? foundDataPoint.SUPERTRIBE : null;
+  };
+
+  let color = d3.scaleOrdinal().range(d3.schemeCategory10);
 
   let legend = (svg) => {
     const g = svg
