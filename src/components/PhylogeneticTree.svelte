@@ -122,6 +122,7 @@
         );
 
         const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+        console.log("outgroup Samples:", outgroupSamples)
         const filteredParsedData = filterOutgroupsFromParsedData(
           parsedData,
           outgroupSamples

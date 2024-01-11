@@ -62,22 +62,21 @@
   let selectedFamilies = {};
 
   const handleItemSelection = (event, family) => {
-  const isChecked = event.target.checked;
+    const isChecked = event.target.checked;
 
-  selectedFamilies = {
-    ...selectedFamilies,
-    [family]: isChecked,
+    selectedFamilies = {
+      ...selectedFamilies,
+      [family]: isChecked,
+    };
+
+    // Get an array of keys where the value is true (i.e., selected families)
+    const selectedKeys = Object.keys(selectedFamilies).filter(
+      (key) => selectedFamilies[key]
+    );
+
+    // Update the selectedFamiliesStore with the updated value
+    updateSelectedFamilies(selectedKeys);
   };
-
-  // Get an array of keys where the value is true (i.e., selected families)
-  const selectedKeys = Object.keys(selectedFamilies).filter(
-    (key) => selectedFamilies[key]
-  );
-
-  // Update the selectedFamiliesStore with the updated value
-  updateSelectedFamilies(selectedKeys);
-};
-
 
   // Function to filter the treemap based on selected families
   const filterTreemap = (tree) => {
@@ -97,17 +96,35 @@
     }
 
     return tree;
-  }
+  };
 </script>
 
-<h3>Family</h3>
-{#each uniqueFamilies as family}
-  <label>
-    <input
-      type="checkbox"
-      bind:checked={selectedFamilies[family]}
-      on:change={(event) => handleItemSelection(event, family)}
-    />
-    {family}
-  </label>
-{/each}
+<section id="filters">
+  <h3>Family</h3>
+  <div class="filtercontainer">
+    {#each uniqueFamilies as family}
+      <label>
+        <input
+          type="checkbox"
+          bind:checked={selectedFamilies[family]}
+          on:change={(event) => handleItemSelection(event, family)}
+        />
+        {family}
+      </label>
+    {/each}
+  </div>
+</section>
+
+<style>
+  #filters {
+    border: solid 2px black;
+    border-radius:5px;
+  }
+  .filtercontainer {
+    width: calc(100vw / 5);
+    height: 200px;
+    overflow-Y: scroll;
+    display: flex;
+    flex-direction: column;
+  }
+</style>
