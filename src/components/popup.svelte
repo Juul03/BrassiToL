@@ -15,16 +15,16 @@
 <button on:click={openPopup}>Open Pop-up</button>
 
 {#if isOpen}
-  <div class="popup">
+  <section class="popup">
     <div class="popup-content">
       <span class="close" on:click={closePopup}>&times;</span>
-      <h2>Welcome to the Pop-up!</h2>
+      <h2>Plant name <span>(R.Name)</span></h2>
       <p>This is a custom pop-up content.</p>
-      <img src="static/images/whitedii.jpg" alt="Whitedii" />
-      <img src="static/images/wereldkaart.jpg" alt="Wereldkaart" />
+      <img src="images/whitedii.jpg" alt="Whitedii" />
+      <img src="images/wereldkaart.jpg" alt="Wereldkaart" />
       <button on:click={closePopup}>Close Pop-up</button>
     </div>
-  </div>
+  </section>
 {/if}
 
 <style>
@@ -33,9 +33,9 @@
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    width: 50%;
+    height: 50%;
+    /* background-color: rgba(0, 0, 0, 0.5); */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -50,6 +50,14 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     text-align: center;
+  }
+
+  .popup-content h2 {
+    font-style:italic;
+  }
+
+  .popup-content h2 span {
+    font-style:normal;
   }
 
   .close {
@@ -79,7 +87,7 @@
   }
 
   img {
-    max-width: 100%; /* Ensure images don't exceed the width of the popup */
+    max-width: 40%; /* Ensure images don't exceed the width of the popup */
     margin-top: 15px; /* Add spacing between images and other elements */
   }
 </style>
