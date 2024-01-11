@@ -7,6 +7,11 @@
 
   let allSpecieData;
 
+  // Set up basic width and height
+  const width = 900;
+  const outerRadius = width / 2;
+  const innerRadius = outerRadius - 170;
+
   const fetchPhylotreeData = async () => {
     try {
       const response = await fetch("/data/BrassiToL_easy.tree");
@@ -15,7 +20,6 @@
         phyloTreeData = text;
         // Call parseNewick after setting phyloTreeData
         parsedData = parseNewick(phyloTreeData);
-        console.log("Parsed Data:", parsedData); // Check the parsed data in the console
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -38,10 +42,6 @@
       console.error("Error fetching data:", error);
     }
   };
-
-  const width = 900;
-  const outerRadius = width / 2;
-  const innerRadius = outerRadius - 170;
 
   // https://github.com/jasondavies/newick.js
   function parseNewick(a) {
@@ -78,22 +78,35 @@
     return r;
   }
 
+  let createTree = (container, data) => {
+    const svg = createPhylogeneticTree(data);
+
+    if (container) {
+      // Clear the previous content
+      container.innerHTML = "";
+      // Append the new tree
+      container.appendChild(svg);
+    } else {
+      console.error("Container not found");
+    }
+  };
+
   onMount(async () => {
     await fetchAllSpecieData();
     await fetchPhylotreeData();
 
-    const filterOutgroupsFromParsedData = (data, nodesToRemove) => {
-      const removeNode = (node) => {
+    const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
+      const filterOutgroups = (node) => {
         if (node.branchset) {
           node.branchset = node.branchset.filter((child) => {
-            return !nodesToRemove.includes(child.name);
+            return !outgroupSamples.includes(child.name);
           });
-          node.branchset.forEach(removeNode);
+          node.branchset.forEach(filterOutgroups);
         }
-      }
+      };
 
       const updatedData = JSON.parse(JSON.stringify(data));
-      removeNode(updatedData);
+      filterOutgroups(updatedData);
       return updatedData;
     };
 
@@ -111,38 +124,31 @@
         const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
         const filteredParsedData = filterOutgroupsFromParsedData(
           parsedData,
-          // Hieronder moet eigenlijk outgroupSamples staa, maar als ik dat aanpas
-          // Gaat er wat mis met het verwijderen van de outgroups, zo handmatig lukt het wel
-          // TODO: nog naar kijken
-          ["PAFTOL_014331", "MYZV"]
+          outgroupSamples
         );
 
-        // Create phylogenetic tree without the outgroups
-        const svg = createPhylogeneticTree(filteredParsedData);
-        const container = document.querySelector("#phyloTree");
-
-        if (container) {
-          container.appendChild(svg);
-        } else {
-          console.error("Container not found");
-        }
+        // Create and update the phylogenetic tree without the outgroups
+        createTree(document.querySelector("#phyloTree"), filteredParsedData);
       } else {
         console.log("No outgroups found");
-        // Create phylogenetic tree with all data if no outgroups found
-        const svg = createPhylogeneticTree(parsedData);
-        const container = document.querySelector("#phyloTree");
-
-        if (container) {
-          container.appendChild(svg);
-        } else {
-          console.error("Container not found");
-        }
+        // Create and update the phylogenetic tree with all data if no outgroups found
+        createTree(document.querySelector("#phyloTree"), parsedData);
       }
     };
 
     findOutgroups();
-
   });
+
+  // Data manipulation function
+  let matchSampleWithSpecie = (sample, data) => {
+    const foundDataPoint = data.find(
+      (datapoint) => datapoint.SAMPLE === sample
+    );
+    if (foundDataPoint) {
+      return foundDataPoint.SPECIES_NAME_PRINT;
+    }
+    return sample;
+  };
 
   const createPhylogeneticTree = (data) => {
     const root = d3
@@ -167,21 +173,20 @@
 
     svg.append("style").text(`
 
-// .link--active {
-//   stroke: blue !important;
-//   stroke-width: 1.5px;
-// }
+.link--active {
+  stroke: blue !important;
+  stroke-width: 1.5px;
+}
 
-// .link-extension--active {
-//   stroke-opacity: .6;
-// }
+.link-extension--active {
+  stroke-opacity: .6;
+}
 
 .label--active {
   font-weight: bold;
 }
 
 `);
-
 
     // Remove the previous paths before adding the updated paths
     svg.selectAll("path").remove();
@@ -203,6 +208,7 @@
       .append("g")
       .attr("fill", "none")
       .attr("stroke", "#000")
+      .attr("stroke-width", ".95px")
       .selectAll("path")
       .data(root.links())
       .join("path")
@@ -211,16 +217,6 @@
       })
       .attr("d", linkConstant)
       .attr("stroke", (d) => d.target.color);
-
-    let matchSampleWithSpecie = (sample, data) => {
-      const foundDataPoint = data.find(
-        (datapoint) => datapoint.SAMPLE === sample
-      );
-      if (foundDataPoint) {
-        return foundDataPoint.SPECIES_NAME_PRINT;
-      }
-      return sample;
-    };
 
     svg
       .append("g")
@@ -239,10 +235,9 @@
       .attr("font-size", ".3rem")
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-      .on("click", clicked(true));
-    // HOVER AND CLICK dont work at the same time
-    // .on("mouseover", mouseovered(true))
-    // .on("mouseout", mouseovered(false));
+      // HOVER AND CLICK dont work at the same time
+      .on("mouseover", mouseovered(true))
+      .on("mouseout", mouseovered(false));
 
     function update(checked) {
       const t = d3.transition().duration(750);
@@ -269,60 +264,6 @@
               .raise();
           }
           ancestor = ancestor.parent;
-        }
-      };
-    }
-
-    const colors = ["blue", "red", "yellow"];
-    let colorCounter = 0;
-
-    function clicked(active) {
-      return function (event, d) {
-        const isActive = d3.select(this).classed("label--active");
-        d3.select(this).classed("label--active", !isActive);
-
-        const clickedPath = d3.select(d.linkExtensionNode);
-        const isSelected = clickedPath.classed("link-extension--active");
-
-        if (!isSelected) {
-          clickedPath
-            .classed("link-extension--active", true)
-            .raise()
-            .style("stroke", colors[colorCounter]);
-
-          let ancestor = d;
-          while (ancestor) {
-            if (ancestor.linkNode) {
-              d3.select(ancestor.linkNode)
-                .classed("link--active", true)
-                .raise()
-                .style("stroke", colors[colorCounter]);
-            }
-            ancestor = ancestor.parent;
-          }
-        } else {
-          clickedPath
-            .classed("link-extension--active", false)
-            .style("stroke", "black");
-
-          let ancestor = d;
-          while (ancestor) {
-            if (ancestor.linkNode) {
-              d3.select(ancestor.linkNode)
-                .classed("link--active", false)
-                .style("stroke", "black");
-            }
-            ancestor = ancestor.parent;
-          }
-        }
-
-        // Apply colors based on the click order
-        if (!isActive) {
-          d3.select(this).style("fill", colors[colorCounter]);
-          colorCounter = (colorCounter + 1) % colors.length;
-        } else {
-          // Reset text color to black when deselected
-          d3.select(this).style("fill", "black");
         }
       };
     }
@@ -361,7 +302,14 @@
 
   let color = d3
     .scaleOrdinal()
-    .domain(["Bacteria", "Eukaryota", "Archaea"])
+    .domain([
+      "Supertribe 1",
+      "Supertribe 2",
+      "Supertribe 3",
+      "Supertribe 4",
+      "Supertribe 5",
+      "Supertribe 6",
+    ])
     .range(d3.schemeCategory10);
 
   let legend = (svg) => {
