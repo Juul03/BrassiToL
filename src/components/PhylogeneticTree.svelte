@@ -12,6 +12,9 @@
   const outerRadius = width / 2;
   const innerRadius = outerRadius - 170;
 
+  // Variable that stores the fact that the supertribes are highlighted or not
+  let isTextHighlighted = true;
+
   const fetchPhylotreeData = async () => {
     try {
       const response = await fetch("/data/BrassiToL_easy.tree");
@@ -96,24 +99,23 @@
     await fetchPhylotreeData();
 
     const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-  const filterOutgroups = (node) => {
-    if (node.branchset) {
-      node.branchset = node.branchset.filter((child) => {
-        const isOutgroup = outgroupSamples.includes(child.name);
-        if (isOutgroup) {
-          console.log(`Filtering out: ${child.name}`);
+      const filterOutgroups = (node) => {
+        if (node.branchset) {
+          node.branchset = node.branchset.filter((child) => {
+            const isOutgroup = outgroupSamples.includes(child.name);
+            if (isOutgroup) {
+              console.log(`Filtering out: ${child.name}`);
+            }
+            return !isOutgroup;
+          });
+          node.branchset.forEach(filterOutgroups);
         }
-        return !isOutgroup;
-      });
-      node.branchset.forEach(filterOutgroups);
-    }
-  };
+      };
 
-  const updatedData = JSON.parse(JSON.stringify(data));
-  filterOutgroups(updatedData);
-  return updatedData;
-};
-
+      const updatedData = JSON.parse(JSON.stringify(data));
+      filterOutgroups(updatedData);
+      return updatedData;
+    };
 
     let findOutgroups = () => {
       const outgroupData = allSpecieData.filter(
@@ -145,6 +147,27 @@
     };
 
     findOutgroups();
+
+    const highlightSupertribesToggleElement =
+      document.querySelector("#highlightCheckbox");
+
+    let toggleHighlight = () => {
+      console.log("status change", highlightSupertribesToggleElement.checked);
+      console.log("status change", isTextHighlighted);
+      updateTextColors();
+    };
+
+    highlightSupertribesToggleElement.addEventListener(
+      "change",
+      toggleHighlight
+    );
+
+    // // TOGGLE moet nog dat bij elke toggle de kleur telkens aangepast wordt
+    let updateTextColors = () => {
+      d3.select("svg")
+        .selectAll("text")
+        .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
+    };
   });
 
   // Data manipulation function
@@ -223,8 +246,7 @@
       .each(function (d) {
         d.target.linkNode = this;
       })
-      .attr("d", linkConstant)
-      .attr("stroke", (d) => d.target.color);
+      .attr("d", linkConstant);
 
     svg
       .append("g")
@@ -241,7 +263,8 @@
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
-      .style("fill", (d) => d.color)
+      // .style("fill", (d) => d.color)
+      .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       // HOVER AND CLICK dont work at the same time
@@ -276,7 +299,6 @@
         }
       };
     }
-
     return Object.assign(svg.node(), { update });
   };
 
@@ -376,6 +398,16 @@
   };
 </script>
 
+<label class="toggle-label">
+  Show Supertribes
+  <input
+    id="highlightCheckbox"
+    type="checkbox"
+    bind:checked={isTextHighlighted}
+  />
+  <span class="toggle-slider"></span>
+</label>
+
 <h2>Phylogenetic tree</h2>
 <div id="phyloTree" />
 
@@ -384,5 +416,49 @@
     width: 100%;
     height: 500px;
     /* Add any other styling for the tree container */
+  }
+
+  /* Style the toggle button */
+  .toggle-label {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+  }
+
+  .toggle-label input {
+    display: none;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 26px;
+    transition: 0.4s;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
+
+  input:checked + .toggle-slider {
+    background-color: #2196f3;
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(22px);
   }
 </style>
