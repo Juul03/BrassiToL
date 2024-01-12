@@ -96,19 +96,24 @@
     await fetchPhylotreeData();
 
     const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-      const filterOutgroups = (node) => {
-        if (node.branchset) {
-          node.branchset = node.branchset.filter((child) => {
-            return !outgroupSamples.includes(child.name);
-          });
-          node.branchset.forEach(filterOutgroups);
+  const filterOutgroups = (node) => {
+    if (node.branchset) {
+      node.branchset = node.branchset.filter((child) => {
+        const isOutgroup = outgroupSamples.includes(child.name);
+        if (isOutgroup) {
+          console.log(`Filtering out: ${child.name}`);
         }
-      };
+        return !isOutgroup;
+      });
+      node.branchset.forEach(filterOutgroups);
+    }
+  };
 
-      const updatedData = JSON.parse(JSON.stringify(data));
-      filterOutgroups(updatedData);
-      return updatedData;
-    };
+  const updatedData = JSON.parse(JSON.stringify(data));
+  filterOutgroups(updatedData);
+  return updatedData;
+};
+
 
     let findOutgroups = () => {
       const outgroupData = allSpecieData.filter(
@@ -122,11 +127,13 @@
         );
 
         const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-        console.log("outgroup Samples:", outgroupSamples)
+        console.log("outgroup Samples:", outgroupSamples);
         const filteredParsedData = filterOutgroupsFromParsedData(
           parsedData,
           outgroupSamples
         );
+
+        console.log("filtered", filteredParsedData);
 
         // Create and update the phylogenetic tree without the outgroups
         createTree(document.querySelector("#phyloTree"), filteredParsedData);
@@ -234,6 +241,7 @@
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
+      .style("fill", (d) => d.color)
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       // HOVER AND CLICK dont work at the same time
@@ -297,8 +305,8 @@
       supertribe !== null
         ? color(supertribe)
         : d.parent
-        ? d.parent.color
-        : null;
+          ? d.parent.color
+          : null;
     if (d.children) d.children.forEach(setColor);
   };
 
