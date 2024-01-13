@@ -15,6 +15,8 @@
   let uniqueSpecies = [];
   let uniqueBinaryCombination = [];
 
+  let selectedTaxonomyLevel = "subfamily"
+
   const fetchJSONData = async () => {
     try {
       const response = await fetch("/data/metadataBrassiToL.json");
@@ -156,33 +158,45 @@
     <option value="speciesfull">Binary combination</option>
   </select>
 
-  <h3>Family</h3>
   <div class="filtercontainer">
-    {#each uniqueFamilies as family}
-      <label>
-        <input
-          type="checkbox"
-          bind:checked={selectedItems.families[family]}
-          on:change={(event) => handleItemSelection(event, "families", family)}
-        />
-        {family}
-      </label>
-    {/each}
-  </div>
+    {#if selectedTaxonomyLevel === "subfamily"}
+    <h3>Sub-Family</h3>
+    <!-- Render the corresponding options based on the selected taxonomy level -->
+    <div class="filtercontainer">
+      {#each uniqueSubFamilies as subfamily}
+        <label>
+          <input
+            type="checkbox"
+            bind:checked={selectedItems.subfamilies[subfamily]}
+            on:change={(event) =>
+              handleItemSelection(event, "subfamilies", subfamily)
+            }
+          />
+          {subfamily}
+        </label>
+      {/each}
+    </div>
+  {/if}
 
-  <h3>Supertribe</h3>
-  <div class="filtercontainer">
-    {#each uniqueSupertribes as supertribe}
-      <label>
-        <input
-          type="checkbox"
-          bind:checked={selectedItems.supertribes[supertribe]}
-          on:change={(event) =>
-            handleItemSelection(event, "supertribes", supertribe)}
-        />
-        {supertribe}
-      </label>
-    {/each}
+  {#if selectedTaxonomyLevel === "supertribe"}
+    <h3>Supertribe</h3>
+    <!-- Render the corresponding options based on the selected taxonomy level -->
+    <div class="filtercontainer">
+      {#each uniqueSupertribes as supertribe}
+        <label>
+          <input
+            type="checkbox"
+            bind:checked={selectedItems.supertribes[supertribe]}
+            on:change={(event) =>
+              handleItemSelection(event, "supertribes", supertribe)
+            }
+          />
+          {supertribe}
+        </label>
+      {/each}
+    </div>
+  {/if}
+
   </div>
 </section>
 
