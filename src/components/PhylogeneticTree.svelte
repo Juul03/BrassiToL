@@ -174,7 +174,7 @@
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
-      
+
       let taxonomySamplesTribes = matchTaxonomyWithSample(
         selectedTaxonomy,
         "tribes"
@@ -196,8 +196,13 @@
 
     d3.select("svg")
       .selectAll("path")
+      .transition() // Add a transition for a smoother effect
+      .duration(500) // Set the duration to 500 milliseconds
       .style("stroke", (d) =>
         selected.includes(d.target.data.name) ? d.target.color : "#000"
+      )
+      .attr("stroke-width", (d) =>
+        selected.includes(d.target.data.name) ? "2px" : ""
       );
   };
 
@@ -308,7 +313,7 @@
       .append("g")
       .attr("fill", "none")
       .attr("stroke", "#000")
-      .attr("stroke-width", ".95px")
+      .attr("stroke-width", ".50px")
       .selectAll("path")
       .data(root.links())
       .join("path")
@@ -500,7 +505,7 @@
   #phyloTree {
     width: 80%;
     height: 500px;
-    /* Add any other styling for the tree container */
+    transform: translateY(-25%);
   }
 
   /* Style the toggle button */
