@@ -1,6 +1,9 @@
 <script>
   import { onMount } from "svelte";
   import * as d3 from "d3";
+  import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
+
+  let selectedTaxonomy = {};
 
   let phyloTreeData;
   let parsedData;
@@ -168,7 +171,60 @@
         .selectAll("text")
         .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
     };
+
+    // Subscribe to the taxonomy coming in from the filter component
+    const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
+      selectedTaxonomy = value;
+      // Find matching samples with the taxonomy array
+      let taxonomySamples = matchTaxonomyWithSample(selectedTaxonomy, "tribes");
+      console.log("Outgroup Samples:", taxonomySamples);
+
+      // Update the tree based on the selected taxonomy
+      // updateTree();
+    });
+
+    return () => {
+      unsubscribe(); // Unsubscribe when the component is destroyed
+    };
   });
+
+  // Find taxonomy filter selected cooresponding samples
+  let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
+    switch (taxonomyType) {
+      case "binaryCombination":
+        // For binary combinations, return the array itself
+        return taxonomy.binaryCombination || [];
+
+      case "species":
+        // For species, map each species to its corresponding sample
+        return (taxonomy.species || [])
+          .map((species) => {
+            // Implement your logic to find the sample for the given species
+            // This is a placeholder; adapt it based on your actual data structure
+            const foundDataPoint = allSpecieData.find(
+              (data) => data.SPECIES_NAME_PRINT === species
+            );
+            return foundDataPoint ? foundDataPoint.SAMPLE : null;
+          })
+          .filter((sample) => sample !== null);
+
+      case "tribes":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.tribes || [])
+          .map((tribe) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const tribeSamples = allSpecieData
+              .filter((data) => data.TRIBE === tribe)
+              .map((data) => data.SAMPLE);
+            return tribeSamples;
+          })
+          .flat();
+
+      default:
+        return [];
+    }
+  };
 
   // Data manipulation function
   let matchSampleWithSpecie = (sample, data) => {
@@ -434,50 +490,49 @@
     /* Add any other styling for the tree container */
   }
 
- /* Style the toggle button */
-.toggle-label {
-  position: absolute;
-  bottom: 100px; /* Adjust the distance from the bottom as needed */
-  left: 20px; /* Adjust the distance from the left as needed */
-  display: inline-block;
-  width: 50px;
-  height: 26px;
-}
+  /* Style the toggle button */
+  .toggle-label {
+    position: absolute;
+    bottom: 100px; /* Adjust the distance from the bottom as needed */
+    left: 20px; /* Adjust the distance from the left as needed */
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+  }
 
-.toggle-label input {
-  display: none;
-}
+  .toggle-label input {
+    display: none;
+  }
 
-.toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  border-radius: 26px;
-  transition: 0.4s;
-}
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 26px;
+    transition: 0.4s;
+  }
 
-.toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 20px;
-  width: 20px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  border-radius: 50%;
-  transition: 0.4s;
-}
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
 
-input:checked + .toggle-slider {
-  background-color: #2196f3;
-}
+  input:checked + .toggle-slider {
+    background-color: #2196f3;
+  }
 
-input:checked + .toggle-slider:before {
-  transform: translateX(22px);
-}
-
+  input:checked + .toggle-slider:before {
+    transform: translateX(22px);
+  }
 </style>
