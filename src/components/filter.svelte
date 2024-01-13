@@ -2,9 +2,9 @@
   import { redirect } from "@sveltejs/kit";
   import { onMount } from "svelte";
   import {
-    selectedFamiliesStore,
-    updateSelectedFamilies,
-  } from "$lib/selectedFamiliesStore";
+    selectedTaxonomyStore,
+    updateSelectedTaxonomy,
+  } from "$lib/selectedTaxonomyStore";
 
   let metaData = [];
   let uniqueFamilies = [];
@@ -56,9 +56,9 @@
   onMount(async () => {
     fetchJSONData();
 
-    const unsubscribe = selectedFamiliesStore.subscribe((value) => {
-      console.log("Updated selectedFamiliesStore:", value);
-      // You can perform further actions whenever selectedFamiliesStore changes
+    const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
+      console.log("Updated selectedTaxonomyStore:", value);
+      // You can perform further actions whenever selectedTaxonomyStore changes
       // For instance, update other components or trigger other functions here
     });
 
@@ -85,38 +85,46 @@
   //   console.log(growthFilterw);
   // };
 
-  let selectedFamilies = {};
-
-  const handleItemSelection = (event, family) => {
-    const isChecked = event.target.checked;
-
-    selectedFamilies = {
-      ...selectedFamilies,
-      [family]: isChecked,
-    };
-
-    // Get an array of keys where the value is true (i.e., selected families)
-    const selectedKeys = Object.keys(selectedFamilies).filter(
-      (key) => selectedFamilies[key]
-    );
-
-    // Update the selectedFamiliesStore with the updated value
-    updateSelectedFamilies(selectedKeys);
+  let selectedItems = {
+    families: {},
+    subfamilies: {},
+    supertribes: {},
+    tribes: {},
+    genus: {},
+    species: {},
+    binaryCombination: {},
   };
 
-  // Function to filter the treemap based on selected families
-  const filterTreemap = (tree) => {
+  const handleItemSelection = (event, taxonomy, item) => {
+    const isChecked = event.target.checked;
+
+    selectedItems[taxonomy] = {
+      ...selectedItems[taxonomy],
+      [item]: isChecked,
+    };
+
+    // Get an array of keys where the value is true (i.e., selected items for the specific taxonomy)
+    const selectedKeys = Object.keys(selectedItems[taxonomy]).filter(
+      (key) => selectedItems[taxonomy][key]
+    );
+
+    // Update the selectedTaxonomyStore with the updated value for the specific taxonomy
+    updateSelectedTaxonomy(selectedKeys, taxonomy);
+  };
+
+  // Function to filter the treemap based on selected items for the specific taxonomy
+  const filterTreemap = (tree, taxonomy) => {
     if (!tree || typeof tree !== "object") {
       return null;
     }
 
-    // Filter out keys that are not selected in selectedFamilies
+    // Filter out keys that are not selected in selectedItems for the specific taxonomy
     for (const key in tree) {
       if (tree.hasOwnProperty(key)) {
-        if (!selectedFamilies[key]) {
+        if (!selectedItems[taxonomy][key]) {
           delete tree[key];
         } else {
-          tree[key] = filterTreemap(tree[key]);
+          tree[key] = filterTreemap(tree[key], taxonomy);
         }
       }
     }
@@ -145,8 +153,8 @@
       <label>
         <input
           type="checkbox"
-          bind:checked={selectedFamilies[family]}
-          on:change={(event) => handleItemSelection(event, family)}
+          bind:checked={selectedItems.families[family]}
+          on:change={(event) => handleItemSelection(event, "families", family)}
         />
         {family}
       </label>
@@ -159,8 +167,9 @@
       <label>
         <input
           type="checkbox"
-          bind:checked={selectedFamilies[supertribe]}
-          on:change={(event) => handleItemSelection(event, supertribe)}
+          bind:checked={selectedItems.supertribes[supertribe]}
+          on:change={(event) =>
+            handleItemSelection(event, "supertribes", supertribe)}
         />
         {supertribe}
       </label>
