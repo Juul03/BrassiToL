@@ -165,28 +165,45 @@
       toggleHighlight
     );
 
-    // // TOGGLE moet nog dat bij elke toggle de kleur telkens aangepast wordt
+    // Function that colors the text with the color of the corresponding supertribe
     let updateTextColors = () => {
       d3.select("svg")
         .selectAll("text")
         .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
     };
 
-    // Subscribe to the taxonomy coming in from the filter component
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
-      selectedTaxonomy = value;
-      // Find matching samples with the taxonomy array
-      let taxonomySamples = matchTaxonomyWithSample(selectedTaxonomy, "tribes");
-      console.log("Outgroup Samples:", taxonomySamples);
+      selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+      let taxonomySamplesTribes = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "tribes"
+      );
+      console.log("Taxonomy Samples:", taxonomySamplesTribes);
 
-      // Update the tree based on the selected taxonomy
-      // updateTree();
+      updateTree(taxonomySamplesTribes);
     });
 
     return () => {
-      unsubscribe(); // Unsubscribe when the component is destroyed
+      unsubscribe(taxonomySamplesTribes); // Unsubscribe when the component is destroyed
     };
   });
+
+  let updateTree = (selected) => {
+    // Update the tree based on the selected taxonomy
+    // You may need to implement logic to highlight paths and text based on the selected taxonomy
+    // For example, you can traverse the tree and update the styles of relevant nodes
+    // Here is a placeholder, you may need to adapt it to your specific tree structure
+
+    // d3.select("svg")
+    //   .selectAll("text")
+    //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
+
+    d3.select("svg")
+      .selectAll("path")
+      .style("stroke", (d) =>
+        selected.includes(d.target.data.name) ? d.target.color : "#000"
+      );
+  };
 
   // Find taxonomy filter selected cooresponding samples
   let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
