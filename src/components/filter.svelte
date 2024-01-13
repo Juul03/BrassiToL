@@ -159,12 +159,21 @@
   </select>
 
   <div class="filtercontainer">
+    <div class="searchbarcontainer">
+      <label for="site-search" aria-label="search all taxonomy levels"></label>
+      <input type="search" id="site-search" name="q" />
+
+      <button>
+        <!-- TODO: include searchicon -->
+        O
+      </button>
+    </div>
+
     {#if selectedTaxonomyLevel === "all"}
       <p>Start by selecting in the dropdown above</p>
     {/if}
 
     {#if selectedTaxonomyLevel === "subfamily"}
-      <h3>Sub-Family</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueSubFamilies as subfamily}
@@ -182,7 +191,6 @@
     {/if}
 
     {#if selectedTaxonomyLevel === "supertribe"}
-      <h3>Supertribe</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueSupertribes as supertribe}
@@ -200,7 +208,6 @@
     {/if}
 
     {#if selectedTaxonomyLevel === "tribe"}
-      <h3>Tribe</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueTribes as tribe}
@@ -217,7 +224,6 @@
     {/if}
 
     {#if selectedTaxonomyLevel === "genus"}
-      <h3>Genus</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueGenus as genus}
@@ -234,7 +240,6 @@
     {/if}
 
     {#if selectedTaxonomyLevel === "species"}
-      <h3>Species</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueSpecies as specie}
@@ -252,7 +257,6 @@
     {/if}
 
     {#if selectedTaxonomyLevel === "speciesfull"}
-      <h3>Binary Combination</h3>
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
         {#each uniqueBinaryCombination as binaryComb}
@@ -269,22 +273,49 @@
       </div>
     {/if}
   </div>
+
+  <div id="togglecontainer"></div>
 </section>
 
 <style>
   #filters {
-    width: calc(100vw/4);
-    height: 100vh;
+    width: calc(100vw / 4);
+    height: 80vh;
+    padding: 1rem;
     border: solid 2px black;
     border-radius: 5px;
   }
 
   .filtercontainer {
     width: calc(100vw / 5);
-    height: 300px;
+    height: 250px;
     /* overflow-y: scroll; */
-    overflow-x:hidden;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
+
+    padding: 0.5rem;
+    background: rgb(233, 240, 243);
+  }
+
+  #filters > label {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+
+  #filters > select,
+  .searchbarcontainer > input {
+    width: 80%;
+    height: 2.1rem;
+    font-size: 1.1rem;
+  }
+
+  select > option {
+    font-size: 1.1rem;
+  }
+
+  .searchbarcontainer > button {
+    width: 2.1rem;
+    aspect-ratio: 1/1;
   }
 </style>

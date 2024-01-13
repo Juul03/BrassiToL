@@ -5,7 +5,19 @@
 
 <h1>Phylogentic Tree Brassicaceae</h1>
 
-<Filter/>
-<Treemapj/>
+<main>
+	<Filter/>
+	<Treemapj/>
+</main>
+
+
+
+<style>
+	main {
+		display:flex;
+		/* flex-wrap:wrap; */
+
+	}
+</style>
 
 

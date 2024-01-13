@@ -270,7 +270,7 @@
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
 
-      // Second ring kinda
+    // Second ring kinda
     // svg
     //   .append("g")
     //   .selectAll("rect")
@@ -364,10 +364,10 @@
       .join("g")
       .attr(
         "transform",
-        (d, i) => `translate(${-outerRadius},${-outerRadius + i * 20})`
+        (d, i) => `translate(${-outerRadius},${outerRadius - 20 - i * 20})`
       );
 
-    g.append("rect").attr("width", 18).attr("height", 18).attr("fill", color);
+    g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
 
     g.append("text")
       .attr("x", 24)
@@ -424,57 +424,60 @@
   <span class="toggle-slider"></span>
 </label>
 
-<h2>Phylogenetic tree</h2>
+<!-- Container of tree -->
 <div id="phyloTree" />
 
 <style>
   #phyloTree {
-    width: 100%;
+    width: 80%;
     height: 500px;
     /* Add any other styling for the tree container */
   }
 
-  /* Style the toggle button */
-  .toggle-label {
-    position: relative;
-    display: inline-block;
-    width: 50px;
-    height: 26px;
-  }
+ /* Style the toggle button */
+.toggle-label {
+  position: absolute;
+  bottom: 100px; /* Adjust the distance from the bottom as needed */
+  left: 20px; /* Adjust the distance from the left as needed */
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+}
 
-  .toggle-label input {
-    display: none;
-  }
+.toggle-label input {
+  display: none;
+}
 
-  .toggle-slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 26px;
-    transition: 0.4s;
-  }
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 26px;
+  transition: 0.4s;
+}
 
-  .toggle-slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    border-radius: 50%;
-    transition: 0.4s;
-  }
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.4s;
+}
 
-  input:checked + .toggle-slider {
-    background-color: #2196f3;
-  }
+input:checked + .toggle-slider {
+  background-color: #2196f3;
+}
 
-  input:checked + .toggle-slider:before {
-    transform: translateX(22px);
-  }
+input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
 </style>
