@@ -53,16 +53,17 @@
     }
   };
 
-  let getSelectedTaxonomyLevel = () => {
-    console.log("we gaan dropdoen bekijken")
-    const dropdownTaxonomyElement = document.getElementById('taxonomy-select');
-    let selectedTaxonomyLevel = dropdownTaxonomyElement.value;
-    console.log("select dropdown", selectedTaxonomyLevel)
-  }
+  let getSelectedTaxonomyLevel = (dropdownElement) => {
+    let selectedTaxonomyLevel = dropdownElement.value;
+  };
 
   onMount(async () => {
     fetchJSONData();
-    getSelectedTaxonomyLevel();
+
+    const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
+    dropdownTaxonomyElement.addEventListener("change", () =>
+      getSelectedTaxonomyLevel(dropdownTaxonomyElement)
+    );
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       console.log("Updated selectedTaxonomyStore:", value);
