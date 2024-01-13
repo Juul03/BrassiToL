@@ -8,6 +8,12 @@
 
   let metaData = [];
   let uniqueFamilies = [];
+  let uniqueSubFamilies = [];
+  let uniqueSupertribes = [];
+  let uniqueTribes = [];
+  let uniqueGenus = [];
+  let uniqueSpecies = [];
+  let uniqueBinaryCombination = [];
 
   const fetchJSONData = async () => {
     try {
@@ -15,10 +21,18 @@
       if (response.ok) {
         const data = await response.json();
         metaData = data;
-        findUniqueFamilies();
-        console.log("unique", uniqueFamilies);
-        filter();
-        console.log(metaData);
+
+        // Find all unique taxonomy and store them in variables
+        uniqueFamilies = findUniqueValues("FAMILY");
+        console.log("families", uniqueFamilies);
+        uniqueSubFamilies = findUniqueValues("SUBFAMILY");
+        uniqueSupertribes = findUniqueValues("SUPERTRIBE");
+        uniqueTribes = findUniqueValues("TRIBE");
+        uniqueGenus = findUniqueValues("GENUS");
+        uniqueSpecies = findUniqueValues("SPECIES");
+        uniqueBinaryCombination = findUniqueValues("BINARY_COMBINATION");
+
+        // filter();
       } else {
         console.error("Failed to fetch the data");
       }
@@ -41,23 +55,23 @@
     };
   });
 
-  const findUniqueFamilies = () => {
-    const families = metaData.map((sample) => sample.FAMILY);
-    uniqueFamilies = [...new Set(families)];
+  const findUniqueValues = (property) => {
+    const values = metaData.map((sample) => sample[property]);
+    return [...new Set(values)];
   };
 
-  const filter = () => {
-    const genusFilter = metaData.filter((sample) => sample.GENUS === "Arabis");
-    const growthFilterh = metaData.filter(
-      (sample) => sample.GROWTH_FORM === "H"
-    );
-    const growthFilterw = metaData.filter(
-      (sample) => sample.GROWTH_FORM === "W"
-    );
-    console.log(genusFilter);
-    console.log(growthFilterh);
-    console.log(growthFilterw);
-  };
+  // const filter = () => {
+  //   const genusFilter = metaData.filter((sample) => sample.GENUS === "Arabis");
+  //   const growthFilterh = metaData.filter(
+  //     (sample) => sample.GROWTH_FORM === "H"
+  //   );
+  //   const growthFilterw = metaData.filter(
+  //     (sample) => sample.GROWTH_FORM === "W"
+  //   );
+  //   console.log(genusFilter);
+  //   console.log(growthFilterh);
+  //   console.log(growthFilterw);
+  // };
 
   let selectedFamilies = {};
 
@@ -100,6 +114,19 @@
 </script>
 
 <section id="filters">
+  <!-- Dropdown to choose taxonomy -->
+  <label for="taxonomy-select">Taxonomy</label>
+
+  <select name="taxonomy" id="taxonomy-select">
+    <option value="all">All</option>
+    <option value="subfamily">Sub-Family</option>
+    <option value="supertribe">Supertribe</option>
+    <option value="tribe">Tribe</option>
+    <option value="genus">Genus</option>
+    <option value="species">Species</option>
+    <option value="speciesfull">Binary combination</option>
+  </select>
+
   <h3>Family</h3>
   <div class="filtercontainer">
     {#each uniqueFamilies as family}
@@ -118,12 +145,12 @@
 <style>
   #filters {
     border: solid 2px black;
-    border-radius:5px;
+    border-radius: 5px;
   }
   .filtercontainer {
     width: calc(100vw / 5);
     height: 200px;
-    overflow-Y: scroll;
+    overflow-y: scroll;
     display: flex;
     flex-direction: column;
   }
