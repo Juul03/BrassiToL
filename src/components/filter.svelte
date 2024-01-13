@@ -53,8 +53,16 @@
     }
   };
 
+  let getSelectedTaxonomyLevel = () => {
+    console.log("we gaan dropdoen bekijken")
+    const dropdownTaxonomyElement = document.getElementById('taxonomy-select');
+    let selectedTaxonomyLevel = dropdownTaxonomyElement.value;
+    console.log("select dropdown", selectedTaxonomyLevel)
+  }
+
   onMount(async () => {
     fetchJSONData();
+    getSelectedTaxonomyLevel();
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       console.log("Updated selectedTaxonomyStore:", value);
@@ -134,7 +142,7 @@
 </script>
 
 <section id="filters">
-  <!-- Dropdown to choose taxonomy -->
+  <!-- Dropdown to choose taxonomy level -->
   <label for="taxonomy-select">Taxonomy</label>
 
   <select name="taxonomy" id="taxonomy-select">
