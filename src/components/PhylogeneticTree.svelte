@@ -174,6 +174,7 @@
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+      
       let taxonomySamplesTribes = matchTaxonomyWithSample(
         selectedTaxonomy,
         "tribes"
@@ -189,11 +190,6 @@
   });
 
   let updateTree = (selected) => {
-    // Update the tree based on the selected taxonomy
-    // You may need to implement logic to highlight paths and text based on the selected taxonomy
-    // For example, you can traverse the tree and update the styles of relevant nodes
-    // Here is a placeholder, you may need to adapt it to your specific tree structure
-
     // d3.select("svg")
     //   .selectAll("text")
     //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
