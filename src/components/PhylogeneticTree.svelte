@@ -257,19 +257,35 @@
       .attr(
         "transform",
         (d) =>
-          `rotate(${d.x - 90}) translate(${innerRadius + 4},0)${
+          `rotate(${d.x}) translate(${innerRadius + 4},0)${
             d.x < 180 ? "" : " rotate(180)"
           }`
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
-      // .style("fill", (d) => d.color)
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
       .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       // HOVER AND CLICK dont work at the same time
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
+
+      // Second ring kinda
+    // svg
+    //   .append("g")
+    //   .selectAll("rect")
+    //   .data(root.leaves())
+    //   .join("rect")
+    //   .attr("width", 1)
+    //   .attr("height", 50)
+    //   .attr("fill", "green")
+    //   .attr(
+    //     "transform",
+    //     (d) =>
+    //       `rotate(${d.x}) translate(${innerRadius + 50},0)${
+    //         d.x < 180 ? "" : " rotate(180)"
+    //       }`
+    //   );
 
     function update(checked) {
       const t = d3.transition().duration(750);
@@ -365,9 +381,9 @@
   };
 
   let linkStep = (startAngle, startRadius, endAngle, endRadius) => {
-    const c0 = Math.cos((startAngle = ((startAngle - 90) / 180) * Math.PI));
+    const c0 = Math.cos((startAngle = (startAngle / 180) * Math.PI));
     const s0 = Math.sin(startAngle);
-    const c1 = Math.cos((endAngle = ((endAngle - 90) / 180) * Math.PI));
+    const c1 = Math.cos((endAngle = (endAngle / 180) * Math.PI));
     const s1 = Math.sin(endAngle);
     return (
       "M" +
