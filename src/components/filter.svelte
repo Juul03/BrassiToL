@@ -24,13 +24,25 @@
 
         // Find all unique taxonomy and store them in variables
         uniqueFamilies = findUniqueValues("FAMILY");
-        console.log("families", uniqueFamilies);
+        uniqueFamilies.sort();
+
         uniqueSubFamilies = findUniqueValues("SUBFAMILY");
+        uniqueSubFamilies.sort();
+
         uniqueSupertribes = findUniqueValues("SUPERTRIBE");
+        uniqueSupertribes.sort();
+
         uniqueTribes = findUniqueValues("TRIBE");
+        uniqueTribes.sort();
+
         uniqueGenus = findUniqueValues("GENUS");
+        uniqueGenus.sort();
+
         uniqueSpecies = findUniqueValues("SPECIES");
+        uniqueSpecies.sort();
+
         uniqueBinaryCombination = findUniqueValues("BINARY_COMBINATION");
+        uniqueBinaryCombination.sort();
 
         // filter();
       } else {
@@ -137,6 +149,20 @@
           on:change={(event) => handleItemSelection(event, family)}
         />
         {family}
+      </label>
+    {/each}
+  </div>
+
+  <h3>Supertribe</h3>
+  <div class="filtercontainer">
+    {#each uniqueSupertribes as supertribe}
+      <label>
+        <input
+          type="checkbox"
+          bind:checked={selectedFamilies[supertribe]}
+          on:change={(event) => handleItemSelection(event, supertribe)}
+        />
+        {supertribe}
       </label>
     {/each}
   </div>
