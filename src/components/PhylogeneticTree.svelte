@@ -175,39 +175,50 @@
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
 
-      let taxonomySamplesSupertribes = matchTaxonomyWithSample(
+      let taxonomySamplesSubfamily = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "subfamily"
+      );
+
+      let taxonomySamplesSupertribe = matchTaxonomyWithSample(
         selectedTaxonomy,
         "supertribes"
       );
-      updateTree(taxonomySamplesSupertribes);
 
       let taxonomySamplesTribes = matchTaxonomyWithSample(
         selectedTaxonomy,
         "tribes"
       );
-      updateTree(taxonomySamplesTribes);
 
       let taxonomySamplesGenus = matchTaxonomyWithSample(
         selectedTaxonomy,
         "genus"
       );
-      updateTree(taxonomySamplesGenus);
 
       let taxonomySamplesSpecies = matchTaxonomyWithSample(
         selectedTaxonomy,
         "species"
       );
-      updateTree(taxonomySamplesSpecies);
 
       let taxonomySamplesBinaryCombination = matchTaxonomyWithSample(
         selectedTaxonomy,
         "binarycombination"
-      );
-      updateTree(taxonomySamplesBinaryCombination);
+      )
+
+      // Merge arrays before updating the tree
+      let combinedSamples = [
+        ...taxonomySamplesSubfamily,
+        ...taxonomySamplesSupertribe,
+        ...taxonomySamplesTribes,
+        ...taxonomySamplesGenus,
+        ...taxonomySamplesSpecies,
+        ...taxonomySamplesBinaryCombination,
+      ];
+      updateTree(combinedSamples);
     });
 
     return () => {
-      unsubscribe(taxonomySamplesTribes); // Unsubscribe when the component is destroyed
+      unsubscribe(); // Unsubscribe when the component is destroyed
     };
   });
 
@@ -228,11 +239,28 @@
       );
   };
 
+  // Find taxonomy filter selected cooresponding samples
   let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
     switch (taxonomyType) {
+      case "subfamily":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.subfamilies || [])
+          .map((subfamily) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const subfamilySamples = allSpecieData
+              .filter((data) => data.SUBFAMILY === subfamily)
+              .map((data) => data.SAMPLE);
+            return subfamilySamples;
+          })
+          .flat();
+
       case "supertribes":
+        // For tribes, map each tribe to its corresponding samples
         return (taxonomy.supertribes || [])
           .map((supertribe) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
             const supertribeSamples = allSpecieData
               .filter((data) => data.SUPERTRIBE === supertribe)
               .map((data) => data.SAMPLE);
@@ -241,8 +269,11 @@
           .flat();
 
       case "tribes":
+        // For tribes, map each tribe to its corresponding samples
         return (taxonomy.tribes || [])
           .map((tribe) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
             const tribeSamples = allSpecieData
               .filter((data) => data.TRIBE === tribe)
               .map((data) => data.SAMPLE);
@@ -251,8 +282,11 @@
           .flat();
 
       case "genus":
+        // For tribes, map each tribe to its corresponding samples
         return (taxonomy.genus || [])
           .map((genus) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
             const genusSamples = allSpecieData
               .filter((data) => data.GENUS === genus)
               .map((data) => data.SAMPLE);
@@ -261,26 +295,30 @@
           .flat();
 
       case "species":
+        // For tribes, map each tribe to its corresponding samples
         return (taxonomy.species || [])
           .map((specie) => {
-            const speciesSamples = allSpecieData
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const specieSamples = allSpecieData
               .filter((data) => data.SPECIES === specie)
               .map((data) => data.SAMPLE);
-            return speciesSamples;
+            return specieSamples;
           })
           .flat();
 
-      case "binarycombination":
+          case "binarycombination":
+        // For tribes, map each tribe to its corresponding samples
         return (taxonomy.binaryCombination || [])
-          .map((binarycomb) => {
+          .map((bc) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
             const binaryCombinationSamples = allSpecieData
-              .filter((data) => data.SPECIES_NAME_PRINT === binarycomb)
+              .filter((data) => data.SPECIES_NAME_PRINT === bc)
               .map((data) => data.SAMPLE);
             return binaryCombinationSamples;
           })
           .flat();
-
-      // Add more cases for other taxonomy types (genus, species, etc.) as needed
 
       default:
         return [];
