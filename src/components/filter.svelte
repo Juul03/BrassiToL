@@ -273,13 +273,17 @@
 
 <style>
   #filters {
+    width: calc(100vw/4);
+    height: 100vh;
     border: solid 2px black;
     border-radius: 5px;
   }
+
   .filtercontainer {
     width: calc(100vw / 5);
-    height: 200px;
-    overflow-y: scroll;
+    height: 300px;
+    /* overflow-y: scroll; */
+    overflow-x:hidden;
     display: flex;
     flex-direction: column;
   }
