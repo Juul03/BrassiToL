@@ -17,6 +17,7 @@
 
   // Variable that stores the fact that the supertribes are highlighted or not
   let isTextHighlighted = true;
+  let areOutgroupsShown = false;
 
   const fetchPhylotreeData = async () => {
     try {
@@ -121,31 +122,37 @@
     };
 
     let findOutgroups = () => {
-      const outgroupData = allSpecieData.filter(
-        (data) => data.FAMILY !== "Brassicaceae"
-      );
-
-      if (outgroupData.length > 0) {
-        console.log(
-          "Outgroups found:",
-          outgroupData.map((data) => data.FAMILY)
-        );
-
-        const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-        console.log("outgroup Samples:", outgroupSamples);
-        const filteredParsedData = filterOutgroupsFromParsedData(
-          parsedData,
-          outgroupSamples
-        );
-
-        console.log("filtered", filteredParsedData);
-
-        // Create and update the phylogenetic tree without the outgroups
-        createTree(document.querySelector("#phyloTree"), filteredParsedData);
-      } else {
-        console.log("No outgroups found");
-        // Create and update the phylogenetic tree with all data if no outgroups found
+      if (areOutgroupsShown) {
+        console.log("Outgroups are shown");
+        // Create and update the phylogenetic tree with all data
         createTree(document.querySelector("#phyloTree"), parsedData);
+      } else {
+        const outgroupData = allSpecieData.filter(
+          (data) => data.FAMILY !== "Brassicaceae"
+        );
+
+        if (outgroupData.length > 0) {
+          console.log(
+            "Outgroups found:",
+            outgroupData.map((data) => data.FAMILY)
+          );
+
+          const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+          console.log("outgroup Samples:", outgroupSamples);
+          const filteredParsedData = filterOutgroupsFromParsedData(
+            parsedData,
+            outgroupSamples
+          );
+
+          console.log("filtered", filteredParsedData);
+
+          // Create and update the phylogenetic tree without the outgroups
+          createTree(document.querySelector("#phyloTree"), filteredParsedData);
+        } else {
+          console.log("No outgroups found");
+          // Create and update the phylogenetic tree with all data if no outgroups found
+          createTree(document.querySelector("#phyloTree"), parsedData);
+        }
       }
     };
 
@@ -154,16 +161,28 @@
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
 
+    const showOutgroupsToggleElement =
+      document.querySelector("#outgroupCheckbox");
+
     let toggleHighlight = () => {
       console.log("status change", highlightSupertribesToggleElement.checked);
       console.log("status change", isTextHighlighted);
       updateTextColors();
     };
 
+    let toggleShowOutgroups = () => {
+      console.log("status change", showOutgroupsToggleElement.checked);
+      console.log("status change", areOutgroupsShown);
+      areOutgroupsShown = showOutgroupsToggleElement.checked; // Update the variable
+      findOutgroups();
+    };
+
     highlightSupertribesToggleElement.addEventListener(
       "change",
       toggleHighlight
     );
+
+    showOutgroupsToggleElement.addEventListener("change", toggleShowOutgroups);
 
     // Function that colors the text with the color of the corresponding supertribe
     let updateTextColors = () => {
@@ -579,6 +598,16 @@
     />
     <span class="toggle-slider"></span>
   </label>
+
+  <label class="toggle-label">
+    Show Outgroups
+    <input
+      id="outgroupCheckbox"
+      type="checkbox"
+      bind:checked={areOutgroupsShown}
+    />
+    <span class="toggle-slider"></span>
+  </label>
 </div>
 
 <!-- Container of tree -->
@@ -594,16 +623,14 @@
   /* Style the toggle button */
   .toggle-container {
     position: absolute;
-    left: 20px; /* Adjust the distance from the left as needed */
-    bottom: 100px; /* Adjust the distance from the bottom as needed */
-    display: flex;
-    align-items: center;
+    left: 20px;
+    bottom: 100px;
   }
 
   .toggle-label {
     display: flex;
     align-items: center;
-    justify-content:space-between;
+    justify-content: space-between;
     width: 200px; /* Adjust the width as needed */
     height: 26px;
     margin-bottom: 10px; /* Adjust the margin as needed */
