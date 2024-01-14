@@ -17,6 +17,7 @@
 
   // Variable that stores the fact that the supertribes are highlighted or not
   let isTextHighlighted = true;
+  // Variable that stores the fact that the outgroups are shown or not
   let areOutgroupsShown = false;
 
   const fetchPhylotreeData = async () => {
@@ -98,64 +99,70 @@
     }
   };
 
-  onMount(async () => {
-    await fetchAllSpecieData();
-    await fetchPhylotreeData();
+  let findOutgroups = () => {
+    if (areOutgroupsShown) {
+      console.log("Outgroups are shown");
+      // Create and update the phylogenetic tree with all data
+      createTree(document.querySelector("#phyloTree"), parsedData);
+    } else {
+      const outgroupData = allSpecieData.filter(
+        (data) => data.FAMILY !== "Brassicaceae"
+      );
 
-    const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-      const filterOutgroups = (node) => {
-        if (node.branchset) {
-          node.branchset = node.branchset.filter((child) => {
-            const isOutgroup = outgroupSamples.includes(child.name);
-            if (isOutgroup) {
-              console.log(`Filtering out: ${child.name}`);
-            }
-            return !isOutgroup;
-          });
-          node.branchset.forEach(filterOutgroups);
-        }
-      };
-
-      const updatedData = JSON.parse(JSON.stringify(data));
-      filterOutgroups(updatedData);
-      return updatedData;
-    };
-
-    let findOutgroups = () => {
-      if (areOutgroupsShown) {
-        console.log("Outgroups are shown");
-        // Create and update the phylogenetic tree with all data
-        createTree(document.querySelector("#phyloTree"), parsedData);
-      } else {
-        const outgroupData = allSpecieData.filter(
-          (data) => data.FAMILY !== "Brassicaceae"
+      if (outgroupData.length > 0) {
+        console.log(
+          "Outgroups found:",
+          outgroupData.map((data) => data.FAMILY)
         );
 
-        if (outgroupData.length > 0) {
-          console.log(
-            "Outgroups found:",
-            outgroupData.map((data) => data.FAMILY)
-          );
+        const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+        console.log("outgroup Samples:", outgroupSamples);
+        const filteredParsedData = filterOutgroupsFromParsedData(
+          parsedData,
+          outgroupSamples
+        );
 
-          const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-          console.log("outgroup Samples:", outgroupSamples);
-          const filteredParsedData = filterOutgroupsFromParsedData(
-            parsedData,
-            outgroupSamples
-          );
+        console.log("filtered", filteredParsedData);
 
-          console.log("filtered", filteredParsedData);
+        // Create and update the phylogenetic tree without the outgroups
+        createTree(document.querySelector("#phyloTree"), filteredParsedData);
+      } else {
+        console.log("No outgroups found");
+        // Create and update the phylogenetic tree with all data if no outgroups found
+        createTree(document.querySelector("#phyloTree"), parsedData);
+      }
+    }
+  };
 
-          // Create and update the phylogenetic tree without the outgroups
-          createTree(document.querySelector("#phyloTree"), filteredParsedData);
-        } else {
-          console.log("No outgroups found");
-          // Create and update the phylogenetic tree with all data if no outgroups found
-          createTree(document.querySelector("#phyloTree"), parsedData);
-        }
+  const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
+    const filterOutgroups = (node) => {
+      if (node.branchset) {
+        node.branchset = node.branchset.filter((child) => {
+          const isOutgroup = outgroupSamples.includes(child.name);
+          if (isOutgroup) {
+            console.log(`Filtering out: ${child.name}`);
+          }
+          return !isOutgroup;
+        });
+        node.branchset.forEach(filterOutgroups);
       }
     };
 
+    const updatedData = JSON.parse(JSON.stringify(data));
+    filterOutgroups(updatedData);
+    return updatedData;
+  };
+
+  // Function that colors the text with the color of the corresponding supertribe
+  let updateTextColors = () => {
+    d3.select("svg")
+      .selectAll("text")
+      .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
+  };
+
+  onMount(async () => {
+    await fetchAllSpecieData();
+    await fetchPhylotreeData();
     findOutgroups();
 
     const highlightSupertribesToggleElement =
@@ -165,15 +172,10 @@
       document.querySelector("#outgroupCheckbox");
 
     let toggleHighlight = () => {
-      console.log("status change", highlightSupertribesToggleElement.checked);
-      console.log("status change", isTextHighlighted);
       updateTextColors();
     };
 
     let toggleShowOutgroups = () => {
-      console.log("status change", showOutgroupsToggleElement.checked);
-      console.log("status change", areOutgroupsShown);
-      areOutgroupsShown = showOutgroupsToggleElement.checked; // Update the variable
       findOutgroups();
     };
 
@@ -183,13 +185,6 @@
     );
 
     showOutgroupsToggleElement.addEventListener("change", toggleShowOutgroups);
-
-    // Function that colors the text with the color of the corresponding supertribe
-    let updateTextColors = () => {
-      d3.select("svg")
-        .selectAll("text")
-        .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
-    };
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
