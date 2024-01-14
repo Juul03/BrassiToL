@@ -10,13 +10,11 @@
 	<Treemapj/>
 </main>
 
-
-
 <style>
 	main {
 		display:flex;
+		justify-content:space-between;
 		/* flex-wrap:wrap; */
-
 	}
 </style>
 

@@ -279,7 +279,7 @@
 
 <style>
   #filters {
-    width: calc(100vw / 4);
+    width: calc(100vw / 5);
     height: 80vh;
     padding: 1rem;
     border: solid 2px black;
@@ -287,7 +287,7 @@
   }
 
   .filtercontainer {
-    width: calc(100vw / 5);
+    width: calc(100vw / 6);
     height: 250px;
     /* overflow-y: scroll; */
     overflow-x: hidden;

@@ -610,9 +610,12 @@
 
 <style>
   #phyloTree {
-    width: 80%;
-    height: 500px;
-    transform: translateY(-25%);
+    width: calc((100vw / 5) * 2.5);
+    transform: translateY(-10%);
+    margin: auto; /* Center horizontally */
+    /* position: absolute;
+  top: 50%;
+  transform: translateY(-50%); Center vertically */
   }
 
   /* Style the toggle button */
