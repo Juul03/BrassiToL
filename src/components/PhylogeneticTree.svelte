@@ -203,7 +203,7 @@
       let taxonomySamplesBinaryCombination = matchTaxonomyWithSample(
         selectedTaxonomy,
         "binarycombination"
-      )
+      );
 
       // Merge arrays before updating the tree
       let combinedSamples = [
@@ -307,7 +307,7 @@
           })
           .flat();
 
-          case "binarycombination":
+      case "binarycombination":
         // For tribes, map each tribe to its corresponding samples
         return (taxonomy.binaryCombination || [])
           .map((bc) => {
@@ -569,15 +569,17 @@
   };
 </script>
 
-<label class="toggle-label">
-  Show Supertribes
-  <input
-    id="highlightCheckbox"
-    type="checkbox"
-    bind:checked={isTextHighlighted}
-  />
-  <span class="toggle-slider"></span>
-</label>
+<div class="toggle-container">
+  <label class="toggle-label">
+    Show Supertribes
+    <input
+      id="highlightCheckbox"
+      type="checkbox"
+      bind:checked={isTextHighlighted}
+    />
+    <span class="toggle-slider"></span>
+  </label>
+</div>
 
 <!-- Container of tree -->
 <div id="phyloTree" />
@@ -590,13 +592,21 @@
   }
 
   /* Style the toggle button */
-  .toggle-label {
+  .toggle-container {
     position: absolute;
-    bottom: 100px; /* Adjust the distance from the bottom as needed */
     left: 20px; /* Adjust the distance from the left as needed */
-    display: inline-block;
-    width: 50px;
+    bottom: 100px; /* Adjust the distance from the bottom as needed */
+    display: flex;
+    align-items: center;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content:space-between;
+    width: 200px; /* Adjust the width as needed */
     height: 26px;
+    margin-bottom: 10px; /* Adjust the margin as needed */
   }
 
   .toggle-label input {
@@ -604,31 +614,29 @@
   }
 
   .toggle-slider {
-    position: absolute;
+    position: relative;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    width: 50px; /* Adjust the width as needed */
+    height: 26px;
     background-color: #ccc;
     border-radius: 26px;
     transition: 0.4s;
   }
 
   .toggle-slider:before {
-    position: absolute;
     content: "";
+    position: absolute;
     height: 20px;
     width: 20px;
+    top: 3px;
     left: 3px;
-    bottom: 3px;
     background-color: white;
     border-radius: 50%;
     transition: 0.4s;
   }
 
   input:checked + .toggle-slider {
-    background-color: #2196f3;
+    background-color: green;
   }
 
   input:checked + .toggle-slider:before {
