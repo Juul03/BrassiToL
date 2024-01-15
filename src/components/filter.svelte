@@ -274,7 +274,13 @@
     {/if}
   </div>
 
-  <div id="togglecontainer"></div>
+  <div id="selectioncontainer">
+    <ul>
+      {#each Object.keys(selectedItems.subfamilies).filter(key => selectedItems.subfamilies[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+    </ul>
+  </div>
 </section>
 
 <style>

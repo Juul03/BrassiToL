@@ -610,7 +610,7 @@
   .toggle-container {
     position: absolute;
     left: 20px;
-    bottom: 100px;
+    bottom: 30px;
   }
 
   .toggle-label {
