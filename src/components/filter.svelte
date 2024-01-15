@@ -293,22 +293,34 @@
     <h3>Selected</h3>
     <ul>
       {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
-        <li on:click={() => removeSelectedItem("subfamilies", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("subfamilies", selected)}>
+          Subfamily: {selected} <img src="icons/removeIcon.svg" alt="remove">
+        </li>
       {/each}
       {#each Object.keys(selectedItems.supertribes).filter((key) => selectedItems.supertribes[key]) as selected}
-        <li on:click={() => removeSelectedItem("supertribes", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("supertribes", selected)}>
+          Supertribe: {selected}
+        </li>
       {/each}
       {#each Object.keys(selectedItems.tribes).filter((key) => selectedItems.tribes[key]) as selected}
-        <li on:click={() => removeSelectedItem("tribes", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("tribes", selected)}>
+          Tribe: {selected}
+        </li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
-        <li on:click={() => removeSelectedItem("genus", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("genus", selected)}>
+          Genus: {selected}
+        </li>
       {/each}
       {#each Object.keys(selectedItems.species).filter((key) => selectedItems.species[key]) as selected}
-        <li on:click={() => removeSelectedItem("species", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("species", selected)}>
+          Species: {selected}
+        </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
-        <li on:click={() => removeSelectedItem("binaryCombination", selected)}>{selected}</li>
+        <li on:click={() => removeSelectedItem("binaryCombination", selected)}>
+          Binary Combination: {selected}
+        </li>
       {/each}
     </ul>
   </div>
@@ -321,14 +333,15 @@
     padding: 1rem;
     border: solid 2px black;
     border-radius: 5px;
-    display:flex;
-    flex-direction:column;
-    gap:1rem;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
   }
 
-  .filtercontainer, #selectioncontainer {
+  .filtercontainer,
+  #selectioncontainer {
     width: calc(100vw / 6);
-    height: 250px;
+    height: 220px;
     /* overflow-y: scroll; */
     overflow-x: hidden;
     display: flex;
@@ -339,17 +352,40 @@
   }
 
   #selectioncontainer {
-    height:150px;
-    background:white;
+    height: 150px;
+    background: white;
   }
 
   #selectioncontainer h3 {
-    margin:0;
+    margin: 0;
   }
 
   #selectioncontainer ul {
-    overflow-y: scroll;
-    margin:0;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    display: flex;
+    flex-direction:column;
+  }
+
+  #selectioncontainer ul li {
+    flex: 1;
+    padding: 0.5rem;
+    text-align: left;
+    transition:.5s;
+    border-radius:5px;
+  }
+
+  #selectioncontainer ul li:hover {
+    background:lightblue;
+  }
+
+  #selectioncontainer ul li span {
+    width:.5rem;
+    padding:.5rem;
+    border-radius:50%;
+    background:black;
+    color:white;
   }
 
   #filters > label {
