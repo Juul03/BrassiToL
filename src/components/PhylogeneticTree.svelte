@@ -644,7 +644,7 @@
   /* Style the toggle button */
   .toggle-container {
     position: absolute;
-    left: 50px;
+    left: 30px;
     bottom: 10px;
   }
 
