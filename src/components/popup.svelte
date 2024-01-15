@@ -39,11 +39,6 @@
         <li>Geographic Area: S. British Columbia to N. Washington</li>
         <li>Dataset: Boechereae/Nik Hay</li>
       </ul>
-
-      <div class="button-container">
-        <button on:click={closePopup}>Close Pop-up</button>
-      </div>
-      
     </div>
   </section>
 {/if}
@@ -77,6 +72,7 @@
     flex-wrap: wrap;
     justify-content: center;
     align-items: center;
+    position: relative;
   }
 
   .popup-content h2 {
@@ -88,17 +84,28 @@
   }
 
   section {
-    font-family: 'Work Sans';
+    font-family: "Poppins";
+  }
+
+  button {
+    font-family: "Poppins";
   }
 
   ol {
     display: flex;
     list-style-type: none;
+    font-size: 13px;
   }
 
   ol li {
     background: red;
     padding: 0.2rem;
+  }
+
+  ol li:not(:last-child)::after {
+    content: "<";
+    /* position: absolute; */
+    right: 0;
   }
 
   .close {
@@ -113,6 +120,7 @@
   /* Additional styles for the custom pop-up content (unchanged) */
   h2 {
     color: #3498db;
+    font-size: 30px;
   }
 
   p {
@@ -120,21 +128,21 @@
   }
 
   ul {
-    /* display: flex; */
     list-style-type: none;
     text-align: left;
     padding: 0;
     margin-top: 1rem;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   ul li {
     padding: 0.2rem;
-  }
-
-  .button-container {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: center;
+    white-space: nowrap;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   button {
