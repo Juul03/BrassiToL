@@ -275,6 +275,7 @@
   </div>
 
   <div id="selectioncontainer">
+    <h3>Selected</h3>
     <ul>
       {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
         <li>{selected}</li>
@@ -305,9 +306,12 @@
     padding: 1rem;
     border: solid 2px black;
     border-radius: 5px;
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
   }
 
-  .filtercontainer {
+  .filtercontainer, #selectioncontainer {
     width: calc(100vw / 6);
     height: 250px;
     /* overflow-y: scroll; */
@@ -317,6 +321,20 @@
 
     padding: 0.5rem;
     background: rgb(233, 240, 243);
+  }
+
+  #selectioncontainer {
+    height:150px;
+    background:white;
+  }
+
+  #selectioncontainer h3 {
+    margin:0;
+  }
+
+  #selectioncontainer ul {
+    overflow-y: scroll;
+    margin:0;
   }
 
   #filters > label {

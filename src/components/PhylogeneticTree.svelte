@@ -609,8 +609,8 @@
   /* Style the toggle button */
   .toggle-container {
     position: absolute;
-    left: 20px;
-    bottom: 30px;
+    left: 30px;
+    bottom: 10px;
   }
 
   .toggle-label {
