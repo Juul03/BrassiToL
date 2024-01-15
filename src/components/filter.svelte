@@ -276,7 +276,22 @@
 
   <div id="selectioncontainer">
     <ul>
-      {#each Object.keys(selectedItems.subfamilies).filter(key => selectedItems.subfamilies[key]) as selected}
+      {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+      {#each Object.keys(selectedItems.supertribes).filter((key) => selectedItems.supertribes[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+      {#each Object.keys(selectedItems.tribes).filter((key) => selectedItems.tribes[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+      {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+      {#each Object.keys(selectedItems.species).filter((key) => selectedItems.species[key]) as selected}
+        <li>{selected}</li>
+      {/each}
+      {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li>{selected}</li>
       {/each}
     </ul>
