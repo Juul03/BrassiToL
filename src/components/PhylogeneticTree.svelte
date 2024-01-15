@@ -101,7 +101,6 @@
 
   let findOutgroups = () => {
     if (areOutgroupsShown) {
-      console.log("Outgroups are shown");
       // Create and update the phylogenetic tree with all data
       createTree(document.querySelector("#phyloTree"), parsedData);
     } else {
@@ -110,24 +109,16 @@
       );
 
       if (outgroupData.length > 0) {
-        console.log(
-          "Outgroups found:",
-          outgroupData.map((data) => data.FAMILY)
-        );
-
         const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-        console.log("outgroup Samples:", outgroupSamples);
         const filteredParsedData = filterOutgroupsFromParsedData(
           parsedData,
           outgroupSamples
         );
 
-        console.log("filtered", filteredParsedData);
-
         // Create and update the phylogenetic tree without the outgroups
         createTree(document.querySelector("#phyloTree"), filteredParsedData);
       } else {
-        console.log("No outgroups found");
+        // No outgroups found
         // Create and update the phylogenetic tree with all data if no outgroups found
         createTree(document.querySelector("#phyloTree"), parsedData);
       }
@@ -139,9 +130,6 @@
       if (node.branchset) {
         node.branchset = node.branchset.filter((child) => {
           const isOutgroup = outgroupSamples.includes(child.name);
-          if (isOutgroup) {
-            console.log(`Filtering out: ${child.name}`);
-          }
           return !isOutgroup;
         });
         node.branchset.forEach(filterOutgroups);
