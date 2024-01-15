@@ -142,6 +142,21 @@
 
     return tree;
   };
+
+  const removeSelectedItem = (taxonomy, item) => {
+    selectedItems[taxonomy] = {
+      ...selectedItems[taxonomy],
+      [item]: false,
+    };
+
+    // Get an array of keys where the value is true (i.e., selected items for the specific taxonomy)
+    const selectedKeys = Object.keys(selectedItems[taxonomy]).filter(
+      (key) => selectedItems[taxonomy][key]
+    );
+
+    // Update the selectedTaxonomyStore with the updated value for the specific taxonomy
+    updateSelectedTaxonomy(selectedKeys, taxonomy);
+  };
 </script>
 
 <section id="filters">
@@ -278,22 +293,22 @@
     <h3>Selected</h3>
     <ul>
       {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("subfamilies", selected)}>{selected}</li>
       {/each}
       {#each Object.keys(selectedItems.supertribes).filter((key) => selectedItems.supertribes[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("supertribes", selected)}>{selected}</li>
       {/each}
       {#each Object.keys(selectedItems.tribes).filter((key) => selectedItems.tribes[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("tribes", selected)}>{selected}</li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("genus", selected)}>{selected}</li>
       {/each}
       {#each Object.keys(selectedItems.species).filter((key) => selectedItems.species[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("species", selected)}>{selected}</li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
-        <li>{selected}</li>
+        <li on:click={() => removeSelectedItem("binaryCombination", selected)}>{selected}</li>
       {/each}
     </ul>
   </div>
