@@ -19,6 +19,8 @@
   let isTextHighlighted = true;
   // Variable that stores the fact that the outgroups are shown or not
   let areOutgroupsShown = false;
+  // Variable that stores the fact that the branchlengths are shown or not
+  let isBrancheLengthShown = true;
 
   const fetchPhylotreeData = async () => {
     try {
@@ -159,6 +161,10 @@
     const showOutgroupsToggleElement =
       document.querySelector("#outgroupCheckbox");
 
+    const showBranchLengthToggleElement = document.querySelector(
+      "#branchLengthCheckbox"
+    );
+
     let toggleHighlight = () => {
       updateTextColors();
     };
@@ -167,12 +173,27 @@
       findOutgroups();
     };
 
+    let toggleShowBranchLength = () => {
+      // Get the link selection
+      const linkSelection = d3.select("svg").selectAll("path");
+
+      linkSelection
+        .transition()
+        .duration(500)
+        .attr("d", isBrancheLengthShown ? linkVariable : linkConstant);
+    };
+
     highlightSupertribesToggleElement.addEventListener(
       "change",
       toggleHighlight
     );
 
     showOutgroupsToggleElement.addEventListener("change", toggleShowOutgroups);
+
+    showBranchLengthToggleElement.addEventListener(
+      "change",
+      toggleShowBranchLength
+    );
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
@@ -338,7 +359,7 @@
     return sample;
   };
 
-  const createPhylogeneticTree = (data) => {
+  const createPhylogeneticTree = (data, showLength) => {
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -403,7 +424,7 @@
       .each(function (d) {
         d.target.linkNode = this;
       })
-      .attr("d", linkConstant);
+      .attr("d", linkVariable);
 
     svg
       .append("g")
@@ -569,6 +590,10 @@
   let linkConstant = (d) => {
     return linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
   };
+
+  function linkVariable(d) {
+    return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
+  }
 </script>
 
 <div class="toggle-container">
@@ -591,6 +616,16 @@
     />
     <span class="toggle-slider"></span>
   </label>
+
+  <label class="toggle-label">
+    Branch Length
+    <input
+      id="branchLengthCheckbox"
+      type="checkbox"
+      bind:checked={isBrancheLengthShown}
+    />
+    <span class="toggle-slider"></span>
+  </label>
 </div>
 
 <!-- Container of tree -->
@@ -609,7 +644,7 @@
   /* Style the toggle button */
   .toggle-container {
     position: absolute;
-    left: 30px;
+    left: 50px;
     bottom: 10px;
   }
 

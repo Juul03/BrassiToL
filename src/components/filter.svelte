@@ -299,27 +299,27 @@
       {/each}
       {#each Object.keys(selectedItems.supertribes).filter((key) => selectedItems.supertribes[key]) as selected}
         <li on:click={() => removeSelectedItem("supertribes", selected)}>
-          Supertribe: {selected}
+          Supertribe: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
       {#each Object.keys(selectedItems.tribes).filter((key) => selectedItems.tribes[key]) as selected}
         <li on:click={() => removeSelectedItem("tribes", selected)}>
-          Tribe: {selected}
+          Tribe: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
         <li on:click={() => removeSelectedItem("genus", selected)}>
-          Genus: {selected}
+          Genus: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
       {#each Object.keys(selectedItems.species).filter((key) => selectedItems.species[key]) as selected}
         <li on:click={() => removeSelectedItem("species", selected)}>
-          Species: {selected}
+          Species: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li on:click={() => removeSelectedItem("binaryCombination", selected)}>
-          Binary Combination: {selected}
+          Binary Combination: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
     </ul>
@@ -369,6 +369,7 @@
   }
 
   #selectioncontainer ul li {
+    font-size:.8rem;
     flex: 1;
     padding: 0.5rem;
     text-align: left;
@@ -380,12 +381,8 @@
     background:lightblue;
   }
 
-  #selectioncontainer ul li span {
-    width:.5rem;
-    padding:.5rem;
-    border-radius:50%;
-    background:black;
-    color:white;
+  ul li img {
+    margin-left:0.5rem;
   }
 
   #filters > label {
