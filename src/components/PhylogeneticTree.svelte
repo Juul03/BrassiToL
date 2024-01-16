@@ -1,19 +1,38 @@
 <script>
   import { onMount } from "svelte";
   import * as d3 from "d3";
+  import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
 
-  let phyloTreeData;
+  let selectedTaxonomy = {};
+
+  let phyloTreeDataWithOutgroups;
+  let phyloTreeDataWithoutOutgroups;
   let parsedData;
+
+  let allSpecieData;
+
+  // Set up basic width and height
+  const width = 900;
+  const outerRadius = width / 2;
+  const innerRadius = outerRadius - 170;
+
+  // Variable that stores the fact that the supertribes are highlighted or not
+  let isTextHighlighted = true;
+  // Variable that stores the fact that the outgroups are shown or not
+  let areOutgroupsShown = false;
+  // Variable that stores the fact that the branchlengths are shown or not
+  let isBrancheLengthShown = true;
 
   const fetchPhylotreeData = async () => {
     try {
-      const response = await fetch("/data/BrassiToL_easy.tree");
+      const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
       if (response.ok) {
         const text = await response.text();
-        phyloTreeData = text;
+        phyloTreeDataWithoutOutgroups = text;
         // Call parseNewick after setting phyloTreeData
-        parsedData = parseNewick(phyloTreeData);
-        console.log("Parsed Data:", parsedData); // Check the parsed data in the console
+        phyloTreeDataWithoutOutgroups = parseNewick(phyloTreeDataWithoutOutgroups);
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -23,10 +42,39 @@
       console.error("Error fetching data:", error);
     }
   };
-  
-  const width = 900;
-  const outerRadius = width / 2;
-  const innerRadius = outerRadius - 170;
+
+  const fetchPhylotreeData2 = async () => {
+    try {
+      const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      if (response.ok) {
+        const text = await response.text();
+        phyloTreeDataWithOutgroups = text;
+        // Call parseNewick after setting phyloTreeData
+        phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
+        // Now you can proceed with creating the phylogenetic tree using parsedData
+        // Example: const svg = createPhylogeneticTree(parsedData);
+      } else {
+        console.error("Failed to fetch data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchAllSpecieData = async () => {
+    try {
+      const response = await fetch("/data/metadataBrassiToL.json");
+      if (response.ok) {
+        allSpecieData = await response.json();
+      } else {
+        console.error("Failed to fetch data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   // https://github.com/jasondavies/newick.js
   function parseNewick(a) {
@@ -63,17 +111,264 @@
     return r;
   }
 
-  onMount(async () => {
-    await fetchPhylotreeData(); // Call this function wherever appropriate in your code to fetch the data
-    const svg = createPhylogeneticTree(parsedData);
-    const container = document.querySelector("#phyloTree");
+  let createTree = (container, data) => {
+    const svg = createPhylogeneticTree(data);
 
     if (container) {
+      // Clear the previous content
+      container.innerHTML = "";
+      // Append the new tree
       container.appendChild(svg);
     } else {
       console.error("Container not found");
     }
+  };
+
+  let findOutgroups = () => {
+    if (areOutgroupsShown) {
+      // Create and update the phylogenetic tree with all data
+      createTree(document.querySelector("#phyloTree"), phyloTreeDataWithOutgroups);
+    } else {
+        // Create and update the phylogenetic tree without the outgroups
+        createTree(document.querySelector("#phyloTree"), phyloTreeDataWithoutOutgroups);
+      } 
+  };
+
+  const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
+    const filterOutgroups = (node) => {
+      if (node.branchset) {
+        node.branchset = node.branchset.filter((child) => {
+          const isOutgroup = outgroupSamples.includes(child.name);
+          return !isOutgroup;
+        });
+        node.branchset.forEach(filterOutgroups);
+      }
+    };
+
+    const updatedData = JSON.parse(JSON.stringify(data));
+    filterOutgroups(updatedData);
+    return updatedData;
+  };
+
+  // Function that colors the text with the color of the corresponding supertribe
+  let updateTextColors = () => {
+    d3.select("svg")
+      .selectAll("text")
+      .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
+  };
+
+  onMount(async () => {
+    await fetchAllSpecieData();
+    // await fetchPhylotreeData();
+    await fetchPhylotreeData();
+    await fetchPhylotreeData2();
+    console.log(phyloTreeDataWithOutgroups);
+    findOutgroups();
+
+
+    const highlightSupertribesToggleElement =
+      document.querySelector("#highlightCheckbox");
+
+    const showOutgroupsToggleElement =
+      document.querySelector("#outgroupCheckbox");
+
+    const showBranchLengthToggleElement = document.querySelector(
+      "#branchLengthCheckbox"
+    );
+
+    let toggleHighlight = () => {
+      updateTextColors();
+    };
+
+    let toggleShowOutgroups = () => {
+      findOutgroups();
+    };
+
+    let toggleShowBranchLength = () => {
+      // Get the link selection
+      const linkSelection = d3.select("svg").selectAll("path");
+
+      linkSelection
+        .transition()
+        .duration(500)
+        .attr("d", isBrancheLengthShown ? linkVariable : linkConstant);
+    };
+
+    highlightSupertribesToggleElement.addEventListener(
+      "change",
+      toggleHighlight
+    );
+
+    showOutgroupsToggleElement.addEventListener("change", toggleShowOutgroups);
+
+    showBranchLengthToggleElement.addEventListener(
+      "change",
+      toggleShowBranchLength
+    );
+
+    const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
+      selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+
+      let taxonomySamplesSubfamily = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "subfamily"
+      );
+
+      let taxonomySamplesSupertribe = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "supertribes"
+      );
+
+      let taxonomySamplesTribes = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "tribes"
+      );
+
+      let taxonomySamplesGenus = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "genus"
+      );
+
+      let taxonomySamplesSpecies = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "species"
+      );
+
+      let taxonomySamplesBinaryCombination = matchTaxonomyWithSample(
+        selectedTaxonomy,
+        "binarycombination"
+      );
+
+      // Merge arrays before updating the tree
+      let combinedSamples = [
+        ...taxonomySamplesSubfamily,
+        ...taxonomySamplesSupertribe,
+        ...taxonomySamplesTribes,
+        ...taxonomySamplesGenus,
+        ...taxonomySamplesSpecies,
+        ...taxonomySamplesBinaryCombination,
+      ];
+      updateTree(combinedSamples);
+    });
+
+    return () => {
+      unsubscribe(); // Unsubscribe when the component is destroyed
+    };
   });
+
+  let updateTree = (selected) => {
+    // d3.select("svg")
+    //   .selectAll("text")
+    //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
+
+    d3.select("svg")
+      .selectAll("path")
+      .transition() // Add a transition for a smoother effect
+      .duration(500) // Set the duration to 500 milliseconds
+      .style("stroke", (d) =>
+        selected.includes(d.target.data.name) ? d.target.color : "#000"
+      )
+      .attr("stroke-width", (d) =>
+        selected.includes(d.target.data.name) ? "2px" : ""
+      );
+  };
+
+  // Find taxonomy filter selected cooresponding samples
+  let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
+    switch (taxonomyType) {
+      case "subfamily":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.subfamilies || [])
+          .map((subfamily) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const subfamilySamples = allSpecieData
+              .filter((data) => data.SUBFAMILY === subfamily)
+              .map((data) => data.SAMPLE);
+            return subfamilySamples;
+          })
+          .flat();
+
+      case "supertribes":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.supertribes || [])
+          .map((supertribe) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const supertribeSamples = allSpecieData
+              .filter((data) => data.SUPERTRIBE === supertribe)
+              .map((data) => data.SAMPLE);
+            return supertribeSamples;
+          })
+          .flat();
+
+      case "tribes":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.tribes || [])
+          .map((tribe) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const tribeSamples = allSpecieData
+              .filter((data) => data.TRIBE === tribe)
+              .map((data) => data.SAMPLE);
+            return tribeSamples;
+          })
+          .flat();
+
+      case "genus":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.genus || [])
+          .map((genus) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const genusSamples = allSpecieData
+              .filter((data) => data.GENUS === genus)
+              .map((data) => data.SAMPLE);
+            return genusSamples;
+          })
+          .flat();
+
+      case "species":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.species || [])
+          .map((specie) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const specieSamples = allSpecieData
+              .filter((data) => data.SPECIES === specie)
+              .map((data) => data.SAMPLE);
+            return specieSamples;
+          })
+          .flat();
+
+      case "binarycombination":
+        // For tribes, map each tribe to its corresponding samples
+        return (taxonomy.binaryCombination || [])
+          .map((bc) => {
+            // Implement your logic to find the samples for the given tribe
+            // This is a placeholder; adapt it based on your actual data structure
+            const binaryCombinationSamples = allSpecieData
+              .filter((data) => data.SPECIES_NAME_PRINT === bc)
+              .map((data) => data.SAMPLE);
+            return binaryCombinationSamples;
+          })
+          .flat();
+
+      default:
+        return [];
+    }
+  };
+
+  // Data manipulation function
+  let matchSampleWithSpecie = (sample, data) => {
+    const foundDataPoint = data.find(
+      (datapoint) => datapoint.SAMPLE === sample
+    );
+    if (foundDataPoint) {
+      return foundDataPoint.SPECIES_NAME_PRINT;
+    }
+    return sample;
+  };
 
   const createPhylogeneticTree = (data) => {
     const root = d3
@@ -99,7 +394,7 @@
     svg.append("style").text(`
 
 .link--active {
-  stroke: #000 !important;
+  stroke: blue !important;
   stroke-width: 1.5px;
 }
 
@@ -113,31 +408,34 @@
 
 `);
 
-    // const linkExtension = svg
-    //   .append("g")
-    //   .attr("fill", "none")
-    //   .attr("stroke", "#000")
-    //   .attr("stroke-opacity", 0.25)
-    //   .selectAll("path")
-    //   .data(root.links().filter((d) => !d.target.children))
-    //   .join("path")
-    //   .each(function (d) {
-    //     d.target.linkExtensionNode = this;
-    //   })
-    //   .attr("d", linkExtensionConstant);
+    // Remove the previous paths before adding the updated paths
+    svg.selectAll("path").remove();
+
+    const linkExtension = svg
+      .append("g")
+      .attr("fill", "none")
+      .attr("stroke", "#000")
+      .attr("stroke-opacity", 0.25)
+      .selectAll("path")
+      .data(root.links().filter((d) => !d.target.children))
+      .join("path")
+      .each(function (d) {
+        d.target.linkExtensionNode = this;
+      })
+      .attr("d", linkExtensionConstant);
 
     const link = svg
       .append("g")
       .attr("fill", "none")
       .attr("stroke", "#000")
+      .attr("stroke-width", ".35px")
       .selectAll("path")
       .data(root.links())
       .join("path")
       .each(function (d) {
         d.target.linkNode = this;
       })
-      .attr("d", linkConstant)
-      .attr("stroke", (d) => d.target.color);
+      .attr("d", linkVariable);
 
     svg
       .append("g")
@@ -148,12 +446,16 @@
       .attr(
         "transform",
         (d) =>
-          `rotate(${d.x - 90}) translate(${innerRadius + 4},0)${
+          `rotate(${d.x}) translate(${innerRadius + 4},0)${
             d.x < 180 ? "" : " rotate(180)"
           }`
       )
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
-      .text((d) => d.data.name.replace(/_/g, " "))
+      .attr("font-size", ".3rem")
+      .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
+      // .text((d) => d.data.name.replace(/_/g, " "))
+      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
+      // HOVER AND CLICK dont work at the same time
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
 
@@ -168,14 +470,23 @@
     function mouseovered(active) {
       return function (event, d) {
         d3.select(this).classed("label--active", active);
-        d3.select(d.linkExtensionNode)
-          .classed("link-extension--active", active)
-          .raise();
-        do d3.select(d.linkNode).classed("link--active", active).raise();
-        while ((d = d.parent));
+
+        const clickedPath = d3.select(d.linkExtensionNode);
+        const isSelected = clickedPath.classed("link-extension--active");
+
+        clickedPath.classed("link-extension--active", !isSelected).raise();
+
+        let ancestor = d;
+        while (ancestor) {
+          if (ancestor.linkNode) {
+            d3.select(ancestor.linkNode)
+              .classed("link--active", active)
+              .raise();
+          }
+          ancestor = ancestor.parent;
+        }
       };
     }
-
     return Object.assign(svg.node(), { update });
   };
 
@@ -198,20 +509,25 @@
 
   // Set the color of each node by recursively inheriting.
   let setColor = (d) => {
-    var name = d.data.name;
+    const name = d.data.name;
+    const supertribe = getSupertribe(name);
     d.color =
-      color.domain().indexOf(name) >= 0
-        ? color(name)
+      supertribe !== null
+        ? color(supertribe)
         : d.parent
           ? d.parent.color
           : null;
     if (d.children) d.children.forEach(setColor);
   };
 
-  let color = d3
-    .scaleOrdinal()
-    .domain(["Bacteria", "Eukaryota", "Archaea"])
-    .range(d3.schemeCategory10);
+  let getSupertribe = (sample) => {
+    const foundDataPoint = allSpecieData.find(
+      (datapoint) => datapoint.SAMPLE === sample
+    );
+    return foundDataPoint ? foundDataPoint.SUPERTRIBE : null;
+  };
+
+  let color = d3.scaleOrdinal().range(d3.schemeCategory10);
 
   let legend = (svg) => {
     const g = svg
@@ -220,10 +536,10 @@
       .join("g")
       .attr(
         "transform",
-        (d, i) => `translate(${-outerRadius},${-outerRadius + i * 20})`
+        (d, i) => `translate(${-outerRadius},${outerRadius - 20 - i * 20})`
       );
 
-    g.append("rect").attr("width", 18).attr("height", 18).attr("fill", color);
+    g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
 
     g.append("text")
       .attr("x", 24)
@@ -237,9 +553,9 @@
   };
 
   let linkStep = (startAngle, startRadius, endAngle, endRadius) => {
-    const c0 = Math.cos((startAngle = ((startAngle - 90) / 180) * Math.PI));
+    const c0 = Math.cos((startAngle = (startAngle / 180) * Math.PI));
     const s0 = Math.sin(startAngle);
-    const c1 = Math.cos((endAngle = ((endAngle - 90) / 180) * Math.PI));
+    const c1 = Math.cos((endAngle = (endAngle / 180) * Math.PI));
     const s1 = Math.sin(endAngle);
     return (
       "M" +
@@ -268,15 +584,104 @@
   let linkConstant = (d) => {
     return linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
   };
+
+  function linkVariable(d) {
+    return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
+  }
 </script>
 
-<h2>Phylogenetic tree</h2>
+<div class="toggle-container">
+  <label class="toggle-label">
+    Show Supertribes
+    <input
+      id="highlightCheckbox"
+      type="checkbox"
+      bind:checked={isTextHighlighted}
+    />
+    <span class="toggle-slider"></span>
+  </label>
+
+  <label class="toggle-label">
+    Show Outgroups
+    <input
+      id="outgroupCheckbox"
+      type="checkbox"
+      bind:checked={areOutgroupsShown}
+    />
+    <span class="toggle-slider"></span>
+  </label>
+
+  <label class="toggle-label">
+    Branch Length
+    <input
+      id="branchLengthCheckbox"
+      type="checkbox"
+      bind:checked={isBrancheLengthShown}
+    />
+    <span class="toggle-slider"></span>
+  </label>
+</div>
+
+<!-- Container of tree -->
 <div id="phyloTree" />
 
 <style>
   #phyloTree {
-    width: 100%;
-    height: 500px;
-    /* Add any other styling for the tree container */
+    width: calc((100vw / 5) * 2.5);
+    transform: translateY(-10%);
+    margin: auto; /* Center horizontally */
+    /* position: absolute;
+  top: 50%;
+  transform: translateY(-50%); Center vertically */
+  }
+
+  /* Style the toggle button */
+  .toggle-container {
+    position: absolute;
+    left: 30px;
+    bottom: 10px;
+  }
+
+  .toggle-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 200px; /* Adjust the width as needed */
+    height: 26px;
+    margin-bottom: 10px; /* Adjust the margin as needed */
+  }
+
+  .toggle-label input {
+    display: none;
+  }
+
+  .toggle-slider {
+    position: relative;
+    cursor: pointer;
+    width: 50px; /* Adjust the width as needed */
+    height: 26px;
+    background-color: #ccc;
+    border-radius: 26px;
+    transition: 0.4s;
+  }
+
+  .toggle-slider:before {
+    content: "";
+    position: absolute;
+    height: 20px;
+    width: 20px;
+    top: 3px;
+    left: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+  }
+
+  input:checked + .toggle-slider {
+    background-color: green;
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(22px);
   }
 </style>
