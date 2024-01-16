@@ -1,9 +1,5 @@
-* {
-    padding: 0;
-    margin: 0;
-}
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Poppins:wght@300;500&display=swap');
 
-@font-face {
-    font-family: 'Popppins';
-    src: url(./fonts/Poppins/Poppins-Medium.ttf);
+* {
+    font-family: 'Poppins', sans-serif; /* Use the correct font-family name */
 }
