@@ -23,34 +23,45 @@
             // .geoEquirectangular()
             // .scale(200)
             //   .translate([200, 150]);
-            .geoMercator().fitSize([1000, 600], worldmapgeojson)
-            
+            .geoMercator()
+            .fitSize([1000, 600], worldmapgeojson);
 
         let geoGenerator = d3.geoPath().projection(projection);
 
         function createMap(worldmapgeojson) {
-            let svg = d3.select('svg')
-            .attr('width', '1050px')
-            .attr('height', '650px')
-            .style('background-color', 'blue')
-            .attr('transform', 'translate(200, 20)')
+            let svg = d3
+                .select("svg")
+                .attr("width", "1050px")
+                .attr("height", "650px")
+                .style("background-color", "blue")
+                .attr("transform", "translate(200, 20)");
             let u = d3
                 .select("#content g.map")
                 .selectAll("path")
-                .data(worldmapgeojson.features)
-                
+                .data(worldmapgeojson.features);
 
             u.enter()
                 .append("path")
                 .attr("d", geoGenerator)
                 .style("fill", "green")
                 .style("stroke", "white")
-                .style("stroke-width", "0.5px")
-
+                .style("stroke-width", "0.5px");
         }
 
         createMap(worldmapgeojson);
+        colorCountry(selectedCountries);
     });
+
+    let selectedCountries = ["Russia", "Costa Rica", "India"];
+
+    function colorCountry(countryNames) {
+        countryNames.forEach((countryName) => {
+            d3.select("#content g.map")
+                .selectAll("path")
+                .filter((d) => d.properties.name === countryName)
+                .style("fill", "orange");
+        });
+    }
 </script>
 
 <div id="content">
