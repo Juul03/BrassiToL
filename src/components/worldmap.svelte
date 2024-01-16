@@ -1,75 +1,60 @@
 <script>
     import { redirect } from "@sveltejs/kit";
-    import * as d3 from 'd3';
+    import * as d3 from "d3";
     import { onMount } from "svelte";
 
-onMount(() => {
-    let geojson = {
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Africa"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[[-6, 36], [33, 30], [43, 11], [51, 12], [29, -33], [18, -35], [7, 5], [-17, 14], [-6, 36]]]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Australia"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[[143, -11], [153, -28], [144, -38], [131, -31], [116, -35], [114, -22], [136, -12], [140, -17], [143, -11]]]
-      }
-    },
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Timbuktu"
-      },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-3.0026, 16.7666]
-      }
+    let worldmapgeojson = {};
+
+    async function fetchgeoJSONData(url) {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            worldmapgeojson = data;
+            console.log(worldmapgeojson);
+        } else {
+            console.error("Failed to fetch the data");
+        }
     }
-  ]
-};
 
-let projection = d3.geoEquirectangular()
-  .scale(200)
-  .translate([200, 150]);
+    onMount(async () => {
+        await fetchgeoJSONData("data/worldmapl2.geojson");
 
-let geoGenerator = d3.geoPath()
-  .projection(projection);
+        let projection = d3
+            // .geoEquirectangular()
+            // .scale(200)
+            //   .translate([200, 150]);
+            .geoMercator().fitSize([1000, 600], worldmapgeojson)
+            
 
-function update(geojson) {
-  let u = d3.select('#content g.map')
-    .selectAll('path')
-    .data(geojson.features)
-    
+        let geoGenerator = d3.geoPath().projection(projection);
 
-  u.enter()
-    .append('path')
-    .attr('d', geoGenerator)
-    .style('fill', 'red')
-    .style('stroke', 'black')
-    .style('stroke-width', '5px')
-}
+        function createMap(worldmapgeojson) {
+            let svg = d3.select('svg')
+            .attr('width', '1050px')
+            .attr('height', '650px')
+            .style('background-color', 'blue')
+            .attr('transform', 'translate(200, 20)')
+            let u = d3
+                .select("#content g.map")
+                .selectAll("path")
+                .data(worldmapgeojson.features)
+                
 
-update(geojson);
+            u.enter()
+                .append("path")
+                .attr("d", geoGenerator)
+                .style("fill", "green")
+                .style("stroke", "white")
+                .style("stroke-width", "0.5px")
 
-})
+        }
 
+        createMap(worldmapgeojson);
+    });
 </script>
 
-
 <div id="content">
-    <svg width="800px" height="400px">
-      <g class="map"></g>
+    <svg>
+        <g class="map"></g>
     </svg>
-  </div>
+</div>
