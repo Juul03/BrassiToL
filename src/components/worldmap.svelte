@@ -2,8 +2,12 @@
     import { redirect } from "@sveltejs/kit";
     import * as d3 from "d3";
     import { onMount } from "svelte";
+    import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
 
     let worldmapgeojson = {};
+    let selectedTaxonomy = {};
+    let allSpeciesData = {};
+    let countryCodeToNamejson = {};
 
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
@@ -16,15 +20,39 @@
         }
     }
 
+    async function fetchData(url) {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            allSpeciesData = data;
+            console.log(allSpeciesData);
+        } else {
+            console.error("Failed to fetch the data");
+        }
+    }
+
+    async function fetchCodeData(url) {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
+            countryCodeToNamejson = data;
+            console.log(countryCodeToNamejson);
+        } else {
+            console.error("Failed to fetch the data");
+        }
+    }
+
     onMount(async () => {
         await fetchgeoJSONData("data/worldmapl2.geojson");
+        await fetchData("data/metadataBrassiToL.json");
+        await fetchCodeData("data/countryCodeToName.json");
 
-        let projection = d3
-            // .geoEquirectangular()
-            // .scale(200)
-            //   .translate([200, 150]);
-            .geoMercator()
-            .fitSize([1000, 600], worldmapgeojson);
+        // matchSpecieWithCountry("Arabis scabra", allSpeciesData);
+        // selectedTaxonomy.binaryCombination.forEach((specie) => {
+        //     matchSpecieWithCountry(specie, allSpeciesData);
+        // });
+
+        let projection = d3.geoMercator().fitSize([1000, 600], worldmapgeojson);
 
         let geoGenerator = d3.geoPath().projection(projection);
 
@@ -49,12 +77,37 @@
         }
 
         createMap(worldmapgeojson);
-        colorCountry(selectedCountries);
+
+        const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
+            selectedTaxonomy = value;
+            console.log("selected", selectedTaxonomy);
+
+            let countryCodesArray = selectedTaxonomy.binaryCombination.map(
+                (specie) => {
+                    return matchSpecieWithCountryCode(specie, allSpeciesData);
+                },
+            );
+
+            let countryNamesArray = countryCodesArray.map((country) => {
+                return matchCountryCodeWithCountryName(country, countryCodeToNamejson
+                );
+            });
+
+            console.log("worst", countryNamesArray);
+
+            let selectedCountries = ["Russia", "India", "Costa Rica"];
+            // Call the colorCountry function after the subscription updates the selectedTaxonomy
+            colorCountry(countryNamesArray);
+        });
+
+        return () => {
+            unsubscribe();
+        };
     });
 
-    let selectedCountries = ["Russia", "Costa Rica", "India"];
-
     function colorCountry(countryNames) {
+        d3.select("#content g.map").selectAll("path").style("fill", "green"); // Reset all countries to the original style
+
         countryNames.forEach((countryName) => {
             d3.select("#content g.map")
                 .selectAll("path")
@@ -62,6 +115,45 @@
                 .style("fill", "orange");
         });
     }
+
+    let matchSpecieWithCountryCode = (speciename, data) => {
+    let countryCodes = [];
+
+    data.forEach((datapoint) => {
+        if (datapoint.SPECIES_NAME_PRINT === speciename) {
+            countryCodes.push(datapoint.WCVP_WGSRPD_LEVEL_3_native);
+        }
+    });
+
+    console.log(countryCodes);
+    
+    // Join the array elements into a string and remove square brackets
+    let joinedString = countryCodes.join(', ').replace(/[\[\]']+/g, "");
+    
+    // Split the string into an array
+    countryCodes = joinedString.split(", ");
+    
+    console.log("kaas", countryCodes);
+    return countryCodes;
+};
+
+
+let matchCountryCodeWithCountryName = (codes, data) => {
+    console.log("hoi", codes);
+    const countryNames = [];
+
+    codes.forEach((code) => {
+        data.forEach((datapoint) => {
+            if (datapoint.Code === code) {
+                countryNames.push(datapoint.WGSRPD_name);
+            }
+        });
+    });
+
+    console.log("kaas", countryNames);
+    return countryNames;
+};
+
 </script>
 
 <div id="content">
