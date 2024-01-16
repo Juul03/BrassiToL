@@ -39,6 +39,7 @@
         <li>Geographic Area: S. British Columbia to N. Washington</li>
         <li>Dataset: Boechereae/Nik Hay</li>
       </ul>
+
     </div>
   </section>
 {/if}
@@ -59,8 +60,7 @@
   }
 
   .popup-content {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    padding: 1rem;
     width: 100%;
     max-width: 600px;
     background-color: #fff;
@@ -70,8 +70,8 @@
 
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
+    /* justify-content: center; */
+    /* align-items: center; */
     position: relative;
   }
 
@@ -98,7 +98,6 @@
   }
 
   ol li {
-    background: red;
     padding: 0.2rem;
   }
 
@@ -121,6 +120,7 @@
   h2 {
     color: #3498db;
     font-size: 30px;
+    text-align: center;
   }
 
   p {
@@ -135,14 +135,10 @@
     font-size: 13px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
   }
 
   ul li {
     padding: 0.2rem;
-    white-space: nowrap;
-    width: 100%;
-    box-sizing: border-box;
   }
 
   button {
