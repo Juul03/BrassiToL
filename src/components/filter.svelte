@@ -166,120 +166,123 @@
       <li>
         <img src="/icons/arrowIcon.svg" alt="filters">
         <img src="/icons/filterIcon.svg" alt="filters"></li>
-      <li>Taxonomy</li>
+        <!-- TODO: Add and remove the class in js based on which item is clicked -->
+      <li class="selected">Taxonomy</li>
       <li>Geographical</li>
       <li>Extra</li>
     </ul>
   </nav>
-  <!-- Dropdown to choose taxonomy level -->
+
+  <div class="filtercategorycontainer">
+      <!-- Dropdown to choose taxonomy level -->
   <label for="taxonomy-select">Taxonomy</label>
 
-  <select name="taxonomy" id="taxonomy-select">
-    <option value="all">All</option>
-    <option value="subfamily">Sub-Family</option>
-    <option value="supertribe">Supertribe</option>
-    <option value="tribe">Tribe</option>
-    <option value="genus">Genus</option>
-    <option value="speciesfull">Species</option>
-  </select>
-
-  <div class="filtercontainer">
-    <div class="searchbarcontainer">
-      <label for="site-search" aria-label="search all taxonomy levels"></label>
-      <input type="search" id="site-search" name="q" />
-
-      <button>
-        <!-- TODO: include searchicon -->
-        O
-      </button>
+    <select name="taxonomy" id="taxonomy-select">
+      <option value="all">All</option>
+      <option value="subfamily">Sub-Family</option>
+      <option value="supertribe">Supertribe</option>
+      <option value="tribe">Tribe</option>
+      <option value="genus">Genus</option>
+      <option value="speciesfull">Species</option>
+    </select>
+  
+    <div class="filtercontainer">
+      <div class="searchbarcontainer">
+        <label for="site-search" aria-label="search all taxonomy levels"></label>
+        <input type="search" id="site-search" placeholder="Search..." name="q" />
+  
+        <button>
+          <img src="/icons/searchIcon.svg" alt="search"/>
+        </button>
+      </div>
+  
+      {#if selectedTaxonomyLevel === "all"}
+        <p>Search a specific species or start by selecting in the dropdown above</p>
+      {/if}
+  
+      {#if selectedTaxonomyLevel === "subfamily"}
+        <!-- Render the corresponding options based on the selected taxonomy level -->
+        <div class="filtercontainer">
+          {#each uniqueSubFamilies as subfamily}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItems.subfamilies[subfamily]}
+                on:change={(event) =>
+                  handleItemSelection(event, "subfamilies", subfamily)}
+              />
+              {subfamily}
+            </label>
+          {/each}
+        </div>
+      {/if}
+  
+      {#if selectedTaxonomyLevel === "supertribe"}
+        <!-- Render the corresponding options based on the selected taxonomy level -->
+        <div class="filtercontainer">
+          {#each uniqueSupertribes as supertribe}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItems.supertribes[supertribe]}
+                on:change={(event) =>
+                  handleItemSelection(event, "supertribes", supertribe)}
+              />
+              {supertribe}
+            </label>
+          {/each}
+        </div>
+      {/if}
+  
+      {#if selectedTaxonomyLevel === "tribe"}
+        <!-- Render the corresponding options based on the selected taxonomy level -->
+        <div class="filtercontainer">
+          {#each uniqueTribes as tribe}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItems.tribes[tribe]}
+                on:change={(event) => handleItemSelection(event, "tribes", tribe)}
+              />
+              {tribe}
+            </label>
+          {/each}
+        </div>
+      {/if}
+  
+      {#if selectedTaxonomyLevel === "genus"}
+        <!-- Render the corresponding options based on the selected taxonomy level -->
+        <div class="filtercontainer">
+          {#each uniqueGenus as genus}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItems.genus[genus]}
+                on:change={(event) => handleItemSelection(event, "genus", genus)}
+              />
+              {genus}
+            </label>
+          {/each}
+        </div>
+      {/if}
+  
+      {#if selectedTaxonomyLevel === "speciesfull"}
+        <!-- Render the corresponding options based on the selected taxonomy level -->
+        <div class="filtercontainer">
+          {#each uniqueBinaryCombination as binaryComb}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItems.binaryCombination[binaryComb]}
+                on:change={(event) =>
+                  handleItemSelection(event, "binaryCombination", binaryComb)}
+              />
+              {binaryComb}
+            </label>
+          {/each}
+        </div>
+      {/if}
     </div>
-
-    {#if selectedTaxonomyLevel === "all"}
-      <p>Search a specific species or start by selecting in the dropdown above</p>
-    {/if}
-
-    {#if selectedTaxonomyLevel === "subfamily"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueSubFamilies as subfamily}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.subfamilies[subfamily]}
-              on:change={(event) =>
-                handleItemSelection(event, "subfamilies", subfamily)}
-            />
-            {subfamily}
-          </label>
-        {/each}
-      </div>
-    {/if}
-
-    {#if selectedTaxonomyLevel === "supertribe"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueSupertribes as supertribe}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.supertribes[supertribe]}
-              on:change={(event) =>
-                handleItemSelection(event, "supertribes", supertribe)}
-            />
-            {supertribe}
-          </label>
-        {/each}
-      </div>
-    {/if}
-
-    {#if selectedTaxonomyLevel === "tribe"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueTribes as tribe}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.tribes[tribe]}
-              on:change={(event) => handleItemSelection(event, "tribes", tribe)}
-            />
-            {tribe}
-          </label>
-        {/each}
-      </div>
-    {/if}
-
-    {#if selectedTaxonomyLevel === "genus"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueGenus as genus}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.genus[genus]}
-              on:change={(event) => handleItemSelection(event, "genus", genus)}
-            />
-            {genus}
-          </label>
-        {/each}
-      </div>
-    {/if}
-
-    {#if selectedTaxonomyLevel === "speciesfull"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueBinaryCombination as binaryComb}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.binaryCombination[binaryComb]}
-              on:change={(event) =>
-                handleItemSelection(event, "binaryCombination", binaryComb)}
-            />
-            {binaryComb}
-          </label>
-        {/each}
-      </div>
-    {/if}
   </div>
 
   <div id="selectioncontainer">
@@ -326,25 +329,35 @@
     width: calc(100vw / 4);
     height: 85vh;
     padding: 1rem;
-    border: solid 2px black;
-    border-radius: 5px;
+    background: var(--primary-color-dark-2);
     position: relative;
+  }
+
+  .filtercategorycontainer {
+    padding: 0.5rem;
+    height: 50%;
+    background:var(--primary-color-light-2);
+    border-radius:var(--standard-border-radius) var(--standard-border-radius) 0 0;
   }
 
   .filtercontainer {
     flex-grow: 1;
     min-width: 0; /* Allow flex items to shrink */
-    height: 35%;
+    height: 70%;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
     gap: 0.5rem; 
     padding: 0.5rem;
-    background: rgb(233, 240, 243);
+    /* background: var(--primary-color-light-2); */
+  }
+
+  .filtercontainer .filtercontainer {
+    box-shadow: inset 0px -8px 8px -8px rgba(0, 0, 0, 0.25);
   }
 
   nav {
-    transform: rotate(90deg) translate(45%, calc(-500%));
+    transform: rotate(90deg) translate(45%, calc(-493%));
     position: absolute;
     top: 0;
     right: 0;
@@ -358,8 +371,25 @@
 
   nav ul li {
     padding: 0.5rem;
-    border-radius: 5px 5px 0 0;
-    background: lightgreen;
+    border-radius: var(--standard-border-radius) var(--standard-border-radius) 0 0;
+    background: var(--primary-color-light-1);
+    transition:var(--standard-transition-time);
+  }
+
+  nav ul li:hover {
+    background:var(--primary-color-dark-2);
+  }
+
+  nav ul li:first-child {
+    background:var(--primary-color-dark-2);
+  }
+
+  nav ul li:first-child:hover {
+    background:var(--primary-color-dark-1);
+  }
+
+  nav ul li.selected {
+    background: var(--primary-color-dark-2);
   }
 
   nav ul li:first-child {
@@ -368,7 +398,7 @@
 
    img:first-child {
     transform:rotate(-90deg);
-    transition:.25s;
+    transition:var(--standard-transition-time);
   }
 
   nav ul li:first-child:hover img:first-child {
@@ -379,7 +409,7 @@
     flex-basis: 100%; /* Make it take up full width */
     height: 30%;
     background: white;
-    border-top: solid 2px lightgrey;
+    border-top: solid 2px var(--primary-color-light-1);
     padding: 0.5rem;
     background: rgb(233, 240, 243);
   }
@@ -392,20 +422,22 @@
   #selectioncontainer ul {
     height: 100px;
     overflow-y: scroll;
+    box-shadow: inset 0px -8px 8px -8px rgba(0, 0, 0, 0.25);
   }
 
   .clearAllButton {
-    background: none;
+    background: var(--primary-color-light-2);
     border: none;
     width: fit-content;
     padding: 0.25rem;
     text-decoration: underline;
+    text-underline-offset: 1px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    border-radius: 2px;
-    transition: 0.25s;
+    border-radius: var(--standard-bored-radius);
+    transition: var(--standard-transition-time);
   }
 
   .clearAllButton img {
@@ -413,33 +445,38 @@
   }
 
   .clearAllButton:hover {
-    background: green;
+    background: var(--primary-color-light-1);
     border: none;
     text-decoration: underline;
+    transform:scale(1.1);
+    text-underline-offset: 3px;
   }
 
-  #selectioncontainer h3 {
-    margin: 0;
+  #selectioncontainer{
+    background:var(--primary-color-light-2);
+    border-radius:0 0 var(--standard-border-radius) var(--standard-border-radius);
   }
 
   #selectioncontainer ul {
+    height:80%;
     overflow-y: scroll;
-    padding: 0;
-    margin: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
   }
 
   #selectioncontainer ul li {
-    font-size: 0.8rem;
+    font-size: var(--standard-font-size-body);
+    width:85%;
     padding: 0.25rem;
     margin: 0.25rem;
     text-align: left;
-    transition: 0.5s;
-    border-radius: 5px;
+    
+    border-radius: var(--standard-border-radius);
     display: flex;
     justify-content: space-between;
+
+    transition: var(--basic-transition-time);
   }
 
   #selectioncontainer ul li:hover {
@@ -450,24 +487,65 @@
     margin-left: 0.5rem;
   }
 
-  #filters > label {
-    font-size: 1.5rem;
-    font-weight: bold;
+  .filtercategorycontainer > label {
+    font-size:var(--standard-font-size-header);
+    font-style:var(--standard-font-style-header);
+    font-weight:var(--standard-font-weight-header);
   }
 
-  #filters > select,
+  .filtercategorycontainer > select,
   .searchbarcontainer > input {
-    width: 80%;
+    width: 85%;
     height: 2.1rem;
-    font-size: 1.1rem;
+    padding-left:.5rem;
+    font-size: var(--standard-font-size-body);
+    font-style: var(--standard-font-style-body);
+    font-weight: var(--standard-font-weight-body);
+    border-radius:var(--standard-border-radius);
+
+    transition:var(--standard-transition-time);
+  }
+
+  .filtercategorycontainer > select:hover {
+    background:var(--primary-color-light-2);
+  }
+
+  .filtercategorycontainer > select:focus {
+    border-radius: var(--standard-border-radius) var(--standard-border-radius) 0 0;
   }
 
   select > option {
-    font-size: 1.1rem;
+    font-size: var(--standard-font-size-body);
+    font-style: var(--standard-font-style-body);
+    font-weight: var(--standard-font-weight-body);
+
+    background:var(--primary-color-light-1);
+  }
+
+  select > option:first-child {
+    border-radius:0;
+  }
+
+  select > option:last-child {
+    border-radius: 0 0 var(--standard-border-radius) var(--standard-border-radius);
   }
 
   .searchbarcontainer > button {
-    width: 2.1rem;
+    transform:translateX(-150%) rotate(180deg);
+    background:transparent;
+    border:none;
+    width: 1.5rem;
     aspect-ratio: 1/1;
+
+    transition:var(--standard-transition-time);
+  }
+
+  .searchbarcontainer:hover > button {
+    transform:translateX(-150%) rotate(180deg) translateY(10%);
+  }
+
+  .searchbarcontainer > button > img {
+    width:80%;
+    height:80%;
   }
 </style>

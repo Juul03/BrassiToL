@@ -18,7 +18,7 @@
 <style>
 	header {
 		height:10vh;
-		background:#185D51;
+		background:var(--primary-color-dark-1);
 		display:flex;
 		align-items:center;
 

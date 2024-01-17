@@ -10,7 +10,7 @@
     --primary-color-dark-1:#185D51;
     --primary-color-dark-2:#8CA784;
     --primary-color-light-2:#AABA9E;
-    --primary-color-light:#DDE3D8;
+    --primary-color-light-1:#DDE3D8;
 
     --highlight-color-1:#0074CC;
     --highlight-color-2:#7E57C2;
@@ -39,4 +39,12 @@
     --standard-font-weight-body:400;
     --standard-font-weight-header-small:600;
     --standard-font-weight-body-small:400;
+
+    --standard-transition-time:.5s;
+}
+
+h3 {
+    font-size:var(--standard-font-size-header);
+    font-style:var(--standard-font-style-header);
+    font-weight:var(--standard-font-weight-header);
 }

@@ -626,17 +626,34 @@
   /* Style the toggle button */
   .toggle-container {
     position: absolute;
-    left: 30px;
+    left: 1rem;
     bottom: 10px;
+    width:calc(100vw/4);
+    height:13%;
+
+    /* TODO:verwijderen als klaar */
+    overflow:hidden;
+
+    display:flex;
+    flex-direction:column;
+    gap:.25rem;
+    margin:auto;
+    justify-content:center;
+    align-items:center;
+
+    background:var(--primary-color-light-2);
+    border-radius:var(--standard-border-radius);
   }
 
   .toggle-label {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 200px; /* Adjust the width as needed */
-    height: 26px;
-    margin-bottom: 10px; /* Adjust the margin as needed */
+    width: 90%;
+
+    font-size:var(--standard-font-size-body-small);
+    font-style:var(--standard-font-style-body-small);
+    font-weight:500;
   }
 
   .toggle-label input {
@@ -646,30 +663,33 @@
   .toggle-slider {
     position: relative;
     cursor: pointer;
-    width: 50px; /* Adjust the width as needed */
-    height: 26px;
-    background-color: #ccc;
+    width: 40px; /* Adjust the width as needed */
+    height: 20px;
+    background-color: var(--primary-color-light-2);
     border-radius: 26px;
-    transition: 0.4s;
+    border:2px solid var(--primary-color-dark-1);
+    transition: var(--basic-transition-time);
   }
 
   .toggle-slider:before {
     content: "";
     position: absolute;
-    height: 20px;
-    width: 20px;
+    height: 15px;
+    width: 15px;
     top: 3px;
     left: 3px;
-    background-color: white;
+    background-color: var(--primary-color-dark-1);
     border-radius: 50%;
-    transition: 0.4s;
+    transition: var(--standard-transition-time);
   }
 
   input:checked + .toggle-slider {
-    background-color: green;
+    border:2px solid transparent;
+    background-color: var(--primary-color-dark-1);
   }
 
   input:checked + .toggle-slider:before {
-    transform: translateX(22px);
+    background-color: white;
+    transform: translateX(19px);
   }
 </style>
