@@ -338,8 +338,7 @@
     gap: .5rem;
   }
 
-  .filtercontainer,
-  #selectioncontainer {
+  .filtercontainer {
     width: calc(100vw / 6);
     height: 220px;
     /* overflow-y: scroll; */
@@ -352,8 +351,14 @@
   }
 
   #selectioncontainer {
-    height: 150px;
+    width: calc(100vw / 6);
+    height: 125px;
     background: white;
+    display: flex;
+    flex-direction: column;
+
+    padding: 0.5rem;
+    background: rgb(233, 240, 243);
   }
 
   #selectioncontainer h3 {
@@ -361,6 +366,7 @@
   }
 
   #selectioncontainer ul {
+    overflow-Y:scroll;
     padding: 0;
     margin: 0;
     list-style: none;
