@@ -347,7 +347,7 @@
   }
 
   nav {
-    transform: rotate(90deg) translate(30%, calc(-300%));
+    transform: rotate(90deg) translate(45%, calc(-500%));
     position: absolute;
     top: 0;
     right: 0;
