@@ -459,10 +459,10 @@
       return function (event, d) {
         d3.select(this).classed("label--active", active);
 
-        const clickedPath = d3.select(d.linkExtensionNode);
-        const isSelected = clickedPath.classed("link-extension--active");
+        // const clickedPath = d3.select(d.linkExtensionNode);
+        // const isSelected = clickedPath.classed("link-extension--active");
 
-        clickedPath.classed("link-extension--active", !isSelected).raise();
+        // clickedPath.classed("link-extension--active", !isSelected).raise();
 
         let ancestor = d;
         while (ancestor) {
