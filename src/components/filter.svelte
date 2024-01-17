@@ -436,7 +436,7 @@
     flex-direction: row;
     justify-content: space-around;
     align-items: center;
-    border-radius: var(--standard-bored-radius);
+    border-radius: var(--standard-border-radius);
     transition: var(--standard-transition-time);
   }
 

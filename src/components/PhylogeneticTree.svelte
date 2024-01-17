@@ -631,9 +631,6 @@
     width:calc(100vw/4);
     height:13%;
 
-    /* TODO:verwijderen als klaar */
-    overflow:hidden;
-
     display:flex;
     flex-direction:column;
     gap:.25rem;
