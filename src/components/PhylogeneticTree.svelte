@@ -219,11 +219,6 @@
         "genus"
       );
 
-      let taxonomySamplesSpecies = matchTaxonomyWithSample(
-        selectedTaxonomy,
-        "species"
-      );
-
       let taxonomySamplesBinaryCombination = matchTaxonomyWithSample(
         selectedTaxonomy,
         "binarycombination"
@@ -235,7 +230,6 @@
         ...taxonomySamplesSupertribe,
         ...taxonomySamplesTribes,
         ...taxonomySamplesGenus,
-        ...taxonomySamplesSpecies,
         ...taxonomySamplesBinaryCombination,
       ];
       updateTree(combinedSamples);
@@ -315,19 +309,6 @@
               .filter((data) => data.GENUS === genus)
               .map((data) => data.SAMPLE);
             return genusSamples;
-          })
-          .flat();
-
-      case "species":
-        // For tribes, map each tribe to its corresponding samples
-        return (taxonomy.species || [])
-          .map((specie) => {
-            // Implement your logic to find the samples for the given tribe
-            // This is a placeholder; adapt it based on your actual data structure
-            const specieSamples = allSpecieData
-              .filter((data) => data.SPECIES === specie)
-              .map((data) => data.SAMPLE);
-            return specieSamples;
           })
           .flat();
 

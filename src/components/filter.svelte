@@ -12,7 +12,6 @@
   let uniqueSupertribes = [];
   let uniqueTribes = [];
   let uniqueGenus = [];
-  let uniqueSpecies = [];
   let uniqueBinaryCombination = [];
 
   let selectedTaxonomyLevel = "all";
@@ -40,13 +39,9 @@
         uniqueGenus = findUniqueValues("GENUS");
         uniqueGenus.sort();
 
-        uniqueSpecies = findUniqueValues("SPECIES");
-        uniqueSpecies.sort();
-
         uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
         uniqueBinaryCombination.sort();
 
-        // filter();
       } else {
         console.error("Failed to fetch the data");
       }
@@ -83,26 +78,12 @@
     return [...new Set(values)];
   };
 
-  // const filter = () => {
-  //   const genusFilter = metaData.filter((sample) => sample.GENUS === "Arabis");
-  //   const growthFilterh = metaData.filter(
-  //     (sample) => sample.GROWTH_FORM === "H"
-  //   );
-  //   const growthFilterw = metaData.filter(
-  //     (sample) => sample.GROWTH_FORM === "W"
-  //   );
-  //   console.log(genusFilter);
-  //   console.log(growthFilterh);
-  //   console.log(growthFilterw);
-  // };
-
   let selectedItems = {
     families: {},
     subfamilies: {},
     supertribes: {},
     tribes: {},
     genus: {},
-    species: {},
     binaryCombination: {},
   };
 
@@ -169,8 +150,7 @@
     <option value="supertribe">Supertribe</option>
     <option value="tribe">Tribe</option>
     <option value="genus">Genus</option>
-    <option value="species">Species</option>
-    <option value="speciesfull">Binary combination</option>
+    <option value="speciesfull">Species</option>
   </select>
 
   <div class="filtercontainer">
@@ -254,23 +234,6 @@
       </div>
     {/if}
 
-    {#if selectedTaxonomyLevel === "species"}
-      <!-- Render the corresponding options based on the selected taxonomy level -->
-      <div class="filtercontainer">
-        {#each uniqueSpecies as specie}
-          <label>
-            <input
-              type="checkbox"
-              bind:checked={selectedItems.species[specie]}
-              on:change={(event) =>
-                handleItemSelection(event, "species", specie)}
-            />
-            {specie}
-          </label>
-        {/each}
-      </div>
-    {/if}
-
     {#if selectedTaxonomyLevel === "speciesfull"}
       <!-- Render the corresponding options based on the selected taxonomy level -->
       <div class="filtercontainer">
@@ -312,14 +275,9 @@
           Genus: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
-      {#each Object.keys(selectedItems.species).filter((key) => selectedItems.species[key]) as selected}
-        <li on:click={() => removeSelectedItem("species", selected)}>
-          Species: {selected} <img src="icons/removeIcon.svg" alt="remove">
-        </li>
-      {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li on:click={() => removeSelectedItem("binaryCombination", selected)}>
-          Binary Combination: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Species: {selected} <img src="icons/removeIcon.svg" alt="remove">
         </li>
       {/each}
     </ul>
