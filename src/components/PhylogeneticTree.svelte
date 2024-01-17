@@ -197,6 +197,7 @@
 
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+      console.log('selected', selectedTaxonomy)
 
       let taxonomySamplesSubfamily = matchTaxonomyWithSample(
         selectedTaxonomy,
