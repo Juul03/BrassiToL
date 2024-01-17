@@ -195,7 +195,7 @@
     </div>
 
     {#if selectedTaxonomyLevel === "all"}
-      <p>Start by selecting in the dropdown above</p>
+      <p>Search a specific species or start by selecting in the dropdown above</p>
     {/if}
 
     {#if selectedTaxonomyLevel === "subfamily"}
@@ -324,24 +324,21 @@
 <style>
   #filters {
     width: calc(100vw / 4);
-    height: 80vh;
+    height: 85vh;
     padding: 1rem;
     border: solid 2px black;
     border-radius: 5px;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
     position: relative;
   }
 
   .filtercontainer {
     flex-grow: 1;
     min-width: 0; /* Allow flex items to shrink */
-    height: 220px;
+    height: 35%;
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem; /* Adjust the gap between items */
+    gap: 0.5rem; 
     padding: 0.5rem;
     background: rgb(233, 240, 243);
   }
@@ -380,7 +377,7 @@
 
   #selectioncontainer {
     flex-basis: 100%; /* Make it take up full width */
-    height: 125px;
+    height: 30%;
     background: white;
     border-top: solid 2px lightgrey;
     padding: 0.5rem;

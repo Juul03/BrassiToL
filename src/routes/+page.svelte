@@ -19,6 +19,9 @@
 	header {
 		height:10vh;
 		background:#185D51;
+		display:flex;
+		align-items:center;
+
 	}
 
 	.logo {
