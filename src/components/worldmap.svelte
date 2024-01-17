@@ -95,9 +95,11 @@
 
             console.log("worst", countryNamesArray);
 
-            let selectedCountries = ["Russia", "India", "Costa Rica"];
             // Call the colorCountry function after the subscription updates the selectedTaxonomy
-            colorCountry(countryNamesArray);
+            countryNamesArray.forEach(array => {
+                colorCountry(array)
+            })
+            // colorCountry(countryNamesArray);
         });
 
         return () => {
@@ -107,6 +109,7 @@
 
     function colorCountry(countryNames) {
         d3.select("#content g.map").selectAll("path").style("fill", "green"); // Reset all countries to the original style
+        console.log('kaas+worst', countryNames)
 
         countryNames.forEach((countryName) => {
             d3.select("#content g.map")
