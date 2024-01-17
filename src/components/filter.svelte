@@ -253,7 +253,14 @@
   </div>
 
   <div id="selectioncontainer">
-    <h3>Selected</h3>
+    <header>
+      <h3>Selected</h3>
+      <button class="clearAllButton">
+        Clear all
+        <img src="icons/removeIconDark.svg" alt="remove">
+      </button>
+    </header>
+    
     <ul>
       {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
         <li on:click={() => removeSelectedItem("subfamilies", selected)}>
@@ -286,7 +293,7 @@
 
 <style>
   #filters {
-    width: calc(100vw / 5);
+    width: calc(100vw / 4);
     height: 80vh;
     padding: 1rem;
     border: solid 2px black;
@@ -297,7 +304,6 @@
   }
 
   .filtercontainer {
-    width: calc(100vw / 6);
     height: 220px;
     /* overflow-y: scroll; */
     overflow-x: hidden;
@@ -309,14 +315,47 @@
   }
 
   #selectioncontainer {
-    width: calc(100vw / 6);
     height: 125px;
     background: white;
-    display: flex;
-    flex-direction: column;
-
+    border-top:solid 2px lightgrey;
     padding: 0.5rem;
     background: rgb(233, 240, 243);
+  }
+
+  #selectioncontainer > header {
+    display:flex;
+    justify-content: space-between;
+
+  }
+
+  #selectioncontainer ul {
+    height: 100px;
+    overflow-y: scroll;
+  }
+
+  .clearAllButton {
+    background:none;
+    border:none;
+    width:fit-content;
+    padding:.25rem;
+    text-decoration: underline;
+
+    display:flex;
+    flex-direction:row;
+    justify-content:space-around;
+    align-items:center;
+    border-radius:2px;
+    transition:.25s;
+  }
+
+  .clearAllButton img {
+    margin-left:.5rem;
+  }
+
+  .clearAllButton:hover {
+    background:green;
+    border:none;
+    text-decoration: underline;
   }
 
   #selectioncontainer h3 {
@@ -334,11 +373,14 @@
 
   #selectioncontainer ul li {
     font-size:.8rem;
-    flex: 1;
-    padding: 0.5rem;
+    padding: 0.25rem;
+    margin:.25rem;
     text-align: left;
     transition:.5s;
     border-radius:5px;
+
+    display:flex;
+    justify-content: space-between;
   }
 
   #selectioncontainer ul li:hover {
