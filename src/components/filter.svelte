@@ -41,7 +41,6 @@
 
         uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
         uniqueBinaryCombination.sort();
-
       } else {
         console.error("Failed to fetch the data");
       }
@@ -138,9 +137,40 @@
     // Update the selectedTaxonomyStore with the updated value for the specific taxonomy
     updateSelectedTaxonomy(selectedKeys, taxonomy);
   };
+
+  const removeAllSelectedItems = () => {
+    // Clear selected items for each taxonomy level
+    clearSelectedItems("subfamilies");
+    clearSelectedItems("supertribes");
+    clearSelectedItems("tribes");
+    clearSelectedItems("genus");
+    clearSelectedItems("binaryCombination");
+  };
+
+  const clearSelectedItems = (taxonomyLevel) => {
+    // Set the selectedItems for the specified taxonomy level to an empty object
+    selectedItems[taxonomyLevel] = {};
+
+    // Update selectedTaxonomyStore
+    const selectedKeys = Object.keys(selectedItems[taxonomyLevel]).filter(
+      (key) => selectedItems[taxonomyLevel][key]
+    );
+    updateSelectedTaxonomy(selectedKeys, taxonomyLevel);
+  };
 </script>
 
 <section id="filters">
+  <!-- Nav to choose which filter type is showing -->
+  <nav>
+    <ul>
+      <li>
+        <img src="/icons/arrowIcon.svg" alt="filters">
+        <img src="/icons/filterIcon.svg" alt="filters"></li>
+      <li>Taxonomy</li>
+      <li>Geographical</li>
+      <li>Extra</li>
+    </ul>
+  </nav>
   <!-- Dropdown to choose taxonomy level -->
   <label for="taxonomy-select">Taxonomy</label>
 
@@ -255,36 +285,36 @@
   <div id="selectioncontainer">
     <header>
       <h3>Selected</h3>
-      <button class="clearAllButton">
+      <button on:click={() => removeAllSelectedItems()} class="clearAllButton">
         Clear all
-        <img src="icons/removeIconDark.svg" alt="remove">
+        <img src="icons/removeIconDark.svg" alt="remove" />
       </button>
     </header>
-    
+
     <ul>
       {#each Object.keys(selectedItems.subfamilies).filter((key) => selectedItems.subfamilies[key]) as selected}
         <li on:click={() => removeSelectedItem("subfamilies", selected)}>
-          Subfamily: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Subfamily: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.supertribes).filter((key) => selectedItems.supertribes[key]) as selected}
         <li on:click={() => removeSelectedItem("supertribes", selected)}>
-          Supertribe: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Supertribe: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.tribes).filter((key) => selectedItems.tribes[key]) as selected}
         <li on:click={() => removeSelectedItem("tribes", selected)}>
-          Tribe: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Tribe: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
         <li on:click={() => removeSelectedItem("genus", selected)}>
-          Genus: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Genus: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li on:click={() => removeSelectedItem("binaryCombination", selected)}>
-          Species: {selected} <img src="icons/removeIcon.svg" alt="remove">
+          Species: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
     </ul>
@@ -299,33 +329,67 @@
     border: solid 2px black;
     border-radius: 5px;
     display: flex;
-    flex-direction: column;
-    gap: .5rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    position: relative;
   }
 
   .filtercontainer {
+    flex-grow: 1;
+    min-width: 0; /* Allow flex items to shrink */
     height: 220px;
-    /* overflow-y: scroll; */
     overflow-x: hidden;
     display: flex;
     flex-direction: column;
-
+    gap: 0.5rem; /* Adjust the gap between items */
     padding: 0.5rem;
     background: rgb(233, 240, 243);
   }
 
+  nav {
+    transform: rotate(90deg) translate(30%, calc(-300%));
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+
+  nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+  }
+
+  nav ul li {
+    padding: 0.5rem;
+    border-radius: 5px 5px 0 0;
+    background: lightgreen;
+  }
+
+  nav ul li:first-child {
+    width:3rem;
+  }
+
+   img:first-child {
+    transform:rotate(-90deg);
+    transition:.25s;
+  }
+
+  nav ul li:first-child:hover img:first-child {
+    transform:rotate(90deg);
+  }
+
   #selectioncontainer {
+    flex-basis: 100%; /* Make it take up full width */
     height: 125px;
     background: white;
-    border-top:solid 2px lightgrey;
+    border-top: solid 2px lightgrey;
     padding: 0.5rem;
     background: rgb(233, 240, 243);
   }
 
   #selectioncontainer > header {
-    display:flex;
+    display: flex;
     justify-content: space-between;
-
   }
 
   #selectioncontainer ul {
@@ -334,27 +398,26 @@
   }
 
   .clearAllButton {
-    background:none;
-    border:none;
-    width:fit-content;
-    padding:.25rem;
+    background: none;
+    border: none;
+    width: fit-content;
+    padding: 0.25rem;
     text-decoration: underline;
-
-    display:flex;
-    flex-direction:row;
-    justify-content:space-around;
-    align-items:center;
-    border-radius:2px;
-    transition:.25s;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    border-radius: 2px;
+    transition: 0.25s;
   }
 
   .clearAllButton img {
-    margin-left:.5rem;
+    margin-left: 0.5rem;
   }
 
   .clearAllButton:hover {
-    background:green;
-    border:none;
+    background: green;
+    border: none;
     text-decoration: underline;
   }
 
@@ -363,32 +426,31 @@
   }
 
   #selectioncontainer ul {
-    overflow-Y:scroll;
+    overflow-y: scroll;
     padding: 0;
     margin: 0;
     list-style: none;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
   }
 
   #selectioncontainer ul li {
-    font-size:.8rem;
+    font-size: 0.8rem;
     padding: 0.25rem;
-    margin:.25rem;
+    margin: 0.25rem;
     text-align: left;
-    transition:.5s;
-    border-radius:5px;
-
-    display:flex;
+    transition: 0.5s;
+    border-radius: 5px;
+    display: flex;
     justify-content: space-between;
   }
 
   #selectioncontainer ul li:hover {
-    background:lightblue;
+    background: lightblue;
   }
 
   ul li img {
-    margin-left:0.5rem;
+    margin-left: 0.5rem;
   }
 
   #filters > label {
