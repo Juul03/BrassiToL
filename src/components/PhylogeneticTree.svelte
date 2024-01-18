@@ -5,7 +5,8 @@
 
   let selectedTaxonomy = {};
 
-  let phyloTreeData;
+  let phyloTreeDataWithOutgroups;
+  let phyloTreeDataWithoutOutgroups;
   let parsedData;
 
   let allSpecieData;
@@ -24,12 +25,34 @@
 
   const fetchPhylotreeData = async () => {
     try {
-      const response = await fetch("/data/BrassiToL_easy.tree");
+      const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
       if (response.ok) {
         const text = await response.text();
-        phyloTreeData = text;
+        phyloTreeDataWithoutOutgroups = text;
         // Call parseNewick after setting phyloTreeData
-        parsedData = parseNewick(phyloTreeData);
+        phyloTreeDataWithoutOutgroups = parseNewick(phyloTreeDataWithoutOutgroups);
+        // Now you can proceed with creating the phylogenetic tree using parsedData
+        // Example: const svg = createPhylogeneticTree(parsedData);
+      } else {
+        console.error("Failed to fetch data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
+
+  const fetchPhylotreeData2 = async () => {
+    try {
+      const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      if (response.ok) {
+        const text = await response.text();
+        phyloTreeDataWithOutgroups = text;
+        // Call parseNewick after setting phyloTreeData
+        phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -104,27 +127,11 @@
   let findOutgroups = () => {
     if (areOutgroupsShown) {
       // Create and update the phylogenetic tree with all data
-      createTree(document.querySelector("#phyloTree"), parsedData);
+      createTree(document.querySelector("#phyloTree"), phyloTreeDataWithOutgroups);
     } else {
-      const outgroupData = allSpecieData.filter(
-        (data) => data.FAMILY !== "Brassicaceae"
-      );
-
-      if (outgroupData.length > 0) {
-        const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-        const filteredParsedData = filterOutgroupsFromParsedData(
-          parsedData,
-          outgroupSamples
-        );
-
         // Create and update the phylogenetic tree without the outgroups
-        createTree(document.querySelector("#phyloTree"), filteredParsedData);
-      } else {
-        // No outgroups found
-        // Create and update the phylogenetic tree with all data if no outgroups found
-        createTree(document.querySelector("#phyloTree"), parsedData);
-      }
-    }
+        createTree(document.querySelector("#phyloTree"), phyloTreeDataWithoutOutgroups);
+      } 
   };
 
   const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
@@ -152,8 +159,12 @@
 
   onMount(async () => {
     await fetchAllSpecieData();
+    // await fetchPhylotreeData();
     await fetchPhylotreeData();
+    await fetchPhylotreeData2();
+    console.log(phyloTreeDataWithOutgroups);
     findOutgroups();
+
 
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
@@ -341,7 +352,7 @@
     return sample;
   };
 
-  const createPhylogeneticTree = (data, showLength) => {
+  const createPhylogeneticTree = (data) => {
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -399,7 +410,7 @@
       .append("g")
       .attr("fill", "none")
       .attr("stroke", "#000")
-      .attr("stroke-width", ".50px")
+      .attr("stroke-width", ".35px")
       .selectAll("path")
       .data(root.links())
       .join("path")
@@ -424,28 +435,11 @@
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
-      .text((d) => d.data.name.replace(/_/g, " "))
+      // .text((d) => d.data.name.replace(/_/g, " "))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
       // HOVER AND CLICK dont work at the same time
       .on("mouseover", mouseovered(true))
       .on("mouseout", mouseovered(false));
-
-    // Second ring kinda
-    // svg
-    //   .append("g")
-    //   .selectAll("rect")
-    //   .data(root.leaves())
-    //   .join("rect")
-    //   .attr("width", 1)
-    //   .attr("height", 50)
-    //   .attr("fill", "green")
-    //   .attr(
-    //     "transform",
-    //     (d) =>
-    //       `rotate(${d.x}) translate(${innerRadius + 50},0)${
-    //         d.x < 180 ? "" : " rotate(180)"
-    //       }`
-    //   );
 
     function update(checked) {
       const t = d3.transition().duration(750);
