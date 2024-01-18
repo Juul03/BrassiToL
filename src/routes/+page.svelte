@@ -5,7 +5,10 @@
 </script>
 
 <!-- <h1>Phylogentic Tree Brassicaceae</h1> -->
-<img class="logo" src="/logofull.svg" alt="Brassicaceae tree of life">
+<header>
+	<img class="logo" src="/logofull.svg" alt="Brassicaceae tree of life">
+</header>
+
 
 <main>
 	<Filter/>
@@ -13,9 +16,17 @@
 </main>
 
 <style>
+	header {
+		height:10vh;
+		background:var(--primary-color-dark-1);
+		display:flex;
+		align-items:center;
+
+	}
+
 	.logo {
 		padding:1rem;
-		height:4.5rem;
+		height:80%;
 	}
 	main {
 		display:flex;
