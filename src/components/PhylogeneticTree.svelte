@@ -251,21 +251,88 @@
     };
   });
 
+  let sharedRoot;
+  // in the phylogentic tree function sharedRoot = root definieren
   let updateTree = (selected) => {
+    console.log('selected in', selected)
     // d3.select("svg")
     //   .selectAll("text")
     //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
 
-    d3.select("svg")
-      .selectAll("path")
-      .transition() // Add a transition for a smoother effect
-      .duration(500) // Set the duration to 500 milliseconds
-      .style("stroke", (d) =>
-        selected.includes(d.target.data.name) ? d.target.color : "#000"
-      )
-      .attr("stroke-width", (d) =>
-        selected.includes(d.target.data.name) ? "2px" : ""
-      );
+    //   sharedRoot.each((node) => { 
+    //     selected.forEach((selection)=> {
+    //       if(selection === node.data.name) {
+    //         node.ancestors().forEach((ancestor)=> {
+    //           d3.select(node.linkNode).attr("stroke", "red")
+
+    //           if(!ancestor.children) {
+    //             d3.select(ancestor.data.textNode).style("fill", "red")
+    //           }
+    //         })
+            
+    //       }
+    //     })
+    //     // selected samples vergelijken met nummers uit de node.data.name
+    //   console.log("node", node)
+
+    // })
+
+    selected.forEach((selection) => {
+  sharedRoot.each((node) => {
+    if (selection === node.data.name) {
+      console.log("match")
+      node.ancestors().forEach((ancestor) => {
+        d3.select(ancestor.linkNode).attr("stroke", "red");
+      })
+    }
+  })
+})
+
+
+    // sharedRoot.each((node) => {
+    //   selected.forEach((selection) => {
+    //     node.ancestors().forEach((ancestor) => {
+    //       if(ancestor.linkNode === "S0377") {
+    //         console.log("found common linkNode")
+    //         d3.select(ancestor.linkNode).attr("stroke", "red");
+    //       } else {
+    //         d3.select(node.linkNode).attr("stroke", "lightgrey");
+    //       }
+          
+    //     })
+    //   })
+    // })
+
+    
+   
+
+    // selected.forEach((selection) => {
+    //   if(selected) {
+    //     node.ancestors().forEach((ancestor)=> {
+    //       d3.select(ancestor.linkNode).attr("stroke", "red")
+    //     })
+    //   }
+    // })
+   
+
+    // d3.select("svg")
+    //   .selectAll("path")
+    //   .transition() // Add a transition for a smoother effect
+    //   .duration(500) // Set the duration to 500 milliseconds
+    //   .style("stroke", (d) =>
+    //     selected.includes(d.target.data.name) ? d.target.color : "#000"
+    //   )
+    //   .attr("stroke-width", (d) =>
+    //     selected.includes(d.target.data.name) ? "2px" : ""
+    //   );
+
+    // node.ancestors().forEach((ancestor)=> {
+    //         d3.select(ancestor.linkNode)
+    //         .attr("stroke", "red")
+    //           .classed("link--active", active)
+    //           .raise();
+    // }
+    // )
   };
 
   // Find taxonomy filter selected cooresponding samples
@@ -360,6 +427,8 @@
         (a, b) =>
           a.value - b.value || d3.ascending(a.data.length, b.data.length)
       );
+
+    sharedRoot = root;
 
     cluster(root);
     setRadius(root, (root.data.length = 0), innerRadius / maxLength(root));
@@ -480,9 +549,6 @@
       svg.selectAll("text").on("mouseover", mouseovered(true)).on("mouseout", mouseovered(false));
   });
 
-
-
-
     function update(checked) {
       const t = d3.transition().duration(750);
       linkExtension
@@ -501,6 +567,7 @@
         // clickedPath.classed("link-extension--active", !isSelected).raise();
 
         let ancestor = d;
+        console.log("d",d)
         while (ancestor) {
           if (ancestor.linkNode) {
             d3.select(ancestor.linkNode)
