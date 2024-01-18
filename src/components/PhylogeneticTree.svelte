@@ -419,27 +419,66 @@
       })
       .attr("d", linkVariable);
 
-    svg
-      .append("g")
-      .selectAll("text")
-      .data(root.leaves())
-      .join("text")
-      .attr("dy", ".31em")
+    // svg
+    //   .append("g")
+    //   .selectAll("text")
+    //   .data(root.leaves())
+    //   .join("text")
+    //   .attr("dy", ".31em")
+    //   .attr(
+    //     "transform",
+    //     (d) =>
+    //       `rotate(${d.x}) translate(${innerRadius + 4},0)${
+    //         d.x < 180 ? "" : " rotate(180)"
+    //       }`
+    //   )
+    //   .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
+    //   .attr("font-size", ".3rem")
+    //   .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
+    //   // .text((d) => d.data.name.replace(/_/g, " "))
+    //   .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
+
+      svg
+  .append("g")
+  .selectAll("g")
+  .data(root.leaves())
+  .join("g")
+  .attr(
+    "transform",
+    (d) =>
+      `rotate(${d.x}) ${
+        d.x < 180
+          ? `translate(${innerRadius + 4},0)`
+          : `translate(${innerRadius + 4},0) rotate(180)`
+      }`
+  )
+  .each(function (d) {
+    // Append square
+    d3.select(this)
+      .append("rect")
+      .attr("x", "-.20em") // Adjust the x position as needed
+      .attr("y", 0) // Adjust the y position as needed
+      .attr("width", 2) // Adjust the width as needed
+      .attr("height", 20) // Adjust the height as needed
+      .attr("fill", "red") // Adjust the fill color as needed
       .attr(
         "transform",
-        (d) =>
-          `rotate(${d.x}) translate(${innerRadius + 4},0)${
-            d.x < 180 ? "" : " rotate(180)"
-          }`
-      )
+        d.x < 180 ? "translate(0, -240) rotate(49) scale(-1)" : "translate(0, 240) rotate(49) "
+      ); // Adjust the translation for squares
+
+    // Append text
+    d3.select(this)
+      .append("text")
+      .attr("dy", ".31em")
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
-      // .text((d) => d.data.name.replace(/_/g, " "))
-      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-      // HOVER AND CLICK dont work at the same time
-      .on("mouseover", mouseovered(true))
-      .on("mouseout", mouseovered(false));
+      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
+
+      svg.selectAll("text").on("mouseover", mouseovered(true)).on("mouseout", mouseovered(false));
+  });
+
+
 
     function update(checked) {
       const t = d3.transition().duration(750);
