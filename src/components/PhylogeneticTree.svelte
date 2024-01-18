@@ -254,29 +254,6 @@
   let sharedRoot;
   // in the phylogentic tree function sharedRoot = root definieren
   let updateTree = (selected) => {
-    console.log('selected in', selected)
-    // d3.select("svg")
-    //   .selectAll("text")
-    //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
-
-    //   sharedRoot.each((node) => { 
-    //     selected.forEach((selection)=> {
-    //       if(selection === node.data.name) {
-    //         node.ancestors().forEach((ancestor)=> {
-    //           d3.select(node.linkNode).attr("stroke", "red")
-
-    //           if(!ancestor.children) {
-    //             d3.select(ancestor.data.textNode).style("fill", "red")
-    //           }
-    //         })
-            
-    //       }
-    //     })
-    //     // selected samples vergelijken met nummers uit de node.data.name
-    //   console.log("node", node)
-
-    // })
-
     selected.forEach((selection) => {
   sharedRoot.each((node) => {
     if (selection === node.data.name) {
@@ -284,55 +261,12 @@
       node.ancestors().forEach((ancestor) => {
         d3.select(ancestor.linkNode).attr("stroke", "red");
       })
+    } else {
+      // Reset the stroke color to black
+      d3.select(node.linkNode).attr("stroke", "black");
     }
   })
 })
-
-
-    // sharedRoot.each((node) => {
-    //   selected.forEach((selection) => {
-    //     node.ancestors().forEach((ancestor) => {
-    //       if(ancestor.linkNode === "S0377") {
-    //         console.log("found common linkNode")
-    //         d3.select(ancestor.linkNode).attr("stroke", "red");
-    //       } else {
-    //         d3.select(node.linkNode).attr("stroke", "lightgrey");
-    //       }
-          
-    //     })
-    //   })
-    // })
-
-    
-   
-
-    // selected.forEach((selection) => {
-    //   if(selected) {
-    //     node.ancestors().forEach((ancestor)=> {
-    //       d3.select(ancestor.linkNode).attr("stroke", "red")
-    //     })
-    //   }
-    // })
-   
-
-    // d3.select("svg")
-    //   .selectAll("path")
-    //   .transition() // Add a transition for a smoother effect
-    //   .duration(500) // Set the duration to 500 milliseconds
-    //   .style("stroke", (d) =>
-    //     selected.includes(d.target.data.name) ? d.target.color : "#000"
-    //   )
-    //   .attr("stroke-width", (d) =>
-    //     selected.includes(d.target.data.name) ? "2px" : ""
-    //   );
-
-    // node.ancestors().forEach((ancestor)=> {
-    //         d3.select(ancestor.linkNode)
-    //         .attr("stroke", "red")
-    //           .classed("link--active", active)
-    //           .raise();
-    // }
-    // )
   };
 
   // Find taxonomy filter selected cooresponding samples
@@ -507,6 +441,8 @@
     //   // .text((d) => d.data.name.replace(/_/g, " "))
     //   .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
 
+    let maxTextWidth = 0;
+
     svg
   .append("g")
   .selectAll("g")
@@ -533,21 +469,31 @@
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
 
-    // Get the width of the text element
-    const textWidth = text.node().getBBox().width;
+    // Use transition to get notified when rendering is complete
+    text.transition().on("end", () => {
+      const textWidth = text.node().getBBox().width;
 
-    // Append square
-    d3.select(this)
+       // Track the maximum width
+       if (!maxTextWidth || textWidth > maxTextWidth) {
+        maxTextWidth = textWidth;
+        console.log("max",maxTextWidth)
+      }
+
+      // Append square
+      d3.select(this)
       .append("rect")
-      .attr("x", textWidth - 110) // Position at the end of the text
+      .attr("x", 0 - maxTextWidth - 25) // Position at the end of the maximum text width
       .attr("y", -1) // Adjust the y position as needed
-      .attr("width", 20) // Adjust the width as needed
+      .attr("width", maxTextWidth - textWidth + 20) // Adjust the width as needed
       .attr("height", 2) // Adjust the height as needed
       .attr("fill", isHighlighted ? "red" : "black")
       .attr("transform", d.x < 180 ? "scale(-1)" : " ");
+    });
 
-      svg.selectAll("text").on("mouseover", mouseovered(true)).on("mouseout", mouseovered(false));
+    svg.selectAll("text").on("mouseover", mouseovered(true)).on("mouseout", mouseovered(false));
   });
+
+
 
     function update(checked) {
       const t = d3.transition().duration(750);
