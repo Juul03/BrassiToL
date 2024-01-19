@@ -407,7 +407,7 @@
       .each(function (d) {
         d.target.linkExtensionNode = this;
       })
-      .attr("d", linkExtensionConstant);
+      .attr("d", isBrancheLengthShown ? linkVariable : linkConstant);
 
     const link = svg
       .append("g")
