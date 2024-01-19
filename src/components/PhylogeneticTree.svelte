@@ -252,21 +252,16 @@
   });
 
   let sharedRoot;
-  // in the phylogentic tree function sharedRoot = root definieren
   let updateTree = (selected) => {
-    selected.forEach((selection) => {
-  sharedRoot.each((node) => {
-    if (selection === node.data.name) {
-      console.log("match")
+    sharedRoot.each((node) => {
+      let isSelected = selected.includes(node.data.name);
+
       node.ancestors().forEach((ancestor) => {
-        d3.select(ancestor.linkNode).attr("stroke", "red");
-      })
-    } else {
-      // Reset the stroke color to black
-      d3.select(node.linkNode).attr("stroke", "black");
-    }
-  })
-})
+        d3.select(ancestor.linkNode)
+          .attr("stroke", isSelected ? "red" : "black")
+          .attr("stroke-width", isSelected ? "2px" : ".35px");
+      });
+    });
   };
 
   // Find taxonomy filter selected cooresponding samples
@@ -422,25 +417,6 @@
       })
       .attr("d", linkVariable);
 
-    // svg
-    //   .append("g")
-    //   .selectAll("text")
-    //   .data(root.leaves())
-    //   .join("text")
-    //   .attr("dy", ".31em")
-    //   .attr(
-    //     "transform",
-    //     (d) =>
-    //       `rotate(${d.x}) translate(${innerRadius + 4},0)${
-    //         d.x < 180 ? "" : " rotate(180)"
-    //       }`
-    //   )
-    //   .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
-    //   .attr("font-size", ".3rem")
-    //   .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
-    //   // .text((d) => d.data.name.replace(/_/g, " "))
-    //   .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-
     let maxTextWidth = 0;
 
     svg
@@ -466,7 +442,7 @@
       .attr("dy", ".31em")
       .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
       .attr("font-size", ".3rem")
-      .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
+      .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
       .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
 
     // Use transition to get notified when rendering is complete
@@ -490,7 +466,13 @@
       .attr("transform", d.x < 180 ? "scale(-1)" : " ");
     });
 
-    svg.selectAll("text").on("mouseover", mouseovered(true)).on("mouseout", mouseovered(false));
+    svg.selectAll("text")
+  .on("mouseover", function(event, d) {
+    mouseovered(true, event, d);
+  })
+  .on("mouseout", function(event, d) {
+    mouseovered(false, event, d);
+  });
   });
 
 
@@ -503,27 +485,20 @@
       link.transition(t).attr("d", checked ? linkVariable : linkConstant);
     }
 
-    function mouseovered(active) {
-      return function (event, d) {
-        d3.select(this).classed("label--active", active);
+    function mouseovered(active, event, d) {
+  d3.select(this).classed("label--active", active);
 
-        // const clickedPath = d3.select(d.linkExtensionNode);
-        // const isSelected = clickedPath.classed("link-extension--active");
-
-        // clickedPath.classed("link-extension--active", !isSelected).raise();
-
-        let ancestor = d;
-        console.log("d",d)
-        while (ancestor) {
-          if (ancestor.linkNode) {
-            d3.select(ancestor.linkNode)
-              .classed("link--active", active)
-              .raise();
-          }
-          ancestor = ancestor.parent;
-        }
-      };
+  let ancestor = d;
+  while (ancestor) {
+    if (ancestor.linkNode) {
+      d3.select(ancestor.linkNode)
+        .attr("stroke", active ? d.color : "#000")
+        .attr("stroke-width", active ? "2px" : ".35px")
+        .raise();
     }
+    ancestor = ancestor.parent;
+  }
+}
     return Object.assign(svg.node(), { update });
   };
 
