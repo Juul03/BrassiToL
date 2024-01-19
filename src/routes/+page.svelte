@@ -5,6 +5,33 @@
     import Worldmap from '../components/worldmap.svelte'
 </script>
 
-<Filter/>
-<!-- <Popup/> -->
-<Worldmap/>
+<!-- <h1>Phylogentic Tree Brassicaceae</h1> -->
+<header>
+	<img class="logo" src="/logofull.svg" alt="Brassicaceae tree of life">
+</header>
+
+
+<main>
+	<Filter/>
+	<Treemapj/>
+</main>
+
+<style>
+	header {
+		height:10vh;
+		background:var(--primary-color-dark-1);
+		display:flex;
+		align-items:center;
+
+	}
+
+	.logo {
+		padding:1rem;
+		height:80%;
+	}
+	main {
+		display:flex;
+		justify-content:space-between;
+		/* flex-wrap:wrap; */
+	}
+</style>
