@@ -647,6 +647,9 @@ function createTimeRings(svg, data) {
   // Create an array of evenly distributed values for the rings
   const ringValues = Array.from({ length: numberOfRings }, (_, i) => i * ringInterval);
 
+  // Sort ringValues in descending order
+  const sortedRingValues = ringValues.slice().reverse();
+
   // Set up a linear scale based on branch lengths
   const timeScale = d3.scaleLinear()
     .domain([0, d3.max(branchLengths)]) 
@@ -655,23 +658,53 @@ function createTimeRings(svg, data) {
   const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
 
   // Append circles for time rings
-  svg.selectAll(".time-ring")
+  let timerings = svg.selectAll(".time-ring")
     .data(ringValues)
     .enter()
     .append("circle")
     .attr("class", "time-ring")
     .attr("cx", 0) 
     .attr("cy", 0)
-    .attr("r", (d) => timeScale(d))
+    .attr("r", 0)
     .attr("fill", (d, i) => colorScale[i - 1 % colorScale.length])
-    .attr("stroke", "grey")
+    .attr("stroke", "lightgrey")
     .attr("stroke-dasharray", "3,3")
     .lower();
+
+    timerings.transition()
+    .duration(500)
+    .attr("r", (d) => timeScale(d))
+
+    // Append text labels for time rings
+  let timelabels = svg.selectAll(".time-label")
+    .data(sortedRingValues)
+    .enter()
+    .append("text")
+    .attr("class", "time-label")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("dy", "0.5em") 
+    .attr("fill", "grey")
+    .attr("font-size", ".5rem")
+    .attr("text-anchor", "middle")
+    .text((d) => `${Math.round(d)} MA`);
+
+    timelabels.transition().duration(500)
+    .attr("x", (d) => timeScale(d));
+    
 }
 
 // Function to remove time rings
 function removeTimeRings(svg) {
-  svg.selectAll(".time-ring").remove();
+  svg.selectAll(".time-ring").transition()
+    .duration(500)
+    .attr("r", 0)
+    .remove();
+  svg.selectAll(".time-label").transition()
+    .duration(500)
+    .attr("x", 0)
+    .attr("fill", "transparent")
+    .remove();
 }
 </script>
 
