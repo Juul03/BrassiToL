@@ -169,19 +169,20 @@
     container.innerHTML = "";
   } else {
     // Create the legend container only if it's not already created
-    legendContainer = d3.select("#legendContainer").append("div")
-      .attr("class", "legend-container")
+    legendContainer = d3
+      .select("#legendContainer")
+      .append("div")
+      .attr("class", "legend-container")  // Ensure that the class name matches the one in the CSS
       .style("position", "absolute")
-      .style("top", "27px")
-      .style("left", `${width + 20}px`);
-
-    // Add your legend content here if needed
-    legendContainer.append("p").text("Legend Content");
-
-    console.log("container", legendContainer);
+      .style("bottom", "10px")
+      .style("background", "var(--primary-color-light-1")
+      .style("padding", "1rem")
+      .style("border-radius", "var(--standard-border-radius")
+      .style("left", "calc(50px + 100vw / 4)");
+      
+    legendContainer.append("h3").text("Supertribe legend").style("font-size", "var(--standard-font-size-header-small)");;
   }
 }
-
 
   onMount(async () => {
     legendContainer = document.getElementById("legendContainer");
@@ -405,7 +406,7 @@
       .attr("font-size", 10);
 
     svgElement = svg
-    svg.append("g").call(legend);
+    svg.call(legend, color);
 
     svg.append("style").text(`
 
@@ -580,25 +581,28 @@
 
   let color = d3.scaleOrdinal().range(d3.schemeCategory10);
 
-  // Legend function (modified to use legendContainer)
-  let legend = (svg) => {
+  let legend = (svg, colorScale) => {
     createLegendContainer();
 
-    const g = legendContainer
-      .selectAll("g")
-      .data(color.domain())
-      .join("g")
-        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
+    const legendItems = legendContainer
+        .selectAll("li")
+        .data(colorScale.domain())
+        .enter()
+        .append("li")
+        .style("display", "flex")
+        .style("align-items", "center")
+        .style("font-size", "var(--standard-font-size-body-small)");
 
-      g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
+    legendItems
+        .append("div")
+        .style("width", "11px")
+        .style("height", "11px")
+        .style("border-radius", "50%")
+        .style("margin-right", "5px")
+        .style("background-color", (d) => colorScale(d));
 
-      g.append("text")
-        .attr("x", 24)
-        .attr("y", 9)
-        .attr("dy", "0.35em")
-        .text((d) => d);
-  };
-
+    legendItems.append("span").text((d) => d);
+};
 
   let linkExtensionConstant = (d) => {
     return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
