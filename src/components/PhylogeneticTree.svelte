@@ -12,6 +12,7 @@
   let allSpecieData;
 
   let svgElement;
+  let legendContainer;
 
   // Set up basic width and height
   const width = 900;
@@ -159,14 +160,38 @@
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
   };
 
+  let createLegendContainer = () => {
+  // Check if the legendContainer has any child nodes
+  const container = document.getElementById("legendContainer");
+
+  if (container && container.childNodes.length > 0) {
+    // Clear the existing content of legendContainer
+    container.innerHTML = "";
+  } else {
+    // Create the legend container only if it's not already created
+    legendContainer = d3.select("#legendContainer").append("div")
+      .attr("class", "legend-container")
+      .style("position", "absolute")
+      .style("top", "27px")
+      .style("left", `${width + 20}px`);
+
+    // Add your legend content here if needed
+    legendContainer.append("p").text("Legend Content");
+
+    console.log("container", legendContainer);
+  }
+}
+
+
   onMount(async () => {
+    legendContainer = document.getElementById("legendContainer");
+
     await fetchAllSpecieData();
     // await fetchPhylotreeData();
     await fetchPhylotreeData();
     await fetchPhylotreeData2();
     console.log(phyloTreeDataWithOutgroups);
     findOutgroups();
-
 
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
@@ -555,24 +580,25 @@
 
   let color = d3.scaleOrdinal().range(d3.schemeCategory10);
 
+  // Legend function (modified to use legendContainer)
   let legend = (svg) => {
-    const g = svg
+    createLegendContainer();
+
+    const g = legendContainer
       .selectAll("g")
       .data(color.domain())
       .join("g")
-      .attr(
-        "transform",
-        (d, i) => `translate(${-outerRadius},${outerRadius - 20 - i * 20})`
-      );
+        .attr("transform", (d, i) => `translate(0, ${i * 20})`);
 
-    g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
+      g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
 
-    g.append("text")
-      .attr("x", 24)
-      .attr("y", 9)
-      .attr("dy", "0.35em")
-      .text((d) => d);
+      g.append("text")
+        .attr("x", 24)
+        .attr("y", 9)
+        .attr("dy", "0.35em")
+        .text((d) => d);
   };
+
 
   let linkExtensionConstant = (d) => {
     return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
@@ -742,6 +768,7 @@ function removeTimeRings(svg) {
 
 <!-- Container of tree -->
 <div id="phyloTree" />
+<div id="legendContainer" />
 
 <style>
   #phyloTree {
