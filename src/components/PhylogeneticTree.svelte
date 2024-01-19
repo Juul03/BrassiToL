@@ -5,14 +5,16 @@
 
   let selectedTaxonomy = {};
 
-  let phyloTreeDataWithOutgroups;
-  let phyloTreeDataWithoutOutgroups;
+  // let phyloTreeDataWithOutgroups;
+  // let phyloTreeDataWithoutOutgroups;
+  let phyloTreeData;
   let parsedData;
 
   let allSpecieData;
 
   let svgElement;
   let legendContainer;
+  let sharedRoot;
 
   // Set up basic width and height
   const width = 900;
@@ -28,14 +30,12 @@
 
   const fetchPhylotreeData = async () => {
     try {
-      const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
-      // const response = await fetch("/data/BrassiToL_easy.tree");
-      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      const response = await fetch("/data/BrassiToL_easy.tree");
       if (response.ok) {
         const text = await response.text();
-        phyloTreeDataWithoutOutgroups = text;
+        phyloTreeData = text;
         // Call parseNewick after setting phyloTreeData
-        phyloTreeDataWithoutOutgroups = parseNewick(phyloTreeDataWithoutOutgroups);
+        parsedData = parseNewick(phyloTreeData);
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -46,25 +46,26 @@
     }
   };
 
-  const fetchPhylotreeData2 = async () => {
-    try {
-      const response = await fetch("/data/BrassiToL_easy.tree");
-      // const response = await fetch("/data/BrassiToL_easy.tree");
-      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
-      if (response.ok) {
-        const text = await response.text();
-        phyloTreeDataWithOutgroups = text;
-        // Call parseNewick after setting phyloTreeData
-        phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
-        // Now you can proceed with creating the phylogenetic tree using parsedData
-        // Example: const svg = createPhylogeneticTree(parsedData);
-      } else {
-        console.error("Failed to fetch data:", response.status);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    }
-  };
+
+  // const fetchPhylotreeData2 = async () => {
+  //   try {
+  //     const response = await fetch("/data/BrassiToL_easy.tree");
+  //     // const response = await fetch("/data/BrassiToL_easy.tree");
+  //     // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+  //     if (response.ok) {
+  //       const text = await response.text();
+  //       phyloTreeDataWithOutgroups = text;
+  //       // Call parseNewick after setting phyloTreeData
+  //       phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
+  //       // Now you can proceed with creating the phylogenetic tree using parsedData
+  //       // Example: const svg = createPhylogeneticTree(parsedData);
+  //     } else {
+  //       console.error("Failed to fetch data:", response.status);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   }
+  // };
 
   const fetchAllSpecieData = async () => {
     try {
@@ -127,31 +128,72 @@
     }
   };
 
-  let findOutgroups = () => {
-    if (areOutgroupsShown) {
-      // Create and update the phylogenetic tree with all data
-      createTree(document.querySelector("#phyloTree"), phyloTreeDataWithOutgroups);
+  let findOutgroups = (parsedData) => {
+  if (areOutgroupsShown) {
+    // Create and update the phylogenetic tree with all data
+    createTree(document.querySelector("#phyloTree"), parsedData);
+  } else {
+    createTree(document.querySelector("#phyloTree"), parsedData);
+
+    const outgroupData = allSpecieData.filter(
+      (data) => data.FAMILY !== "Brassicaceae"
+    );
+
+    if (outgroupData.length > 0) {
+      const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+      const filteredParsedData = filterOutgroupsFromParsedData(
+        parsedData,
+        outgroupSamples
+      );
+
+      // Create and update the phylogenetic tree without the outgroups
+      createTree(document.querySelector("#phyloTree"), filteredParsedData);
     } else {
-        // Create and update the phylogenetic tree without the outgroups
-        createTree(document.querySelector("#phyloTree"), phyloTreeDataWithoutOutgroups);
-      } 
-  };
+      // No outgroups found
+      // Create and update the phylogenetic tree with all data if no outgroups found
+      createTree(document.querySelector("#phyloTree"), parsedData);
+    }
+  }
+};
 
   const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-    const filterOutgroups = (node) => {
-      if (node.branchset) {
-        node.branchset = node.branchset.filter((child) => {
-          const isOutgroup = outgroupSamples.includes(child.name);
-          return !isOutgroup;
-        });
-        node.branchset.forEach(filterOutgroups);
-      }
-    };
+    sharedRoot.each((node) => {
+      let shouldBeRemoved = outgroupSamples.includes(node.data.name);
 
-    const updatedData = JSON.parse(JSON.stringify(data));
-    filterOutgroups(updatedData);
-    return updatedData;
+      node.ancestors().forEach((ancestor) => {
+      // Check if the current node should be removed
+      if (shouldBeRemoved) {
+        // Remove the linkNode only if the condition is met
+        d3.select(ancestor.linkNode).remove();
+      }
+    });
+    })
+    // const filterOutgroups = (node) => {
+    //   if (node.branchset) {
+    //     node.branchset = node.branchset.filter((child) => {
+    //       const isOutgroup = outgroupSamples.includes(child.name);
+    //       return !isOutgroup;
+    //     });
+    //     node.branchset.forEach(filterOutgroups);
+    //   }
+    // };
+
+    // const updatedData = JSON.parse(JSON.stringify(data));
+    // filterOutgroups(updatedData);
+    // return updatedData;
   };
+
+  // let updateTree = (selected) => {
+  //   sharedRoot.each((node) => {
+  //     let isSelected = selected.includes(node.data.name);
+
+  //     node.ancestors().forEach((ancestor) => {
+  //       d3.select(ancestor.linkNode)
+  //         .attr("stroke", isSelected ? "red" : "black")
+  //         .attr("stroke-width", isSelected ? "2px" : ".35px");
+  //     });
+  //   });
+  // };
 
   // Function that colors the text with the color of the corresponding supertribe
   let updateTextColors = () => {
@@ -187,12 +229,12 @@
   onMount(async () => {
     legendContainer = document.getElementById("legendContainer");
 
-    await fetchAllSpecieData();
-    // await fetchPhylotreeData();
     await fetchPhylotreeData();
-    await fetchPhylotreeData2();
-    console.log(phyloTreeDataWithOutgroups);
-    findOutgroups();
+    await fetchAllSpecieData();
+    // await fetchPhylotreeData2();
+
+    // console.log(phyloTreeDataWithOutgroups);
+    findOutgroups(parsedData);
 
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
@@ -286,7 +328,6 @@
     };
   });
 
-  let sharedRoot;
   let updateTree = (selected) => {
     sharedRoot.each((node) => {
       let isSelected = selected.includes(node.data.name);
