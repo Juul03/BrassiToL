@@ -649,7 +649,7 @@
   </label>
 
   <label class="toggle-label">
-    Branch Length
+    Show Branch Length
     <input
       id="branchLengthCheckbox"
       type="checkbox"
