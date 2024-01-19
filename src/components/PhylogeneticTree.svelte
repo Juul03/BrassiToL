@@ -11,6 +11,8 @@
 
   let allSpecieData;
 
+  let svgElement;
+
   // Set up basic width and height
   const width = 900;
   const outerRadius = width / 2;
@@ -357,6 +359,7 @@
           a.value - b.value || d3.ascending(a.data.length, b.data.length)
       );
 
+    let maxTextWidth = 0;
     sharedRoot = root;
 
     cluster(root);
@@ -369,6 +372,7 @@
       .attr("font-family", "sans-serif")
       .attr("font-size", 10);
 
+    svgElement = svg
     svg.append("g").call(legend);
 
     svg.append("style").text(`
@@ -416,8 +420,6 @@
         d.target.linkNode = this;
       })
       .attr("d", linkVariable);
-
-    let maxTextWidth = 0;
 
     svg
   .append("g")
@@ -475,8 +477,6 @@
   });
   });
 
-
-
     function update(checked) {
       const t = d3.transition().duration(750);
       linkExtension
@@ -486,21 +486,96 @@
     }
 
     function mouseovered(active, event, d) {
-  d3.select(this).classed("label--active", active);
+      d3.select(this).classed("label--active", active);
 
-  let ancestor = d;
-  while (ancestor) {
-    if (ancestor.linkNode) {
-      d3.select(ancestor.linkNode)
-        .attr("stroke", active ? d.color : "#000")
-        .attr("stroke-width", active ? "2px" : ".35px")
-        .raise();
+      let ancestor = d;
+      while (ancestor) {
+        if (ancestor.linkNode) {
+          d3.select(ancestor.linkNode)
+            .attr("stroke", active ? d.color : "#000")
+            .attr("stroke-width", active ? "2px" : ".35px")
+            .raise();
+        }
+        ancestor = ancestor.parent;
+      }
     }
-    ancestor = ancestor.parent;
-  }
-}
+
+    if(isBrancheLengthShown == true) {
+      showTimerings(data, svg)
+    } else {
+     svg.selectAll(".time-ring").remove();
+    }
+
     return Object.assign(svg.node(), { update });
   };
+
+  // Function to remove time rings
+function removeTimeRings(svg) {
+  svg.selectAll(".time-ring").remove();
+}
+
+  let showTimerings = (data, svg) => {
+    const branchLengths = []; // Array to store branch lengths
+
+// Extract branch lengths from the tree data
+function extractBranchLengths(node) {
+  if (Array.isArray(node.branchset)) {
+    node.branchset.forEach((branch) => {
+      branchLengths.push(branch.length || 0); // Include the length of the current branch
+
+      if (Array.isArray(branch.branchset)) {
+        // Recursively call the function to handle nested branchsets
+        extractBranchLengths(branch);
+      }
+    });
+  }
+}
+
+extractBranchLengths(data);
+console.log("length", branchLengths)
+
+// Find the maximum value in branchLengths
+const maxBranchLength = d3.max(branchLengths);
+
+// Choose the number of rings you want to display
+const numberOfRings = 6;
+
+// Calculate the interval between rings
+const ringInterval = maxBranchLength / numberOfRings;
+
+// Create an array of evenly distributed values for the rings
+const ringValues = Array.from({ length: numberOfRings }, (_, i) => i * ringInterval);
+
+// Set up a linear scale based on branch lengths
+const timeScale = d3.scaleLinear()
+  .domain([0, d3.max(branchLengths)]) // Adjust based on your data
+  .range([0, innerRadius]); // Adjust maxRadius based on your visualization
+
+const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
+
+// Append circles for time rings
+svg.selectAll("circle")
+  .data(ringValues)
+  .enter()
+  .append("circle")
+  .attr("class", ".time-ring")
+  .attr("class", "time-ring")
+  .attr("cx", 0) // Adjust x position as needed
+  .attr("cy", 0) // Adjust y position as needed
+  .attr("r", (d) => timeScale(d))
+  .attr("fill", (d, i) => colorScale[i - 1 % colorScale.length])
+  .attr("stroke", "grey")
+  .attr("stroke-dasharray", "3,3")
+  .lower();
+
+}
+
+// // Inside createPhylogeneticTree function...
+// if (isBrancheLengthShown == true) {
+//   showTimerings(svgElement, phyloTreeDataWithOutgroups);
+// } else {
+//   removeTimeRings(svgElement);
+// }
 
   // Chart functions
   let cluster = d3
