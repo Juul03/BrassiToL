@@ -128,6 +128,57 @@
     }
   };
 
+  // Example usage:
+const testData = {name: '',
+  branchset: [
+    {
+      name: '',
+      branchset: [
+        {
+          name: '',
+          branchset: [
+            { name: 'sample1', branchset: [], length: 3.263256 },
+            { name: 'sample2', branchset: [], length: 5.203682 },
+            { name: 'sample4', branchset: [], length: 7.345678 },
+          ],
+          length: 15.789012,
+        },
+        {
+          name: '',
+          branchset: [
+            { name: 'sample5', branchset: [], length: 2.456789 },
+            { name: 'sample6', branchset: [], length: 4.567890 },
+          ],
+          length: 12.345678,
+        },
+      ],
+      length: 30.123456,
+    },
+    {
+      name: '',
+      branchset: [
+        {
+          name: '',
+          branchset: [
+            { name: 'sample3', branchset: [], length: 0 },
+            { name: 'sample7', branchset: [], length: 1.234567 },
+          ],
+          length: 10.987654,
+        },
+        {
+          name: '',
+          branchset: [
+            { name: 'sample8', branchset: [], length: 3.456789 },
+            { name: 'sample9', branchset: [], length: 5.678901 },
+          ],
+          length: 15.789012,
+        },
+      ],
+      length: 25.432109,
+    },
+  ],
+};
+
   let findOutgroups = (parsedData) => {
   if (areOutgroupsShown) {
     // Create and update the phylogenetic tree with all data
@@ -140,14 +191,20 @@
     );
 
     if (outgroupData.length > 0) {
-      const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-      const filteredParsedData = filterOutgroupsFromParsedData(
-        parsedData,
-        outgroupSamples
-      );
+      // const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+      // const filteredParsedData = filterOutgroupsFromParsedData(
+      //   parsedData,
+      //   outgroupSamples
+      // );
+
+      const outgroupSamples = ['sample1', 'sample3', 'sample7'];
+
+      console.log("before", testData)
+      const filteredParsedData = removeSamplesAndAncestors(testData,outgroupSamples);
+      console.log("after", testData);
 
       // Create and update the phylogenetic tree without the outgroups
-      createTree(document.querySelector("#phyloTree"), filteredParsedData);
+      // createTree(document.querySelector("#phyloTree"), filteredParsedData);
     } else {
       // No outgroups found
       // Create and update the phylogenetic tree with all data if no outgroups found
@@ -156,32 +213,69 @@
   }
 };
 
-  const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-    sharedRoot.each((node) => {
-      let shouldBeRemoved = outgroupSamples.includes(node.data.name);
+const removeSamplesAndAncestors = (node, targetSamples) => {
+    console.log(node)
+  if (node.branchset) {
+    // Remove target samples from the current node's branchset
+    node.branchset = node.branchset.filter((child) => !targetSamples.includes(child.name));
 
-      node.ancestors().forEach((ancestor) => {
-      // Check if the current node should be removed
-      if (shouldBeRemoved) {
-        // Remove the linkNode only if the condition is met
-        d3.select(ancestor.linkNode).remove();
-      }
-    });
-    })
-    // const filterOutgroups = (node) => {
-    //   if (node.branchset) {
-    //     node.branchset = node.branchset.filter((child) => {
-    //       const isOutgroup = outgroupSamples.includes(child.name);
-    //       return !isOutgroup;
-    //     });
-    //     node.branchset.forEach(filterOutgroups);
-    //   }
-    // };
+    // Recursively remove samples from each child and their ancestors
+    node.branchset.forEach((child) => removeSamplesAndAncestors(child, targetSamples));
 
-    // const updatedData = JSON.parse(JSON.stringify(data));
-    // filterOutgroups(updatedData);
-    // return updatedData;
-  };
+    // Remove the current node if it has no children and not the last sample
+    if (node.branchset.length === 0 && !targetSamples.includes(node.name)) {
+      delete node.branchset;
+    }
+  }
+};
+
+  // const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
+  //   console.log("old", data)
+
+  //   if (data.branchset) {
+  //   // Remove target samples from the current node's branchset
+  //   data.branchset = data.branchset.filter((child) => !outgroupSamples.includes(child.name));
+
+  //   // Recursively remove samples from each child and their ancestors
+  //   data.branchset.forEach((child) => filterOutgroupsFromParsedData(child, outgroupSamples));
+
+  //   // Check if branchset is empty and not the last sample
+  //   if (data.branchset.length === 0 && !outgroupSamples.includes(data.name)) {
+  //     // Set branchset to an empty array
+  //     data.branchset = [];
+  //   }
+  // }
+
+  // console.log("new", data)
+
+    
+  //   // console.log("data", data)
+  //   // sharedRoot.each((node) => {
+  //   //   let shouldBeRemoved = outgroupSamples.includes(node.data.name);
+
+  //   //   node.ancestors().forEach((ancestor) => {
+  //   //     if(shouldBeRemoved) {
+  //   //       d3.select(ancestor.linkNode).remove();
+  //   //     d3.select(ancestor.linkExtensionNode).remove();
+  //   //     }
+        
+  //   //   })
+  //   // })
+
+  //   // const filterOutgroups = (node) => {
+  //   //   if (node.branchset) {
+  //   //     node.branchset = node.branchset.filter((child) => {
+  //   //       const isOutgroup = outgroupSamples.includes(child.name);
+  //   //       return !isOutgroup;
+  //   //     });
+  //   //     node.branchset.forEach(filterOutgroups);
+  //   //   }
+  //   // };
+
+  //   // const updatedData = JSON.parse(JSON.stringify(data));
+  //   // filterOutgroups(updatedData);
+  //   // return updatedData;
+  // };
 
   // let updateTree = (selected) => {
   //   sharedRoot.each((node) => {
@@ -425,6 +519,7 @@
   };
 
   const createPhylogeneticTree = (data) => {
+    console.log("in tree", data)
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -471,6 +566,7 @@
 
     const linkExtension = svg
       .append("g")
+      .attr("class", ".linkExtension")
       .attr("fill", "none")
       .attr("stroke", "#000")
       .attr("stroke-opacity", 0.25)
