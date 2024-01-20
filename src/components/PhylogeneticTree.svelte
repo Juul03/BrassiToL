@@ -191,20 +191,20 @@ const testData = {name: '',
     );
 
     if (outgroupData.length > 0) {
-      // const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+      const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
       // const filteredParsedData = filterOutgroupsFromParsedData(
       //   parsedData,
       //   outgroupSamples
       // );
 
-      const outgroupSamples = ['sample1', 'sample3', 'sample7'];
+      // const outgroupSamples = ['sample1', 'sample3', 'sample7'];
 
-      console.log("before", testData)
-      const filteredParsedData = removeSamplesAndAncestors(testData,outgroupSamples);
-      console.log("after", testData);
+      console.log("before", parsedData)
+      const filteredParsedData = removeSamplesAndAncestors(parsedData,outgroupSamples);
+      console.log("after", filteredParsedData);
 
       // Create and update the phylogenetic tree without the outgroups
-      // createTree(document.querySelector("#phyloTree"), filteredParsedData);
+      createTree(document.querySelector("#phyloTree"), filteredParsedData);
     } else {
       // No outgroups found
       // Create and update the phylogenetic tree with all data if no outgroups found
@@ -214,20 +214,50 @@ const testData = {name: '',
 };
 
 const removeSamplesAndAncestors = (node, targetSamples) => {
-    console.log(node)
   if (node.branchset) {
-    // Remove target samples from the current node's branchset
-    node.branchset = node.branchset.filter((child) => !targetSamples.includes(child.name));
-
     // Recursively remove samples from each child and their ancestors
     node.branchset.forEach((child) => removeSamplesAndAncestors(child, targetSamples));
 
-    // Remove the current node if it has no children and not the last sample
-    if (node.branchset.length === 0 && !targetSamples.includes(node.name)) {
+    // Remove the current node if it has no children and an empty branchset
+    if (node.branchset && node.branchset.every((child) => !child.branchset && (!child.name || child.name.trim() === ''))) {
+      delete node.branchset;
+    }
+  }
+
+  // Remove the current node if it has no children and either an empty name or an empty branchset
+  if (!node.branchset && (!node.name || node.name.trim() === '' || targetSamples.includes(node.name.trim()))) {
+    delete node.branchset;
+    delete node.name; // Remove the entire node, not just the branchset
+    
+    // or this, need to try which works
+    if (node.branchset) {
+      delete node.branchset;
+    }
+    if ('name' in node) {
+      delete node.name;
+    }
+    if ('length' in node) {
+      delete node.length;
+    }
+  }
+
+  return node; // Return the modified node
+};
+
+const removeAllEmptyNames = (node) => {
+  if (node.branchset) {
+    // Recursively remove empty names from each child and their ancestors
+    node.branchset.forEach((child) => removeAllEmptyNames(child));
+
+    // Remove the current node if it has no children and an empty name
+    if (node.branchset.length === 0 && (!node.name || node.name.trim() === '')) {
       delete node.branchset;
     }
   }
 };
+
+
+
 
   // const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
   //   console.log("old", data)
