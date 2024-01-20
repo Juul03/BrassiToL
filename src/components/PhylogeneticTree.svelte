@@ -184,8 +184,6 @@ const testData = {name: '',
     // Create and update the phylogenetic tree with all data
     createTree(document.querySelector("#phyloTree"), parsedData);
   } else {
-    createTree(document.querySelector("#phyloTree"), parsedData);
-
     const outgroupData = allSpecieData.filter(
       (data) => data.FAMILY !== "Brassicaceae"
     );
@@ -200,11 +198,11 @@ const testData = {name: '',
       // const outgroupSamples = ['sample1', 'sample3', 'sample7'];
 
       console.log("before", parsedData)
-      const filteredParsedData = removeSamplesAndAncestors(parsedData,outgroupSamples);
-      console.log("after", filteredParsedData);
+      // const filteredParsedData = removeSamplesAndAncestors(parsedData,outgroupSamples);
+      // console.log("after", filteredParsedData);
 
       // Create and update the phylogenetic tree without the outgroups
-      createTree(document.querySelector("#phyloTree"), filteredParsedData);
+      createTree(document.querySelector("#phyloTree"), parsedData);
     } else {
       // No outgroups found
       // Create and update the phylogenetic tree with all data if no outgroups found
@@ -212,100 +210,6 @@ const testData = {name: '',
     }
   }
 };
-
-const removeSamplesAndAncestors = (node, targetSamples) => {
-  if (node.branchset) {
-    // Recursively remove samples from each child and their ancestors
-    node.branchset.forEach((child) => removeSamplesAndAncestors(child, targetSamples));
-
-    // Remove the current node if it has no children and an empty branchset
-    if (node.branchset && node.branchset.every((child) => !child.branchset && (!child.name || child.name.trim() === ''))) {
-      delete node.branchset;
-    }
-  }
-
-  // Remove the current node if it has no children and either an empty name or an empty branchset
-  if (!node.branchset && (!node.name || node.name.trim() === '' || targetSamples.includes(node.name.trim()))) {
-    delete node.branchset;
-    delete node.name; // Remove the entire node, not just the branchset
-    
-    // or this, need to try which works
-    if (node.branchset) {
-      delete node.branchset;
-    }
-    if ('name' in node) {
-      delete node.name;
-    }
-    if ('length' in node) {
-      delete node.length;
-    }
-  }
-
-  return node; // Return the modified node
-};
-
-const removeAllEmptyNames = (node) => {
-  if (node.branchset) {
-    // Recursively remove empty names from each child and their ancestors
-    node.branchset.forEach((child) => removeAllEmptyNames(child));
-
-    // Remove the current node if it has no children and an empty name
-    if (node.branchset.length === 0 && (!node.name || node.name.trim() === '')) {
-      delete node.branchset;
-    }
-  }
-};
-
-
-
-
-  // const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
-  //   console.log("old", data)
-
-  //   if (data.branchset) {
-  //   // Remove target samples from the current node's branchset
-  //   data.branchset = data.branchset.filter((child) => !outgroupSamples.includes(child.name));
-
-  //   // Recursively remove samples from each child and their ancestors
-  //   data.branchset.forEach((child) => filterOutgroupsFromParsedData(child, outgroupSamples));
-
-  //   // Check if branchset is empty and not the last sample
-  //   if (data.branchset.length === 0 && !outgroupSamples.includes(data.name)) {
-  //     // Set branchset to an empty array
-  //     data.branchset = [];
-  //   }
-  // }
-
-  // console.log("new", data)
-
-    
-  //   // console.log("data", data)
-  //   // sharedRoot.each((node) => {
-  //   //   let shouldBeRemoved = outgroupSamples.includes(node.data.name);
-
-  //   //   node.ancestors().forEach((ancestor) => {
-  //   //     if(shouldBeRemoved) {
-  //   //       d3.select(ancestor.linkNode).remove();
-  //   //     d3.select(ancestor.linkExtensionNode).remove();
-  //   //     }
-        
-  //   //   })
-  //   // })
-
-  //   // const filterOutgroups = (node) => {
-  //   //   if (node.branchset) {
-  //   //     node.branchset = node.branchset.filter((child) => {
-  //   //       const isOutgroup = outgroupSamples.includes(child.name);
-  //   //       return !isOutgroup;
-  //   //     });
-  //   //     node.branchset.forEach(filterOutgroups);
-  //   //   }
-  //   // };
-
-  //   // const updatedData = JSON.parse(JSON.stringify(data));
-  //   // filterOutgroups(updatedData);
-  //   // return updatedData;
-  // };
 
   // let updateTree = (selected) => {
   //   sharedRoot.each((node) => {

@@ -1,77 +1,78 @@
 <script>
-    import { onMount } from 'svelte';
-  import * as d3 from 'd3';
-
-
-const removeSamplesAndAncestors = (node, targetSamples) => {
-    console.log(node)
-  if (node.branchset) {
-    // Remove target samples from the current node's branchset
-    node.branchset = node.branchset.filter((child) => !targetSamples.includes(child.name));
-
-    // Recursively remove samples from each child and their ancestors
-    node.branchset.forEach((child) => removeSamplesAndAncestors(child, targetSamples));
-
-    // Remove the current node if it has no children and not the last sample
-    if (node.branchset.length === 0 && !targetSamples.includes(node.name)) {
-      delete node.branchset;
+    function parseNewick(newickString) {
+      var ancestors = [];
+      var tree = {};
+      var tokens = newickString.split(/\s*(;|\(|\)|,|:)\s*/);
+  
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+  
+        switch (token) {
+          case '(':
+            var subtree = {};
+            if (tree.branchset) {
+              tree.branchset.push(subtree);
+            } else {
+              tree.branchset = [subtree];
+            }
+            ancestors.push(tree);
+            tree = subtree;
+            break;
+          case ',':
+            var subtree = {};
+            ancestors[ancestors.length - 1].branchset.push(subtree);
+            tree = subtree;
+            break;
+          case ')':
+            tree = ancestors.pop();
+            break;
+          case ':':
+            break;
+          default:
+            var prevToken = tokens[i - 1];
+            if (prevToken == ')' || prevToken == '(' || prevToken == ',') {
+              tree.name = token;
+            } else if (prevToken == ':') {
+              tree.length = parseFloat(token);
+            }
+        }
+      }
+  
+      return tree;
     }
-  }
-};
+  
+    function pruneTree(tree, pruneFunction) {
+      if (pruneFunction(tree)) {
+        return null; // Prune the current branch if pruneFunction returns true
+      }
+  
+      if (tree.branchset) {
+        // Recursively prune branches from the branchset
+        tree.branchset = tree.branchset
+          .map((child) => pruneTree(child, pruneFunction))
+          .filter((child) => child !== null);
+  
+        // Remove the branchset property if it becomes empty after pruning
+        if (tree.branchset.length === 0) {
+          delete tree.branchset;
+        }
+      }
+  
+      return tree;
+    }
+  
+    var newickString = "(A:0.1,B:0.2,((C:0.3,D:0.4)E:0.5)F);";
+  
+    var parsedTree = parseNewick(newickString);
+    console.log(JSON.stringify(parsedTree, null, 2))
 
-// Example usage:
-const data = {name: '',
-  branchset: [
-    {
-      name: '',
-      branchset: [
-        {
-          name: '',
-          branchset: [
-            { name: 'sample1', branchset: [], length: 3.263256 },
-            { name: 'sample2', branchset: [], length: 5.203682 },
-            { name: 'sample4', branchset: [], length: 7.345678 },
-          ],
-          length: 15.789012,
-        },
-        {
-          name: '',
-          branchset: [
-            { name: 'sample5', branchset: [], length: 2.456789 },
-            { name: 'sample6', branchset: [], length: 4.567890 },
-          ],
-          length: 12.345678,
-        },
-      ],
-      length: 30.123456,
-    },
-    {
-      name: '',
-      branchset: [
-        {
-          name: '',
-          branchset: [
-            { name: 'sample3', branchset: [], length: 0 },
-            { name: 'sample7', branchset: [], length: 1.234567 },
-          ],
-          length: 10.987654,
-        },
-        {
-          name: '',
-          branchset: [
-            { name: 'sample8', branchset: [], length: 3.456789 },
-            { name: 'sample9', branchset: [], length: 5.678901 },
-          ],
-          length: 15.789012,
-        },
-      ],
-      length: 25.432109,
-    },
-  ],
-};
+    let pruneFunction = (branch) => {
+      // Return true to prune branches with name "C"
+      return branch.name === 'C';
+    }
+  
+    var prunedTree = pruneTree(parsedTree, pruneFunction);
 
-const targetSamples = ['sample1', 'sample3'];
-
-removeSamplesAndAncestors(data, targetSamples);
-console.log("test", data);
-</script>
+    console.log(JSON.stringify(prunedTree, null, 2));
+  </script>
+  
