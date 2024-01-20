@@ -14,6 +14,9 @@
   let uniqueGenus = [];
   let uniqueBinaryCombination = [];
 
+  // Stores which filter is active, default taxonomy, other values are Geographical or Extra
+  let selectedFilterType = "Extra"
+
   let selectedTaxonomyLevel = "all";
 
   const fetchJSONData = async () => {
@@ -174,17 +177,45 @@
   </nav>
 
   <div class="filtercategorycontainer">
+    {#if selectedFilterType === "Taxonomy"}
       <!-- Dropdown to choose taxonomy level -->
-  <label for="taxonomy-select">Taxonomy</label>
+      <label for="taxonomy-select">Taxonomy</label>
 
-    <select name="taxonomy" id="taxonomy-select">
+      <select name="taxonomy" id="taxonomy-select">
+        <option value="all">All</option>
+        <option value="subfamily">Sub-Family</option>
+        <option value="supertribe">Supertribe</option>
+        <option value="tribe">Tribe</option>
+        <option value="genus">Genus</option>
+        <option value="speciesfull">Species</option>
+      </select>
+    {/if}
+
+    {#if selectedFilterType === "Geographical"}
+      <!-- Dropdown to choose taxonomy level -->
+      <label for="geography-select">Geography</label>
+
+      <select name="geography" id="geography-select">
+        <option value="all">All</option>
+        <option value="continent">Continent</option>
+        <option value="geographicarea">Geographic Area</option>
+      </select>
+    {/if}
+
+    {#if selectedFilterType === "Extra"}
+    <!-- Dropdown to choose taxonomy level -->
+    <label for="extra-select">Extra</label>
+
+    <select name="extra" id="extra-select">
       <option value="all">All</option>
-      <option value="subfamily">Sub-Family</option>
-      <option value="supertribe">Supertribe</option>
-      <option value="tribe">Tribe</option>
-      <option value="genus">Genus</option>
-      <option value="speciesfull">Species</option>
+      <option value="lifeform">Lifeform</option>
+      <option value="climate">Climate</option>
+      <option value="growthform">Growthform</option>
+      <option value="societal">Societal</option>
+      <option value="genustype">Genustype</option>
     </select>
+    {/if}
+
   
     <div class="filtercontainer">
       <div class="searchbarcontainer">
