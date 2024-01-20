@@ -1,6 +1,6 @@
 <script>
 	import Filter from '../components/filter.svelte'
-	import Treemapj from '../components/test.svelte';
+	import Treemapj from '../components/PhylogeneticTree.svelte';
     
 </script>
 

@@ -36,6 +36,16 @@
         phyloTreeData = text;
         // Call parseNewick after setting phyloTreeData
         parsedData = parseNewick(phyloTreeData);
+        console.log(JSON.stringify(parsedData, null, 2))
+
+        let pruneFunction = (branch) => {
+          // Return true to prune branches with name "C"
+          return branch.name === 'MYZV';
+        }
+  
+        var prunedTree = pruneTree(parsedData, pruneFunction);
+
+        console.log(JSON.stringify(prunedTree, null, 2));
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -81,39 +91,100 @@
   };
 
   // https://github.com/jasondavies/newick.js
-  function parseNewick(a) {
-    for (
-      var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0;
-      t < s.length;
-      t++
-    ) {
-      var n = s[t];
-      switch (n) {
-        case "(":
-          var c = {};
-          r.branchset = [c];
-          e.push(r);
-          r = c;
-          break;
-        case ",":
-          var c = {};
-          e[e.length - 1].branchset.push(c);
-          r = c;
-          break;
-        case ")":
-          r = e.pop();
-          break;
-        case ":":
-          break;
-        default:
-          var h = s[t - 1];
-          ")" == h || "(" == h || "," == h
-            ? (r.name = n)
-            : ":" == h && (r.length = parseFloat(n));
+  // function parseNewick(a) {
+  //   for (
+  //     var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0;
+  //     t < s.length;
+  //     t++
+  //   ) {
+  //     var n = s[t];
+  //     switch (n) {
+  //       case "(":
+  //         var c = {};
+  //         r.branchset = [c];
+  //         e.push(r);
+  //         r = c;
+  //         break;
+  //       case ",":
+  //         var c = {};
+  //         e[e.length - 1].branchset.push(c);
+  //         r = c;
+  //         break;
+  //       case ")":
+  //         r = e.pop();
+  //         break;
+  //       case ":":
+  //         break;
+  //       default:
+  //         var h = s[t - 1];
+  //         ")" == h || "(" == h || "," == h
+  //           ? (r.name = n)
+  //           : ":" == h && (r.length = parseFloat(n));
+  //     }
+  //   }
+  //   return r;
+  // }
+  function parseNewick(newickString) {
+      var ancestors = [];
+      var tree = {};
+      var tokens = newickString.split(/\s*(;|\(|\)|,|:)\s*/);
+  
+      for (var i = 0; i < tokens.length; i++) {
+        var token = tokens[i];
+  
+        switch (token) {
+          case '(':
+            var subtree = {};
+            if (tree.branchset) {
+              tree.branchset.push(subtree);
+            } else {
+              tree.branchset = [subtree];
+            }
+            ancestors.push(tree);
+            tree = subtree;
+            break;
+          case ',':
+            var subtree = {};
+            ancestors[ancestors.length - 1].branchset.push(subtree);
+            tree = subtree;
+            break;
+          case ')':
+            tree = ancestors.pop();
+            break;
+          case ':':
+            break;
+          default:
+            var prevToken = tokens[i - 1];
+            if (prevToken == ')' || prevToken == '(' || prevToken == ',') {
+              tree.name = token;
+            } else if (prevToken == ':') {
+              tree.length = parseFloat(token);
+            }
+        }
       }
+  
+      return tree;
     }
-    return r;
-  }
+
+    function pruneTree(tree, pruneFunction) {
+      if (pruneFunction(tree)) {
+        return null; // Prune the current branch if pruneFunction returns true
+      }
+  
+      if (tree.branchset) {
+        // Recursively prune branches from the branchset
+        tree.branchset = tree.branchset
+          .map((child) => pruneTree(child, pruneFunction))
+          .filter((child) => child !== null);
+  
+        // Remove the branchset property if it becomes empty after pruning
+        if (tree.branchset.length === 0) {
+          delete tree.branchset;
+        }
+      }
+  
+      return tree;
+    }
 
   let createTree = (container, data) => {
     const svg = createPhylogeneticTree(data);
@@ -190,14 +261,13 @@ const testData = {name: '',
 
     if (outgroupData.length > 0) {
       const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
+      console.log(outgroupSamples)
       // const filteredParsedData = filterOutgroupsFromParsedData(
       //   parsedData,
       //   outgroupSamples
       // );
 
       // const outgroupSamples = ['sample1', 'sample3', 'sample7'];
-
-      console.log("before", parsedData)
       // const filteredParsedData = removeSamplesAndAncestors(parsedData,outgroupSamples);
       // console.log("after", filteredParsedData);
 
