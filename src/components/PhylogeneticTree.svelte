@@ -392,7 +392,7 @@
           a.value - b.value || d3.ascending(a.data.length, b.data.length)
       );
 
-    let maxTextWidth = 0;
+    let maxTextWidth = 84.71711730957031;
     sharedRoot = root;
 
     cluster(root);
@@ -581,7 +581,7 @@
   };
 
   let customColors = ["var(--highlight-color-5)", "var(--highlight-color-1)", "var(--highlight-color-3)", "var(--highlight-color-4)", "var(--highlight-color-2)"];
-let color = d3.scaleOrdinal().range(customColors);
+  let color = d3.scaleOrdinal().range(customColors);
 
   let legend = (svg, colorScale) => {
     createLegendContainer();
