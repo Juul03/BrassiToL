@@ -5,16 +5,14 @@
 
   let selectedTaxonomy = {};
 
-  // let phyloTreeDataWithOutgroups;
-  // let phyloTreeDataWithoutOutgroups;
-  let phyloTreeData;
+  let phyloTreeDataWithOutgroups;
+  let phyloTreeDataWithoutOutgroups;
   let parsedData;
 
   let allSpecieData;
 
   let svgElement;
   let legendContainer;
-  let sharedRoot;
 
   // Set up basic width and height
   const width = 900;
@@ -30,22 +28,14 @@
 
   const fetchPhylotreeData = async () => {
     try {
-      const response = await fetch("/data/BrassiToL_easy.tree");
+      const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
       if (response.ok) {
         const text = await response.text();
-        phyloTreeData = text;
+        phyloTreeDataWithoutOutgroups = text;
         // Call parseNewick after setting phyloTreeData
-        parsedData = parseNewick(phyloTreeData);
-        console.log(JSON.stringify(parsedData, null, 2))
-
-        let pruneFunction = (branch) => {
-          // Return true to prune branches with name "C"
-          return branch.name === 'MYZV';
-        }
-  
-        var prunedTree = pruneTree(parsedData, pruneFunction);
-
-        console.log(JSON.stringify(prunedTree, null, 2));
+        phyloTreeDataWithoutOutgroups = parseNewick(phyloTreeDataWithoutOutgroups);
         // Now you can proceed with creating the phylogenetic tree using parsedData
         // Example: const svg = createPhylogeneticTree(parsedData);
       } else {
@@ -56,26 +46,25 @@
     }
   };
 
-
-  // const fetchPhylotreeData2 = async () => {
-  //   try {
-  //     const response = await fetch("/data/BrassiToL_easy.tree");
-  //     // const response = await fetch("/data/BrassiToL_easy.tree");
-  //     // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
-  //     if (response.ok) {
-  //       const text = await response.text();
-  //       phyloTreeDataWithOutgroups = text;
-  //       // Call parseNewick after setting phyloTreeData
-  //       phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
-  //       // Now you can proceed with creating the phylogenetic tree using parsedData
-  //       // Example: const svg = createPhylogeneticTree(parsedData);
-  //     } else {
-  //       console.error("Failed to fetch data:", response.status);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching data:", error);
-  //   }
-  // };
+  const fetchPhylotreeData2 = async () => {
+    try {
+      const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy.tree");
+      // const response = await fetch("/data/BrassiToL_easy_minus_outgroups.tree");
+      if (response.ok) {
+        const text = await response.text();
+        phyloTreeDataWithOutgroups = text;
+        // Call parseNewick after setting phyloTreeData
+        phyloTreeDataWithOutgroups = parseNewick(phyloTreeDataWithOutgroups);
+        // Now you can proceed with creating the phylogenetic tree using parsedData
+        // Example: const svg = createPhylogeneticTree(parsedData);
+      } else {
+        console.error("Failed to fetch data:", response.status);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   const fetchAllSpecieData = async () => {
     try {
@@ -91,100 +80,39 @@
   };
 
   // https://github.com/jasondavies/newick.js
-  // function parseNewick(a) {
-  //   for (
-  //     var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0;
-  //     t < s.length;
-  //     t++
-  //   ) {
-  //     var n = s[t];
-  //     switch (n) {
-  //       case "(":
-  //         var c = {};
-  //         r.branchset = [c];
-  //         e.push(r);
-  //         r = c;
-  //         break;
-  //       case ",":
-  //         var c = {};
-  //         e[e.length - 1].branchset.push(c);
-  //         r = c;
-  //         break;
-  //       case ")":
-  //         r = e.pop();
-  //         break;
-  //       case ":":
-  //         break;
-  //       default:
-  //         var h = s[t - 1];
-  //         ")" == h || "(" == h || "," == h
-  //           ? (r.name = n)
-  //           : ":" == h && (r.length = parseFloat(n));
-  //     }
-  //   }
-  //   return r;
-  // }
-  function parseNewick(newickString) {
-      var ancestors = [];
-      var tree = {};
-      var tokens = newickString.split(/\s*(;|\(|\)|,|:)\s*/);
-  
-      for (var i = 0; i < tokens.length; i++) {
-        var token = tokens[i];
-  
-        switch (token) {
-          case '(':
-            var subtree = {};
-            if (tree.branchset) {
-              tree.branchset.push(subtree);
-            } else {
-              tree.branchset = [subtree];
-            }
-            ancestors.push(tree);
-            tree = subtree;
-            break;
-          case ',':
-            var subtree = {};
-            ancestors[ancestors.length - 1].branchset.push(subtree);
-            tree = subtree;
-            break;
-          case ')':
-            tree = ancestors.pop();
-            break;
-          case ':':
-            break;
-          default:
-            var prevToken = tokens[i - 1];
-            if (prevToken == ')' || prevToken == '(' || prevToken == ',') {
-              tree.name = token;
-            } else if (prevToken == ':') {
-              tree.length = parseFloat(token);
-            }
-        }
+  function parseNewick(a) {
+    for (
+      var e = [], r = {}, s = a.split(/\s*(;|\(|\)|,|:)\s*/), t = 0;
+      t < s.length;
+      t++
+    ) {
+      var n = s[t];
+      switch (n) {
+        case "(":
+          var c = {};
+          r.branchset = [c];
+          e.push(r);
+          r = c;
+          break;
+        case ",":
+          var c = {};
+          e[e.length - 1].branchset.push(c);
+          r = c;
+          break;
+        case ")":
+          r = e.pop();
+          break;
+        case ":":
+          break;
+        default:
+          var h = s[t - 1];
+          ")" == h || "(" == h || "," == h
+            ? (r.name = n)
+            : ":" == h && (r.length = parseFloat(n));
       }
-  
-      return tree;
     }
-
-    function pruneTree(tree, pruneFunction) {
-      if (pruneFunction(tree)) {
-        return null; // Prune the current branch if pruneFunction returns true
-      }
-  
-      if (tree.branchset) {
-        // Recursively prune branches from the branchset
-        tree.branchset = tree.branchset
-          .map((child) => pruneTree(child, pruneFunction))
-          .filter((child) => child !== null);
-  
-        // Remove the branchset property if it becomes empty after pruning
-        if (tree.branchset.length === 0) {
-          delete tree.branchset;
-        }
-      }
-  
-      return tree;
-    }
+    return r;
+  }
 
   let createTree = (container, data) => {
     const svg = createPhylogeneticTree(data);
@@ -199,99 +127,31 @@
     }
   };
 
-  // Example usage:
-const testData = {name: '',
-  branchset: [
-    {
-      name: '',
-      branchset: [
-        {
-          name: '',
-          branchset: [
-            { name: 'sample1', branchset: [], length: 3.263256 },
-            { name: 'sample2', branchset: [], length: 5.203682 },
-            { name: 'sample4', branchset: [], length: 7.345678 },
-          ],
-          length: 15.789012,
-        },
-        {
-          name: '',
-          branchset: [
-            { name: 'sample5', branchset: [], length: 2.456789 },
-            { name: 'sample6', branchset: [], length: 4.567890 },
-          ],
-          length: 12.345678,
-        },
-      ],
-      length: 30.123456,
-    },
-    {
-      name: '',
-      branchset: [
-        {
-          name: '',
-          branchset: [
-            { name: 'sample3', branchset: [], length: 0 },
-            { name: 'sample7', branchset: [], length: 1.234567 },
-          ],
-          length: 10.987654,
-        },
-        {
-          name: '',
-          branchset: [
-            { name: 'sample8', branchset: [], length: 3.456789 },
-            { name: 'sample9', branchset: [], length: 5.678901 },
-          ],
-          length: 15.789012,
-        },
-      ],
-      length: 25.432109,
-    },
-  ],
-};
-
-  let findOutgroups = (parsedData) => {
-  if (areOutgroupsShown) {
-    // Create and update the phylogenetic tree with all data
-    createTree(document.querySelector("#phyloTree"), parsedData);
-  } else {
-    const outgroupData = allSpecieData.filter(
-      (data) => data.FAMILY !== "Brassicaceae"
-    );
-
-    if (outgroupData.length > 0) {
-      const outgroupSamples = outgroupData.map((data) => data.SAMPLE);
-      console.log(outgroupSamples)
-      // const filteredParsedData = filterOutgroupsFromParsedData(
-      //   parsedData,
-      //   outgroupSamples
-      // );
-
-      // const outgroupSamples = ['sample1', 'sample3', 'sample7'];
-      // const filteredParsedData = removeSamplesAndAncestors(parsedData,outgroupSamples);
-      // console.log("after", filteredParsedData);
-
-      // Create and update the phylogenetic tree without the outgroups
-      createTree(document.querySelector("#phyloTree"), parsedData);
+  let findOutgroups = () => {
+    if (areOutgroupsShown) {
+      // Create and update the phylogenetic tree with all data
+      createTree(document.querySelector("#phyloTree"), phyloTreeDataWithOutgroups);
     } else {
-      // No outgroups found
-      // Create and update the phylogenetic tree with all data if no outgroups found
-      createTree(document.querySelector("#phyloTree"), parsedData);
-    }
-  }
-};
+        // Create and update the phylogenetic tree without the outgroups
+        createTree(document.querySelector("#phyloTree"), phyloTreeDataWithoutOutgroups);
+      } 
+  };
 
-  // let updateTree = (selected) => {
-  //   sharedRoot.each((node) => {
-  //     let isSelected = selected.includes(node.data.name);
+  const filterOutgroupsFromParsedData = (data, outgroupSamples) => {
+    const filterOutgroups = (node) => {
+      if (node.branchset) {
+        node.branchset = node.branchset.filter((child) => {
+          const isOutgroup = outgroupSamples.includes(child.name);
+          return !isOutgroup;
+        });
+        node.branchset.forEach(filterOutgroups);
+      }
+    };
 
-  //     node.ancestors().forEach((ancestor) => {
-  //       d3.select(ancestor.linkNode)
-  //         .attr("stroke", isSelected ? "red" : "black")
-  //         .attr("stroke-width", isSelected ? "2px" : ".35px");
-  //     });
-  //   });
-  // };
+    const updatedData = JSON.parse(JSON.stringify(data));
+    filterOutgroups(updatedData);
+    return updatedData;
+  };
 
   // Function that colors the text with the color of the corresponding supertribe
   let updateTextColors = () => {
@@ -327,12 +187,12 @@ const testData = {name: '',
   onMount(async () => {
     legendContainer = document.getElementById("legendContainer");
 
-    await fetchPhylotreeData();
     await fetchAllSpecieData();
-    // await fetchPhylotreeData2();
-
-    // console.log(phyloTreeDataWithOutgroups);
-    findOutgroups(parsedData);
+    // await fetchPhylotreeData();
+    await fetchPhylotreeData();
+    await fetchPhylotreeData2();
+    console.log(phyloTreeDataWithOutgroups);
+    findOutgroups();
 
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
@@ -426,6 +286,7 @@ const testData = {name: '',
     };
   });
 
+  let sharedRoot;
   let updateTree = (selected) => {
     sharedRoot.each((node) => {
       let isSelected = selected.includes(node.data.name);
@@ -523,7 +384,6 @@ const testData = {name: '',
   };
 
   const createPhylogeneticTree = (data) => {
-    console.log("in tree", data)
     const root = d3
       .hierarchy(data, (d) => d.branchset)
       .sum((d) => (d.branchset ? 0 : 1))
@@ -570,7 +430,6 @@ const testData = {name: '',
 
     const linkExtension = svg
       .append("g")
-      .attr("class", ".linkExtension")
       .attr("fill", "none")
       .attr("stroke", "#000")
       .attr("stroke-opacity", 0.25)
