@@ -559,16 +559,17 @@
     return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
   };
 
-  // Set the color of each node by recursively inheriting.
+ // Set the color of each node by recursively inheriting.
   let setColor = (d) => {
     const name = d.data.name;
     const supertribe = getSupertribe(name);
+
+    // Set color based on the first supertribe encountered
     d.color =
-      supertribe !== null
-        ? color(supertribe)
-        : d.parent
-          ? d.parent.color
-          : null;
+      supertribe !== null && supertribe !== "NA" && supertribe !== "Unplaced"
+       ? color(supertribe)
+        : "black"; // Set to black for "NA" or "Unplaced"
+
     if (d.children) d.children.forEach(setColor);
   };
 
@@ -579,7 +580,8 @@
     return foundDataPoint ? foundDataPoint.SUPERTRIBE : null;
   };
 
-  let color = d3.scaleOrdinal().range(d3.schemeCategory10);
+  let customColors = ["var(--highlight-color-5)", "var(--highlight-color-1)", "var(--highlight-color-3)", "var(--highlight-color-4)", "var(--highlight-color-2)"];
+let color = d3.scaleOrdinal().range(customColors);
 
   let legend = (svg, colorScale) => {
     createLegendContainer();
