@@ -5,8 +5,12 @@
     selectedTaxonomyStore,
     updateSelectedTaxonomy,
   } from "$lib/selectedTaxonomyStore";
+  import { selectedExtraStore, updateSelectedExtra } from "$lib/selectedExtraStore";
 
   let metaData = [];
+
+  // Stores the unique values in the metadata file (possible options to filter on)
+  // Taxonomy unique values
   let uniqueFamilies = [];
   let uniqueSubFamilies = [];
   let uniqueSupertribes = [];
@@ -14,7 +18,23 @@
   let uniqueGenus = [];
   let uniqueBinaryCombination = [];
 
+  // Geography unique values
+  let uniqueContinents = [];
+  let uniqueGeographicalAreas = [];
+
+  // Extra unique values
+  let uniqueLifeforms = [];
+  let uniqueClimates = [];
+  let uniqueGrowthforms = [];
+  let uniqueSocietalUses = [];
+  let uniqueRedlistCategories = [];
+
+  // Stores which filter is active, default taxonomy, other values are Geography or Extra
+  let selectedFilterType = "Taxonomy"
+
   let selectedTaxonomyLevel = "all";
+  let selectedGeographyLevel = "all";
+  let selectedExtraLevel = "all";
 
   const fetchJSONData = async () => {
     try {
@@ -23,24 +43,9 @@
         const data = await response.json();
         metaData = data;
 
-        // Find all unique taxonomy and store them in variables
-        uniqueFamilies = findUniqueValues("FAMILY");
-        uniqueFamilies.sort();
-
-        uniqueSubFamilies = findUniqueValues("SUBFAMILY");
-        uniqueSubFamilies.sort();
-
-        uniqueSupertribes = findUniqueValues("SUPERTRIBE");
-        uniqueSupertribes.sort();
-
-        uniqueTribes = findUniqueValues("TRIBE");
-        uniqueTribes.sort();
-
-        uniqueGenus = findUniqueValues("GENUS");
-        uniqueGenus.sort();
-
-        uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
-        uniqueBinaryCombination.sort();
+        findUniqueValuesTaxonomy();
+        // findUniqueValuesGeography();
+        findUniqueValuesExtra();
       } else {
         console.error("Failed to fetch the data");
       }
@@ -49,18 +54,80 @@
     }
   };
 
-  let getSelectedTaxonomyLevel = (dropdownElement) => {
-    selectedTaxonomyLevel = dropdownElement.value;
-  };
+  let findUniqueValuesTaxonomy = () => {
+    // Find all unique taxonomy and store them in variables
+    uniqueFamilies = findUniqueValues("FAMILY");
+    uniqueFamilies.sort();
+
+    uniqueSubFamilies = findUniqueValues("SUBFAMILY");
+    uniqueSubFamilies.sort();
+
+    uniqueSupertribes = findUniqueValues("SUPERTRIBE");
+    uniqueSupertribes.sort();
+
+    uniqueTribes = findUniqueValues("TRIBE");
+    uniqueTribes.sort();
+
+    uniqueGenus = findUniqueValues("GENUS");
+    uniqueGenus.sort();
+
+    uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
+    uniqueBinaryCombination.sort();
+  }
+
+  let findUniqueValuesExtra = () => {
+    // Find all unique extras and store them in the variables
+    // UNIQUELIFEFORMS
+    let uniqueLifeformsRaw = findUniqueValues("WCVP_lifeform_description");
+    let uniqueLifeformsSet = new Set();
+
+    // Remove the "," and "or" and place the values in an array seperately
+    uniqueLifeformsRaw.forEach((value) => {
+      const types = extractLifeforms(value);
+      types.forEach((type) => uniqueLifeformsSet.add(type));
+    });
+
+    // Convert the Set back to an array
+    uniqueLifeforms = [...uniqueLifeformsSet];
+
+    // sort on alphabet
+    // Sort alphabetically but keep "NA" at the end
+    uniqueLifeforms = uniqueLifeforms.sort((a, b) => {
+      if (a === "NA") {
+        return 1; // "NA" should be at the end
+      } else if (b === "NA") {
+        return -1; // "NA" should be at the end
+      } else {
+        return a.localeCompare(b); // Sort alphabetically for other values
+      }
+    });
+
+
+    uniqueClimates = findUniqueValues("WCVP_climate_description");
+    // console.log("unique climates", uniqueClimates)
+    uniqueGrowthforms = findUniqueValues("GROWTH_FORM");
+    uniqueSocietalUses = findUniqueValues("SOCIETAL_USE");
+    uniqueRedlistCategories = findUniqueValues("IUCN_redlistCategory");
+  }
+
+  // Function to extract individual lifeform types
+  const extractLifeforms = (value) => {
+  // Split the value by commas and "or"
+  const types = value.split(/,| or /);
+
+  // Remove leading and trailing spaces from each type
+  const cleanedTypes = types.map((type) => type.trim());
+
+  // Filter out empty strings and remove duplicate types
+  const uniqueTypes = [...new Set(cleanedTypes.filter((type) => type !== ''))];
+
+  return uniqueTypes;
+};
 
   onMount(async () => {
-    fetchJSONData();
-
-    const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
-    dropdownTaxonomyElement.addEventListener("change", () =>
-      getSelectedTaxonomyLevel(dropdownTaxonomyElement)
-    );
-
+    await fetchJSONData();
+    setupEventListeners();
+   
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       console.log("Updated selectedTaxonomyStore:", value);
       // You can perform further actions whenever selectedTaxonomyStore changes
@@ -71,6 +138,49 @@
       unsubscribe(); // Unsubscribe when the component is destroyed
     };
   });
+
+   // Function to find the selected value in the dropdown menu
+   let getSelectedLevel = (dropdownElement, storeVar) => {
+    if(storeVar === selectedTaxonomyLevel) {
+      selectedTaxonomyLevel = dropdownElement.value;
+    }
+
+    if(storeVar === selectedGeographyLevel) {
+      selectedGeographyLevel = dropdownElement.value
+    }
+
+    if(storeVar === selectedExtraLevel) {
+      selectedExtraLevel = dropdownElement.value
+      console.log("selectedleve;", selectedExtraLevel)
+    }
+  };
+
+  let setupEventListeners = () => {
+    const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
+    if(dropdownTaxonomyElement !== null) {
+      console.log("taxxx")
+      dropdownTaxonomyElement.addEventListener("change", () =>
+      getSelectedLevel(dropdownTaxonomyElement, selectedTaxonomyLevel)
+    );
+    }
+    
+    const dropdownGeographicalElement = document.getElementById("geography-select");
+    if(dropdownGeographicalElement !== null) {
+      console.log("geo")
+      dropdownGeographicalElement.addEventListener("change", () => {
+      getSelectedLevel(dropdownGeographicalElement, selectedGeographicalLevel);
+    })
+    }
+
+    const dropdownExtraElement = document.getElementById("extra-select");
+    if(dropdownExtraElement !== null) {
+      console.log("extraaaaa")
+      dropdownExtraElement.addEventListener("change", () => {
+      getSelectedLevel(dropdownExtraElement, selectedExtraLevel);
+    })
+    }
+
+    }
 
   const findUniqueValues = (property) => {
     const values = metaData.map((sample) => sample[property]);
@@ -85,6 +195,10 @@
     genus: {},
     binaryCombination: {},
   };
+
+  let selectedItemsExtra = {
+    lifeforms: {},
+  }
 
   const handleItemSelection = (event, taxonomy, item) => {
     const isChecked = event.target.checked;
@@ -102,6 +216,27 @@
     // Update the selectedTaxonomyStore with the updated value for the specific taxonomy
     updateSelectedTaxonomy(selectedKeys, taxonomy);
   };
+
+  const handleItemSelectionExtra = (event, extra, item) => {
+    const isChecked = event.target.checked;
+
+    selectedItemsExtra[extra] = {
+      ...selectedItemsExtra[extra],
+      [item]: isChecked,
+    };
+
+    console.log("selected", selectedItemsExtra)
+
+    // Get an array of keys where the value is true (i.e., selected items for the specific extra)
+    const selectedKeys = Object.keys(selectedItemsExtra[extra]).filter(
+      (key) => selectedItemsExtra[extra][key]
+    );
+
+    console.log("selectedleys", selectedKeys)
+
+    // Update the selectedExtraStore with the updated value for the specific extra
+    updateSelectedExtra(selectedKeys, extra);
+  }
 
   // Function to filter the treemap based on selected items for the specific taxonomy
   const filterTreemap = (tree, taxonomy) => {
@@ -157,6 +292,26 @@
     );
     updateSelectedTaxonomy(selectedKeys, taxonomyLevel);
   };
+
+  const handleFilterTypeClick = (filterType) => {
+    // Update selectedFilterType when a filter type is clicked
+    selectedFilterType = filterType;
+
+    // Set a variable to store the selected filter type class
+    const selectedClass = "selected";
+
+    // Remove the selected class from all li elements
+    const navItems = document.querySelectorAll('nav ul li');
+    navItems.forEach((item) => {
+      item.classList.remove(selectedClass);
+    });
+
+    // Add the selected class to the clicked li element
+    const selectedNavItem = document.querySelector(`nav ul li.${filterType.toLowerCase()}`);
+    if (selectedNavItem) {
+      selectedNavItem.classList.add(selectedClass);
+    }
+  };
 </script>
 
 <section id="filters">
@@ -167,24 +322,52 @@
         <img src="/icons/arrowIcon.svg" alt="filters">
         <img src="/icons/filterIcon.svg" alt="filters"></li>
         <!-- TODO: Add and remove the class in js based on which item is clicked -->
-      <li class="selected">Taxonomy</li>
-      <li>Geographical</li>
-      <li>Extra</li>
+      <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")} on:click={() => setupEventListeners()}>Taxonomy</li>
+      <li on:click={() => handleFilterTypeClick("Geography")} on:click={() => setupEventListeners()}>Geographical</li>
+      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Extra</li>
     </ul>
   </nav>
 
   <div class="filtercategorycontainer">
+    {#if selectedFilterType === "Taxonomy"}
       <!-- Dropdown to choose taxonomy level -->
-  <label for="taxonomy-select">Taxonomy</label>
+      <label for="taxonomy-select">Taxonomy</label>
 
-    <select name="taxonomy" id="taxonomy-select">
-      <option value="all">All</option>
-      <option value="subfamily">Sub-Family</option>
-      <option value="supertribe">Supertribe</option>
-      <option value="tribe">Tribe</option>
-      <option value="genus">Genus</option>
-      <option value="speciesfull">Species</option>
-    </select>
+      <select name="taxonomy" id="taxonomy-select">
+        <option value="all">All</option>
+        <option value="subfamily">Sub-Family</option>
+        <option value="supertribe">Supertribe</option>
+        <option value="tribe">Tribe</option>
+        <option value="genus">Genus</option>
+        <option value="speciesfull">Species</option>
+      </select>
+    {/if}
+
+    {#if selectedFilterType === "Geography"}
+      <!-- Dropdown to choose taxonomy level -->
+      <label for="geography-select">Geography</label>
+
+      <select name="geography" id="geography-select">
+        <option value="all">All</option>
+        <option value="continent">Continent</option>
+        <option value="geographicarea">Geographic Area</option>
+      </select>
+    {/if}
+
+    {#if selectedFilterType === "Extra"}
+      <!-- Dropdown to choose taxonomy level -->
+      <label for="extra-select">Extra</label>
+
+      <select name="extra" id="extra-select">
+        <option value="all">All</option>
+        <option value="lifeform">Lifeform</option>
+        <option value="climate">Climate</option>
+        <option value="growthform">Growthform</option>
+        <option value="societal">Societal</option>
+        <option value="genustype">Genustype</option>
+      </select>
+    {/if}
+
   
     <div class="filtercontainer">
       <div class="searchbarcontainer">
@@ -196,91 +379,114 @@
         </button>
       </div>
   
-      {#if selectedTaxonomyLevel === "all"}
-        <p>Search a specific species or start by selecting in the dropdown above</p>
+      {#if selectedFilterType === 'Taxonomy'}
+        {#if selectedTaxonomyLevel === "all"}
+          <p>Search a specific species or start by selecting in the dropdown above</p>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "subfamily"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueSubFamilies as subfamily}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.subfamilies[subfamily]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "subfamilies", subfamily)}
+                />
+                {subfamily}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "supertribe"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueSupertribes as supertribe}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.supertribes[supertribe]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "supertribes", supertribe)}
+                />
+                {supertribe}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "tribe"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueTribes as tribe}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.tribes[tribe]}
+                  on:change={(event) => handleItemSelection(event, "tribes", tribe)}
+                />
+                {tribe}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "genus"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueGenus as genus}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.genus[genus]}
+                  on:change={(event) => handleItemSelection(event, "genus", genus)}
+                />
+                {genus}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "speciesfull"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueBinaryCombination as binaryComb}
+              <label class="species">
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.binaryCombination[binaryComb]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "binaryCombination", binaryComb)}
+                />
+                {binaryComb}
+              </label>
+            {/each}
+          </div>
+        {/if}
       {/if}
-  
-      {#if selectedTaxonomyLevel === "subfamily"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueSubFamilies as subfamily}
+
+
+      {#if selectedFilterType === "Extra"}
+        {#if selectedExtraLevel === "all"}
+          <p>Search a specific item or start by selecting in the dropdown above</p>
+        {/if}
+
+        {#if selectedExtraLevel === "lifeform"}
+          {#each uniqueLifeforms as lifeform}
             <label>
               <input
                 type="checkbox"
-                bind:checked={selectedItems.subfamilies[subfamily]}
+                bind:checked={selectedItemsExtra.lifeforms[lifeform]}
                 on:change={(event) =>
-                  handleItemSelection(event, "subfamilies", subfamily)}
+                  handleItemSelectionExtra(event, "lifeforms", lifeform)}
               />
-              {subfamily}
+              {lifeform}
             </label>
           {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "supertribe"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueSupertribes as supertribe}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.supertribes[supertribe]}
-                on:change={(event) =>
-                  handleItemSelection(event, "supertribes", supertribe)}
-              />
-              {supertribe}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "tribe"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueTribes as tribe}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.tribes[tribe]}
-                on:change={(event) => handleItemSelection(event, "tribes", tribe)}
-              />
-              {tribe}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "genus"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueGenus as genus}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.genus[genus]}
-                on:change={(event) => handleItemSelection(event, "genus", genus)}
-              />
-              {genus}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "speciesfull"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueBinaryCombination as binaryComb}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.binaryCombination[binaryComb]}
-                on:change={(event) =>
-                  handleItemSelection(event, "binaryCombination", binaryComb)}
-              />
-              {binaryComb}
-            </label>
-          {/each}
-        </div>
+        {/if}
       {/if}
     </div>
   </div>
@@ -354,6 +560,10 @@
 
   .filtercontainer .filtercontainer {
     box-shadow: inset 0px -8px 8px -8px rgba(0, 0, 0, 0.25);
+  }
+
+  .species {
+    font-style:italic;
   }
 
   nav {

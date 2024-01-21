@@ -2,14 +2,24 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
+  import { selectedExtraStore } from '$lib/selectedExtraStore';
 
   let selectedTaxonomy = {};
+  let selectedExtra = {};
+  console.log("extra in phylo", selectedTaxonomy)
+  console.log("extra in phylo", selectedExtra)
 
   let phyloTreeDataWithOutgroups;
   let phyloTreeDataWithoutOutgroups;
   let parsedData;
 
   let allSpecieData;
+
+  let svgElement;
+  let legendContainer;
+
+  // Stores colors and supertribe names
+  let nodeColors = {};
 
   // Set up basic width and height
   const width = 900;
@@ -157,14 +167,38 @@
       .style("fill", (d) => (isTextHighlighted ? d.color : "black"));
   };
 
+  let createLegendContainer = () => {
+  // Check if the legendContainer has any child nodes
+  const container = document.getElementById("legendContainer");
+
+  if (container && container.childNodes.length > 0) {
+    // Clear the existing content of legendContainer
+    container.innerHTML = "";
+  } else {
+    // Create the legend container only if it's not already created
+    legendContainer = d3
+      .select("#legendContainer")
+      .append("div")
+      .attr("class", "legend-container")  // Ensure that the class name matches the one in the CSS
+      .style("position", "absolute")
+      .style("bottom", "10px")
+      .style("background", "var(--primary-color-light-1")
+      .style("padding", "1rem")
+      .style("border-radius", "var(--standard-border-radius")
+      .style("left", "calc(50px + 100vw / 4)");
+      
+    legendContainer.append("h3").text("Supertribe legend").style("font-size", "var(--standard-font-size-header-small)");;
+  }
+}
+
   onMount(async () => {
+    legendContainer = document.getElementById("legendContainer");
+
     await fetchAllSpecieData();
     // await fetchPhylotreeData();
     await fetchPhylotreeData();
     await fetchPhylotreeData2();
-    console.log(phyloTreeDataWithOutgroups);
     findOutgroups();
-
 
     const highlightSupertribesToggleElement =
       document.querySelector("#highlightCheckbox");
@@ -192,6 +226,13 @@
         .transition()
         .duration(500)
         .attr("d", isBrancheLengthShown ? linkVariable : linkConstant);
+
+        if (isBrancheLengthShown == true) {
+          // TODO: remove phyloTreeDataWithoutOutgroups to the general data of the tree, when the outgroups are filtered by a function with one source of tree
+          createTimeRings(svgElement, phyloTreeDataWithoutOutgroups);
+        } else {
+          removeTimeRings(svgElement);
+        }
     };
 
     highlightSupertribesToggleElement.addEventListener(
@@ -206,8 +247,20 @@
       toggleShowBranchLength
     );
 
-    const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
-      selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+    // subscribe to selectedTaxonomyStore
+    const unsubscribeTaxonomy = selectedTaxonomyStore.subscribe(handleSelectedTaxonomyUpdate)
+
+    // Subscribe to selectedExtraStore
+    const unsubscribeExtra = selectedExtraStore.subscribe(handleSelectedExtraUpdate);
+
+    return () => {
+      unsubscribeTaxonomy(); // Unsubscribe when the component is destroyed
+      unsubscribeExtra();
+    };
+  });
+
+  const handleSelectedTaxonomyUpdate = (value) => {
+    selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
       console.log('selected', selectedTaxonomy)
 
       let taxonomySamplesSubfamily = matchTaxonomyWithSample(
@@ -243,30 +296,76 @@
         ...taxonomySamplesGenus,
         ...taxonomySamplesBinaryCombination,
       ];
-      updateTree(combinedSamples);
-    });
+      updateTreeTaxonomy(combinedSamples);
+      updateTreeTaxonomyText(taxonomySamplesBinaryCombination);
+  }
 
-    return () => {
-      unsubscribe(); // Unsubscribe when the component is destroyed
-    };
-  });
+  // Function to handle updates when selectedExtraStore changes
+  const handleSelectedExtraUpdate = (value) => {
+    selectedExtra = value || {}; // Make sure selectedExtra is not null or undefined
+    console.log('selectedExtra', selectedExtra)
 
-  let updateTree = (selected) => {
-    // d3.select("svg")
-    //   .selectAll("text")
-    //   .style("fill", (d) => (selected.includes(d) ? "red" : "black"));
+    // Implement your logic to update the tree or perform any other actions
+    let extraSamplesLifeform = matchLifeformWithSample(
+      selectedExtra,
+      'lifeform'
+    )
 
-    d3.select("svg")
-      .selectAll("path")
-      .transition() // Add a transition for a smoother effect
-      .duration(500) // Set the duration to 500 milliseconds
-      .style("stroke", (d) =>
-        selected.includes(d.target.data.name) ? d.target.color : "#000"
-      )
-      .attr("stroke-width", (d) =>
-        selected.includes(d.target.data.name) ? "2px" : ""
-      );
+    updateTreeLifeform(extraSamplesLifeform);
   };
+  
+  let findSuperTribeColor = (sample) => {
+    const supertribe = getSupertribe(sample);
+    return supertribe !== null && supertribe !== "NA" && supertribe !== "Unplaced"
+      ? color(supertribe)
+      : "black";
+  };
+
+  let sharedRoot;
+  let updateTreeTaxonomy = (selected) => {     
+    sharedRoot.each((node) => {
+      let isSelected = selected.includes(node.data.name);
+      let superTribeColor = findSuperTribeColor(node.data.name);
+
+      node.ancestors().forEach((ancestor) => {
+        d3.select(ancestor.linkNode)
+          .attr("stroke", isSelected ? superTribeColor : "black")
+          .attr("stroke-width", isSelected ? "2px" : ".35px");
+      });
+    });
+  };
+
+  let updateTreeTaxonomyText = (selected) => {
+    // Set font size to '.7rem' and font weight to 'bold' for each selected sample
+    d3.selectAll('text:not(.time-label)')
+      .transition()
+      .duration(500)
+      .attr('font-size', (d) => {
+        // Check if d.data is defined before accessing its properties
+        const isSelected = d.data && selected.includes(d.data.name);
+        return isSelected ? '.7rem' : '.35rem';
+      })
+      .attr('font-weight', (d) => {
+        // Check if d.data is defined before accessing its properties
+        const isSelected = d.data && selected.includes(d.data.name);
+        return isSelected ? 'bold' : 'normal';
+      });
+  }
+
+  let updateTreeLifeform = (selected) => {
+    console.log("update second ring")
+    // Select all rectangles and update their fill based on whether they are selected samples
+    const svg = d3.select('svg');
+
+    svg
+      .selectAll("rect.secondring")
+      .transition()
+      .duration('var(--standard-transition-time)')
+      .attr("fill", (d) => {
+        const isSelected = selected.includes(d.data.name);
+        return isSelected ? "var(--primary-color-dark-1)" : "white";
+      });
+  }
 
   // Find taxonomy filter selected cooresponding samples
   let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
@@ -341,6 +440,25 @@
     }
   };
 
+  let matchLifeformWithSample = (extra, extraType) => {
+    console.log("we are gonna match", extraType)
+    console.log("selected", extra)
+    switch (extraType) {
+      case "lifeform":
+        return (extra.lifeforms || [])
+            .map((lifeform) => {
+              // Implement your logic to find the samples for the given tribe
+              // This is a placeholder; adapt it based on your actual data structure
+              const lifeformSamples = allSpecieData
+                .filter((data) => data.WCVP_lifeform_description.includes(lifeform))
+                .map((data) => data.SAMPLE);
+              console.log("lifeformsamples", lifeformSamples);
+              return lifeformSamples;
+            })
+            .flat();
+    }
+  }
+
   // Data manipulation function
   let matchSampleWithSpecie = (sample, data) => {
     const foundDataPoint = data.find(
@@ -361,6 +479,9 @@
           a.value - b.value || d3.ascending(a.data.length, b.data.length)
       );
 
+    let maxTextWidth = 84.71711730957031;
+    sharedRoot = root;
+
     cluster(root);
     setRadius(root, (root.data.length = 0), innerRadius / maxLength(root));
     setColor(root);
@@ -371,7 +492,8 @@
       .attr("font-family", "sans-serif")
       .attr("font-size", 10);
 
-    svg.append("g").call(legend);
+    svgElement = svg
+    svg.call(legend, color);
 
     svg.append("style").text(`
 
@@ -404,7 +526,7 @@
       .each(function (d) {
         d.target.linkExtensionNode = this;
       })
-      .attr("d", linkExtensionConstant);
+      .attr("d", isBrancheLengthShown ? linkVariable : linkConstant);
 
     const link = svg
       .append("g")
@@ -421,25 +543,58 @@
 
     svg
       .append("g")
-      .selectAll("text")
+      .selectAll("g")
       .data(root.leaves())
-      .join("text")
-      .attr("dy", ".31em")
+      .join("g")
       .attr(
         "transform",
         (d) =>
-          `rotate(${d.x}) translate(${innerRadius + 4},0)${
-            d.x < 180 ? "" : " rotate(180)"
+          `rotate(${d.x}) ${
+            d.x < 180
+              ? `translate(${innerRadius + 4},0)`
+              : `translate(${innerRadius + 4},0) rotate(180)`
           }`
       )
-      .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
-      .attr("font-size", ".3rem")
-      .style("fill", (d) => (isTextHighlighted ? d.color : "black"))
-      // .text((d) => d.data.name.replace(/_/g, " "))
-      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-      // HOVER AND CLICK dont work at the same time
-      .on("mouseover", mouseovered(true))
-      .on("mouseout", mouseovered(false));
+      .each(function (d) {
+        // Append text
+        const text = d3.select(this)
+          .append("text")
+          .attr("dy", ".31em")
+          .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
+          .attr("font-size", ".3rem")
+          .attr("font-style", "italic")
+          .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
+          .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
+
+        // Use transition to get notified when rendering is complete
+        text.transition().on("end", () => {
+          const textWidth = text.node().getBBox().width;
+
+          // Track the maximum width
+          if (!maxTextWidth || textWidth > maxTextWidth) {
+            maxTextWidth = textWidth;
+          }
+
+          // Append square
+          d3.select(this)
+          .append("rect")
+          .attr("class", "secondring")
+          .attr("x", 0 - maxTextWidth - 35) // Position at the end of the maximum text width
+          .attr("y", -1)
+          .attr("width", maxTextWidth - textWidth + 20)
+          .attr("height", 2)
+          .attr("fill", "white")
+          .attr("transform", d.x < 180 ? "scale(-1)" : " ");
+    });
+
+    svg.selectAll("text")
+      .on("mouseover", function(event, d) {
+        mouseovered(true, event, d);
+      })
+      .on("mouseout", function(event, d) {
+        mouseovered(false, event, d);
+      });
+    });
 
     function update(checked) {
       const t = d3.transition().duration(750);
@@ -449,26 +604,27 @@
       link.transition(t).attr("d", checked ? linkVariable : linkConstant);
     }
 
-    function mouseovered(active) {
-      return function (event, d) {
-        d3.select(this).classed("label--active", active);
+    function mouseovered(active, event, d) {
+      d3.select(this).classed("label--active", active);
 
-        // const clickedPath = d3.select(d.linkExtensionNode);
-        // const isSelected = clickedPath.classed("link-extension--active");
-
-        // clickedPath.classed("link-extension--active", !isSelected).raise();
-
-        let ancestor = d;
-        while (ancestor) {
-          if (ancestor.linkNode) {
-            d3.select(ancestor.linkNode)
-              .classed("link--active", active)
-              .raise();
-          }
-          ancestor = ancestor.parent;
+      let ancestor = d;
+      while (ancestor) {
+        if (ancestor.linkNode) {
+          d3.select(ancestor.linkNode)
+            .attr("stroke", active ? d.color : "#000")
+            .attr("stroke-width", active ? "2px" : ".35px")
+            .raise();
         }
-      };
+        ancestor = ancestor.parent;
+      }
     }
+
+    if (isBrancheLengthShown == true) {
+      createTimeRings(svg, data);
+    } else {
+      removeTimeRings(svg);
+    }
+
     return Object.assign(svg.node(), { update });
   };
 
@@ -489,16 +645,23 @@
     return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
   };
 
-  // Set the color of each node by recursively inheriting.
+  // Set color of each node by recursively inheriting
   let setColor = (d) => {
     const name = d.data.name;
     const supertribe = getSupertribe(name);
+
+    // Set color based on the first supertribe encountered
     d.color =
-      supertribe !== null
+      supertribe !== null && supertribe !== "NA" && supertribe !== "Unplaced"
         ? color(supertribe)
-        : d.parent
-          ? d.parent.color
-          : null;
+        : "black"; // Set to black for "NA" or "Unplaced"
+
+    // Store color and supertribe in the nodeColors object
+    nodeColors[name] = {
+      color: d.color,
+      supertribe: supertribe || "NA",
+    };
+
     if (d.children) d.children.forEach(setColor);
   };
 
@@ -509,26 +672,37 @@
     return foundDataPoint ? foundDataPoint.SUPERTRIBE : null;
   };
 
-  let color = d3.scaleOrdinal().range(d3.schemeCategory10);
+  let customColors = [
+    "var(--highlight-color-5)",
+    "var(--highlight-color-1)",
+    "var(--highlight-color-3)",
+    "var(--highlight-color-4)",
+    "var(--highlight-color-2)",
+  ];
+  let color = d3.scaleOrdinal().range(customColors);
 
-  let legend = (svg) => {
-    const g = svg
-      .selectAll("g")
-      .data(color.domain())
-      .join("g")
-      .attr(
-        "transform",
-        (d, i) => `translate(${-outerRadius},${outerRadius - 20 - i * 20})`
-      );
+  let legend = (svg, colorScale) => {
+    createLegendContainer();
 
-    g.append("rect").attr("width", 10).attr("height", 10).attr("fill", color);
+    const legendItems = legendContainer
+        .selectAll("li")
+        .data(colorScale.domain())
+        .enter()
+        .append("li")
+        .style("display", "flex")
+        .style("align-items", "center")
+        .style("font-size", "var(--standard-font-size-body-small)");
 
-    g.append("text")
-      .attr("x", 24)
-      .attr("y", 9)
-      .attr("dy", "0.35em")
-      .text((d) => d);
-  };
+    legendItems
+        .append("div")
+        .style("width", "11px")
+        .style("height", "11px")
+        .style("border-radius", "50%")
+        .style("margin-right", "5px")
+        .style("background-color", (d) => colorScale(d));
+
+    legendItems.append("span").text((d) => d);
+};
 
   let linkExtensionConstant = (d) => {
     return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
@@ -570,6 +744,97 @@
   function linkVariable(d) {
     return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
   }
+
+  // Function to create time rings
+function createTimeRings(svg, data) {
+  const branchLengths = []; // Array to store branch lengths
+
+  // Extract branch lengths from the tree data
+  function extractBranchLengths(node) {
+    if (Array.isArray(node.branchset)) {
+      node.branchset.forEach((branch) => {
+        branchLengths.push(branch.length || 0); // Include the length of the current branch
+
+        if (Array.isArray(branch.branchset)) {
+          // Recursively call the function to handle nested branchsets
+          extractBranchLengths(branch);
+        }
+      });
+    }
+  }
+
+  extractBranchLengths(data);
+
+  // Find the maximum value in branchLengths
+  const maxBranchLength = d3.max(branchLengths);
+
+  // Choose the number of rings you want to display
+  const numberOfRings = 6;
+
+  // Calculate the interval between rings
+  const ringInterval = maxBranchLength / numberOfRings;
+
+  // Create an array of evenly distributed values for the rings
+  const ringValues = Array.from({ length: numberOfRings }, (_, i) => i * ringInterval);
+
+  // Sort ringValues in descending order
+  const sortedRingValues = ringValues.slice().reverse();
+
+  // Set up a linear scale based on branch lengths
+  const timeScale = d3.scaleLinear()
+    .domain([0, d3.max(branchLengths)]) 
+    .range([0, innerRadius]);
+
+  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
+
+  // Append circles for time rings
+  let timerings = svg.selectAll(".time-ring")
+    .data(ringValues)
+    .enter()
+    .append("circle")
+    .attr("class", "time-ring")
+    .attr("cx", 0) 
+    .attr("cy", 0)
+    .attr("r", 0)
+    .attr("fill", (d, i) => colorScale[i - 1 % colorScale.length])
+    .attr("stroke", "lightgrey")
+    .attr("stroke-dasharray", "3,3")
+    .lower();
+
+    timerings.transition()
+    .duration(500)
+    .attr("r", (d) => timeScale(d))
+
+    // Append text labels for time rings
+  let timelabels = svg.selectAll(".time-label")
+    .data(sortedRingValues)
+    .enter()
+    .append("text")
+    .attr("class", "time-label")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("dy", "0.5em") 
+    .attr("fill", "grey")
+    .attr("font-size", ".5rem")
+    .attr("text-anchor", "middle")
+    .text((d) => `${Math.round(d)} MA`);
+
+    timelabels.transition().duration(500)
+    .attr("x", (d) => timeScale(d));
+}
+
+// Function to remove time rings
+function removeTimeRings(svg) {
+  svg.selectAll(".time-ring").transition()
+    .duration(500)
+    .attr("r", 0)
+    .remove();
+  svg.selectAll(".time-label").transition()
+    .duration(500)
+    .attr("x", 0)
+    .attr("fill", "transparent")
+    .remove();
+}
 </script>
 
 <div class="toggle-container">
@@ -594,7 +859,7 @@
   </label>
 
   <label class="toggle-label">
-    Branch Length
+    Show Branch Length
     <input
       id="branchLengthCheckbox"
       type="checkbox"
@@ -606,6 +871,7 @@
 
 <!-- Container of tree -->
 <div id="phyloTree" />
+<div id="legendContainer" />
 
 <style>
   #phyloTree {
