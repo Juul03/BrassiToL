@@ -32,7 +32,8 @@
   let selectedFilterType = "Taxonomy"
 
   let selectedTaxonomyLevel = "all";
-  let selectedGeographicalLevel = "all";
+  let selectedGeographyLevel = "all";
+  let selectedExtraLevel = "all";
 
   const fetchJSONData = async () => {
     try {
@@ -41,6 +42,16 @@
         const data = await response.json();
         metaData = data;
 
+        findUniqueValuesTaxonomy();
+      } else {
+        console.error("Failed to fetch the data");
+      }
+    } catch (error) {
+      console.error("Error fetching JSON data:", error);
+    }
+  };
+
+  let findUniqueValuesTaxonomy = () => {
         // Find all unique taxonomy and store them in variables
         uniqueFamilies = findUniqueValues("FAMILY");
         uniqueFamilies.sort();
@@ -59,18 +70,21 @@
 
         uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
         uniqueBinaryCombination.sort();
-      } else {
-        console.error("Failed to fetch the data");
-      }
-    } catch (error) {
-      console.error("Error fetching JSON data:", error);
-    }
-  };
+  }
 
   // Function to find the selected value in the dropdown menu
   let getSelectedTaxonomyLevel = (dropdownElement, storeVar) => {
-    storeVar = dropdownElement.value;
-    console.log("storevar", storeVar)
+    if(storeVar === selectedTaxonomyLevel) {
+      selectedTaxonomyLevel = dropdownElement.value;
+    }
+
+    if(storeVar === selectedGeographyLevel) {
+      selectedGeographyLevel = dropdownElement.value
+    }
+
+    if(storeVar === selectedExtraLevel) {
+      selectedExtraLevel = dropdownElement.value
+    }
   };
 
   onMount(async () => {
