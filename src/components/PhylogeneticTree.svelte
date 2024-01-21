@@ -358,7 +358,7 @@
     const svg = d3.select('svg');
 
     svg
-      .selectAll("g > rect")
+      .selectAll("rect.secondring")
       .transition()
       .duration('var(--standard-transition-time)')
       .attr("fill", (d) => {
@@ -578,7 +578,8 @@
           // Append square
           d3.select(this)
           .append("rect")
-          .attr("x", 0 - maxTextWidth - 25) // Position at the end of the maximum text width
+          .attr("class", "secondring")
+          .attr("x", 0 - maxTextWidth - 35) // Position at the end of the maximum text width
           .attr("y", -1)
           .attr("width", maxTextWidth - textWidth + 20)
           .attr("height", 2)
