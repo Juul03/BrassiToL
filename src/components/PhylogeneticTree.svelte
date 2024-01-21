@@ -299,14 +299,36 @@
       updateTree(combinedSamples);
   }
 
+  let matchLifeformWithSample = (extra, extraType) => {
+    console.log("we are gonna match", extraType)
+    console.log("selected", extra)
+    switch (extraType) {
+      case "lifeform":
+        return (extra.lifeforms || [])
+            .map((lifeform) => {
+              // Implement your logic to find the samples for the given tribe
+              // This is a placeholder; adapt it based on your actual data structure
+              const lifeformSamples = allSpecieData
+                .filter((data) => data.WCVP_lifeform_description.includes(lifeform))
+                .map((data) => data.SAMPLE);
+              console.log("lifeformsamples", lifeformSamples);
+              return lifeformSamples;
+            })
+            .flat();
+    }
+  }
+
   // Function to handle updates when selectedExtraStore changes
   const handleSelectedExtraUpdate = (value) => {
     selectedExtra = value || {}; // Make sure selectedExtra is not null or undefined
     console.log('selectedExtra', selectedExtra)
 
     // Implement your logic to update the tree or perform any other actions
+    let extraSamplesLifeform = matchLifeformWithSample(
+      selectedExtra,
+      'lifeform'
+    )
   };
-
   
   let findSuperTribeColor = (sample) => {
     const supertribe = getSupertribe(sample);
