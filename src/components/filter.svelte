@@ -5,6 +5,7 @@
     selectedTaxonomyStore,
     updateSelectedTaxonomy,
   } from "$lib/selectedTaxonomyStore";
+  import { selectedExtraStore, updateSelectedExtra } from "$lib/selectedExtraStore";
 
   let metaData = [];
 
@@ -234,7 +235,7 @@
     console.log("selectedleys", selectedKeys)
 
     // Update the selectedExtraStore with the updated value for the specific extra
-    // updateSelectedExtra(selectedKeys, extra);
+    updateSelectedExtra(selectedKeys, extra);
   }
 
   // Function to filter the treemap based on selected items for the specific taxonomy
