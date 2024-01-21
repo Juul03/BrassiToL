@@ -2,8 +2,12 @@
   import { onMount } from "svelte";
   import * as d3 from "d3";
   import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
+  import { selectedExtraStore } from '$lib/selectedExtraStore';
 
   let selectedTaxonomy = {};
+  let selectedExtra = {};
+  console.log("extra in phylo", selectedTaxonomy)
+  console.log("extra in phylo", selectedExtra)
 
   let phyloTreeDataWithOutgroups;
   let phyloTreeDataWithoutOutgroups;
@@ -194,7 +198,6 @@
     // await fetchPhylotreeData();
     await fetchPhylotreeData();
     await fetchPhylotreeData2();
-    console.log(phyloTreeDataWithOutgroups);
     findOutgroups();
 
     const highlightSupertribesToggleElement =
@@ -244,8 +247,20 @@
       toggleShowBranchLength
     );
 
-    const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
-      selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
+    // subscribe to selectedTaxonomyStore
+    const unsubscribeTaxonomy = selectedTaxonomyStore.subscribe(handleSelectedTaxonomyUpdate)
+
+    // Subscribe to selectedExtraStore
+    const unsubscribeExtra = selectedExtraStore.subscribe(handleSelectedExtraUpdate);
+
+    return () => {
+      unsubscribeTaxonomy(); // Unsubscribe when the component is destroyed
+      unsubscribeExtra();
+    };
+  });
+
+  const handleSelectedTaxonomyUpdate = (value) => {
+    selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
       console.log('selected', selectedTaxonomy)
 
       let taxonomySamplesSubfamily = matchTaxonomyWithSample(
@@ -282,12 +297,15 @@
         ...taxonomySamplesBinaryCombination,
       ];
       updateTree(combinedSamples);
-    });
+  }
 
-    return () => {
-      unsubscribe(); // Unsubscribe when the component is destroyed
-    };
-  });
+  // Function to handle updates when selectedExtraStore changes
+  const handleSelectedExtraUpdate = (value) => {
+    selectedExtra = value || {}; // Make sure selectedExtra is not null or undefined
+    console.log('selectedExtra', selectedExtra)
+
+    // Implement your logic to update the tree or perform any other actions
+  };
 
   
   let findSuperTribeColor = (sample) => {
