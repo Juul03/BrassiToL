@@ -76,6 +76,7 @@
 
   let findUniqueValuesExtra = () => {
     // Find all unique extras and store them in the variables
+    // UNIQUELIFEFORMS
     let uniqueLifeformsRaw = findUniqueValues("WCVP_lifeform_description");
     let uniqueLifeformsSet = new Set();
 
@@ -88,8 +89,21 @@
     // Convert the Set back to an array
     uniqueLifeforms = [...uniqueLifeformsSet];
 
+    // sort on alphabet
+    // Sort alphabetically but keep "NA" at the end
+    uniqueLifeforms = uniqueLifeforms.sort((a, b) => {
+      if (a === "NA") {
+        return 1; // "NA" should be at the end
+      } else if (b === "NA") {
+        return -1; // "NA" should be at the end
+      } else {
+        return a.localeCompare(b); // Sort alphabetically for other values
+      }
+    });
 
-    uniqueClimates = findUniqueValues("WCVP_climate_description") ;
+
+    uniqueClimates = findUniqueValues("WCVP_climate_description");
+    // console.log("unique climates", uniqueClimates)
     uniqueGrowthforms = findUniqueValues("GROWTH_FORM");
     uniqueSocietalUses = findUniqueValues("SOCIETAL_USE");
     uniqueRedlistCategories = findUniqueValues("IUCN_redlistCategory");
@@ -141,7 +155,7 @@
   };
 
   let setupEventListeners = () => {
-      const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
+    const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
     if(dropdownTaxonomyElement !== null) {
       console.log("taxxx")
       dropdownTaxonomyElement.addEventListener("change", () =>
