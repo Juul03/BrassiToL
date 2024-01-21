@@ -562,6 +562,7 @@
           .attr("dy", ".31em")
           .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
           .attr("font-size", ".3rem")
+          .attr("font-style", "italic")
           .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
           .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
 
