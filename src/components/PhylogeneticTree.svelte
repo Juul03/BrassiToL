@@ -339,14 +339,13 @@
     // Select all rectangles and update their fill based on whether they are selected samples
     const svg = d3.select('svg');
 
-    // TODO: add grow transition, rectangles grows from 0 width till 100
     svg
       .selectAll("g > rect")
       .transition()
       .duration('var(--standard-transition-time)')
       .attr("fill", (d) => {
-        const isHighlighted = selected.includes(d.data.name);
-        return isHighlighted ? "var(--primary-color-dark-1)" : "white";
+        const isSelected = selected.includes(d.data.name);
+        return isSelected ? "var(--primary-color-dark-1)" : "white";
       });
   }
 
