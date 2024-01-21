@@ -109,37 +109,9 @@
   return uniqueTypes;
 };
 
-  // Function to find the selected value in the dropdown menu
-  let getSelectedTaxonomyLevel = (dropdownElement, storeVar) => {
-    if(storeVar === selectedTaxonomyLevel) {
-      selectedTaxonomyLevel = dropdownElement.value;
-    }
-
-    if(storeVar === selectedGeographyLevel) {
-      selectedGeographyLevel = dropdownElement.value
-    }
-
-    if(storeVar === selectedExtraLevel) {
-      selectedExtraLevel = dropdownElement.value
-    }
-  };
-
   onMount(async () => {
-    fetchJSONData();
-
-    const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
-    if(dropdownTaxonomyElement !== null) {
-      dropdownTaxonomyElement.addEventListener("change", () =>
-      getSelectedTaxonomyLevel(dropdownTaxonomyElement, selectedTaxonomyLevel)
-    );
-    }
-    
-    const dropdownGeographicalElement = document.getElementById("geography-select");
-    if(dropdownGeographicalElement !== null) {
-      dropdownGeographicalElement.addEventListener("change", () => {
-      getSelectedTaxonomyLevel(dropdownGeographicalElement, selectedGeographicalLevel);
-    })
-    }
+    await fetchJSONData();
+    setupEventListeners();
    
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       console.log("Updated selectedTaxonomyStore:", value);
@@ -151,6 +123,49 @@
       unsubscribe(); // Unsubscribe when the component is destroyed
     };
   });
+
+   // Function to find the selected value in the dropdown menu
+   let getSelectedLevel = (dropdownElement, storeVar) => {
+    if(storeVar === selectedTaxonomyLevel) {
+      selectedTaxonomyLevel = dropdownElement.value;
+    }
+
+    if(storeVar === selectedGeographyLevel) {
+      selectedGeographyLevel = dropdownElement.value
+    }
+
+    if(storeVar === selectedExtraLevel) {
+      selectedExtraLevel = dropdownElement.value
+      console.log("selectedleve;", selectedExtraLevel)
+    }
+  };
+
+  let setupEventListeners = () => {
+      const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
+    if(dropdownTaxonomyElement !== null) {
+      console.log("taxxx")
+      dropdownTaxonomyElement.addEventListener("change", () =>
+      getSelectedLevel(dropdownTaxonomyElement, selectedTaxonomyLevel)
+    );
+    }
+    
+    const dropdownGeographicalElement = document.getElementById("geography-select");
+    if(dropdownGeographicalElement !== null) {
+      console.log("geo")
+      dropdownGeographicalElement.addEventListener("change", () => {
+      getSelectedLevel(dropdownGeographicalElement, selectedGeographicalLevel);
+    })
+    }
+
+    const dropdownExtraElement = document.getElementById("extra-select");
+    if(dropdownExtraElement !== null) {
+      console.log("extraaaaa")
+      dropdownExtraElement.addEventListener("change", () => {
+      getSelectedLevel(dropdownExtraElement, selectedExtraLevel);
+    })
+    }
+
+    }
 
   const findUniqueValues = (property) => {
     const values = metaData.map((sample) => sample[property]);
@@ -165,6 +180,10 @@
     genus: {},
     binaryCombination: {},
   };
+
+  let selectedItemsExtra = {
+    lifeforms: {},
+  }
 
   const handleItemSelection = (event, taxonomy, item) => {
     const isChecked = event.target.checked;
@@ -182,6 +201,27 @@
     // Update the selectedTaxonomyStore with the updated value for the specific taxonomy
     updateSelectedTaxonomy(selectedKeys, taxonomy);
   };
+
+  const handleItemSelectionExtra = (event, extra, item) => {
+    const isChecked = event.target.checked;
+
+    selectedItemsExtra[extra] = {
+      ...selectedItemsExtra[extra],
+      [item]: isChecked,
+    };
+
+    console.log("selected", selectedItemsExtra)
+
+    // Get an array of keys where the value is true (i.e., selected items for the specific extra)
+    const selectedKeys = Object.keys(selectedItemsExtra[extra]).filter(
+      (key) => selectedItemsExtra[extra][key]
+    );
+
+    console.log("selectedleys", selectedKeys)
+
+    // Update the selectedExtraStore with the updated value for the specific extra
+    // updateSelectedExtra(selectedKeys, extra);
+  }
 
   // Function to filter the treemap based on selected items for the specific taxonomy
   const filterTreemap = (tree, taxonomy) => {
@@ -267,9 +307,9 @@
         <img src="/icons/arrowIcon.svg" alt="filters">
         <img src="/icons/filterIcon.svg" alt="filters"></li>
         <!-- TODO: Add and remove the class in js based on which item is clicked -->
-      <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")}>Taxonomy</li>
-      <li on:click={() => handleFilterTypeClick("Geography")}>Geographical</li>
-      <li on:click={() => handleFilterTypeClick("Extra")}>Extra</li>
+      <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")} on:click={() => setupEventListeners()}>Taxonomy</li>
+      <li on:click={() => handleFilterTypeClick("Geography")} on:click={() => setupEventListeners()}>Geographical</li>
+      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Extra</li>
     </ul>
   </nav>
 
@@ -300,17 +340,17 @@
     {/if}
 
     {#if selectedFilterType === "Extra"}
-    <!-- Dropdown to choose taxonomy level -->
-    <label for="extra-select">Extra</label>
+      <!-- Dropdown to choose taxonomy level -->
+      <label for="extra-select">Extra</label>
 
-    <select name="extra" id="extra-select">
-      <option value="all">All</option>
-      <option value="lifeform">Lifeform</option>
-      <option value="climate">Climate</option>
-      <option value="growthform">Growthform</option>
-      <option value="societal">Societal</option>
-      <option value="genustype">Genustype</option>
-    </select>
+      <select name="extra" id="extra-select">
+        <option value="all">All</option>
+        <option value="lifeform">Lifeform</option>
+        <option value="climate">Climate</option>
+        <option value="growthform">Growthform</option>
+        <option value="societal">Societal</option>
+        <option value="genustype">Genustype</option>
+      </select>
     {/if}
 
   
@@ -410,6 +450,27 @@
               </label>
             {/each}
           </div>
+        {/if}
+      {/if}
+
+
+      {#if selectedFilterType === "Extra"}
+        {#if selectedExtraLevel === "all"}
+          <p>Search a specific item or start by selecting in the dropdown above</p>
+        {/if}
+
+        {#if selectedExtraLevel === "lifeform"}
+          {#each uniqueLifeforms as lifeform}
+            <label>
+              <input
+                type="checkbox"
+                bind:checked={selectedItemsExtra.lifeforms[lifeform]}
+                on:change={(event) =>
+                  handleItemSelectionExtra(event, "lifeforms", lifeform)}
+              />
+              {lifeform}
+            </label>
+          {/each}
         {/if}
       {/if}
     </div>
