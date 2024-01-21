@@ -14,6 +14,9 @@
   let svgElement;
   let legendContainer;
 
+  // Stores colors and supertribe names
+  let nodeColors = {};
+
   // Set up basic width and height
   const width = 900;
   const outerRadius = width / 2;
@@ -286,14 +289,23 @@
     };
   });
 
+  
+  let findSuperTribeColor = (sample) => {
+    const supertribe = getSupertribe(sample);
+    return supertribe !== null && supertribe !== "NA" && supertribe !== "Unplaced"
+      ? color(supertribe)
+      : "black";
+  };
+
   let sharedRoot;
   let updateTree = (selected) => {
     sharedRoot.each((node) => {
       let isSelected = selected.includes(node.data.name);
+      let superTribeColor = findSuperTribeColor(node.data.name)
 
       node.ancestors().forEach((ancestor) => {
         d3.select(ancestor.linkNode)
-          .attr("stroke", isSelected ? "red" : "black")
+          .attr("stroke", isSelected ? superTribeColor : "black")
           .attr("stroke-width", isSelected ? "2px" : ".35px");
       });
     });
@@ -559,7 +571,7 @@
     return d.data.length + (d.children ? d3.max(d.children, maxLength) : 0);
   };
 
- // Set the color of each node by recursively inheriting.
+  // Set color of each node by recursively inheriting
   let setColor = (d) => {
     const name = d.data.name;
     const supertribe = getSupertribe(name);
@@ -567,8 +579,14 @@
     // Set color based on the first supertribe encountered
     d.color =
       supertribe !== null && supertribe !== "NA" && supertribe !== "Unplaced"
-       ? color(supertribe)
+        ? color(supertribe)
         : "black"; // Set to black for "NA" or "Unplaced"
+
+    // Store color and supertribe in the nodeColors object
+    nodeColors[name] = {
+      color: d.color,
+      supertribe: supertribe || "NA",
+    };
 
     if (d.children) d.children.forEach(setColor);
   };
@@ -580,7 +598,13 @@
     return foundDataPoint ? foundDataPoint.SUPERTRIBE : null;
   };
 
-  let customColors = ["var(--highlight-color-5)", "var(--highlight-color-1)", "var(--highlight-color-3)", "var(--highlight-color-4)", "var(--highlight-color-2)"];
+  let customColors = [
+    "var(--highlight-color-5)",
+    "var(--highlight-color-1)",
+    "var(--highlight-color-3)",
+    "var(--highlight-color-4)",
+    "var(--highlight-color-2)",
+  ];
   let color = d3.scaleOrdinal().range(customColors);
 
   let legend = (svg, colorScale) => {
