@@ -324,91 +324,93 @@
         </button>
       </div>
   
-      {#if selectedTaxonomyLevel === "all"}
-        <p>Search a specific species or start by selecting in the dropdown above</p>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "subfamily"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueSubFamilies as subfamily}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.subfamilies[subfamily]}
-                on:change={(event) =>
-                  handleItemSelection(event, "subfamilies", subfamily)}
-              />
-              {subfamily}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "supertribe"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueSupertribes as supertribe}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.supertribes[supertribe]}
-                on:change={(event) =>
-                  handleItemSelection(event, "supertribes", supertribe)}
-              />
-              {supertribe}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "tribe"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueTribes as tribe}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.tribes[tribe]}
-                on:change={(event) => handleItemSelection(event, "tribes", tribe)}
-              />
-              {tribe}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "genus"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueGenus as genus}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.genus[genus]}
-                on:change={(event) => handleItemSelection(event, "genus", genus)}
-              />
-              {genus}
-            </label>
-          {/each}
-        </div>
-      {/if}
-  
-      {#if selectedTaxonomyLevel === "speciesfull"}
-        <!-- Render the corresponding options based on the selected taxonomy level -->
-        <div class="filtercontainer">
-          {#each uniqueBinaryCombination as binaryComb}
-            <label>
-              <input
-                type="checkbox"
-                bind:checked={selectedItems.binaryCombination[binaryComb]}
-                on:change={(event) =>
-                  handleItemSelection(event, "binaryCombination", binaryComb)}
-              />
-              {binaryComb}
-            </label>
-          {/each}
-        </div>
+      {#if selectedFilterType === 'Taxonomy'}
+        {#if selectedTaxonomyLevel === "all"}
+          <p>Search a specific species or start by selecting in the dropdown above</p>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "subfamily"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueSubFamilies as subfamily}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.subfamilies[subfamily]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "subfamilies", subfamily)}
+                />
+                {subfamily}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "supertribe"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueSupertribes as supertribe}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.supertribes[supertribe]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "supertribes", supertribe)}
+                />
+                {supertribe}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "tribe"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueTribes as tribe}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.tribes[tribe]}
+                  on:change={(event) => handleItemSelection(event, "tribes", tribe)}
+                />
+                {tribe}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "genus"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueGenus as genus}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.genus[genus]}
+                  on:change={(event) => handleItemSelection(event, "genus", genus)}
+                />
+                {genus}
+              </label>
+            {/each}
+          </div>
+        {/if}
+
+        {#if selectedTaxonomyLevel === "speciesfull"}
+          <!-- Render the corresponding options based on the selected taxonomy level -->
+          <div class="filtercontainer">
+            {#each uniqueBinaryCombination as binaryComb}
+              <label>
+                <input
+                  type="checkbox"
+                  bind:checked={selectedItems.binaryCombination[binaryComb]}
+                  on:change={(event) =>
+                    handleItemSelection(event, "binaryCombination", binaryComb)}
+                />
+                {binaryComb}
+              </label>
+            {/each}
+          </div>
+        {/if}
       {/if}
     </div>
   </div>
