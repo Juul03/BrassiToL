@@ -339,11 +339,14 @@
     // Select all rectangles and update their fill based on whether they are selected samples
     const svg = d3.select('svg');
 
+    // TODO: add grow transition, rectangles grows from 0 width till 100
     svg
       .selectAll("g > rect")
+      .transition()
+      .duration('var(--standard-transition-time)')
       .attr("fill", (d) => {
         const isHighlighted = selected.includes(d.data.name);
-        return isHighlighted ? "red" : "";
+        return isHighlighted ? "var(--primary-color-dark-1)" : "white";
       });
   }
 
@@ -536,8 +539,6 @@
           }`
       )
       .each(function (d) {
-        let isHighlighted = d.data.name === "ERR4210213";
-
         // Append text
         const text = d3.select(this)
           .append("text")
@@ -554,17 +555,16 @@
           // Track the maximum width
           if (!maxTextWidth || textWidth > maxTextWidth) {
             maxTextWidth = textWidth;
-            console.log("max",maxTextWidth)
           }
 
           // Append square
           d3.select(this)
           .append("rect")
           .attr("x", 0 - maxTextWidth - 25) // Position at the end of the maximum text width
-          .attr("y", -1) // Adjust the y position as needed
-          .attr("width", maxTextWidth - textWidth + 20) // Adjust the width as needed
-          .attr("height", 2) // Adjust the height as needed
-          .attr("fill", isHighlighted ? "red" : "black")
+          .attr("y", -1)
+          .attr("width", maxTextWidth - textWidth + 20)
+          .attr("height", 2)
+          .attr("fill", "white")
           .attr("transform", d.x < 180 ? "scale(-1)" : " ");
     });
 
