@@ -28,7 +28,7 @@
   let uniqueSocietalUses = [];
   let uniqueRedlistCategories = [];
 
-  // Stores which filter is active, default taxonomy, other values are Geographical or Extra
+  // Stores which filter is active, default taxonomy, other values are Geography or Extra
   let selectedFilterType = "Taxonomy"
 
   let selectedTaxonomyLevel = "all";
@@ -186,6 +186,26 @@
     );
     updateSelectedTaxonomy(selectedKeys, taxonomyLevel);
   };
+
+  const handleFilterTypeClick = (filterType) => {
+    // Update selectedFilterType when a filter type is clicked
+    selectedFilterType = filterType;
+
+    // Set a variable to store the selected filter type class
+    const selectedClass = "selected";
+
+    // Remove the selected class from all li elements
+    const navItems = document.querySelectorAll('nav ul li');
+    navItems.forEach((item) => {
+      item.classList.remove(selectedClass);
+    });
+
+    // Add the selected class to the clicked li element
+    const selectedNavItem = document.querySelector(`nav ul li.${filterType.toLowerCase()}`);
+    if (selectedNavItem) {
+      selectedNavItem.classList.add(selectedClass);
+    }
+  };
 </script>
 
 <section id="filters">
@@ -196,9 +216,9 @@
         <img src="/icons/arrowIcon.svg" alt="filters">
         <img src="/icons/filterIcon.svg" alt="filters"></li>
         <!-- TODO: Add and remove the class in js based on which item is clicked -->
-      <li class="selected">Taxonomy</li>
-      <li>Geographical</li>
-      <li>Extra</li>
+      <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")}>Taxonomy</li>
+      <li on:click={() => handleFilterTypeClick("Geography")}>Geographical</li>
+      <li on:click={() => handleFilterTypeClick("Extra")}>Extra</li>
     </ul>
   </nav>
 
@@ -217,7 +237,7 @@
       </select>
     {/if}
 
-    {#if selectedFilterType === "Geographical"}
+    {#if selectedFilterType === "Geography"}
       <!-- Dropdown to choose taxonomy level -->
       <label for="geography-select">Geography</label>
 
