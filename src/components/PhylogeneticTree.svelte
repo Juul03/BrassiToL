@@ -294,9 +294,10 @@
         ...taxonomySamplesSupertribe,
         ...taxonomySamplesTribes,
         ...taxonomySamplesGenus,
+        ...taxonomySamplesBinaryCombination,
       ];
       updateTreeTaxonomy(combinedSamples);
-      updateTreeTaxonomy(taxonomySamplesBinaryCombination);
+      updateTreeTaxonomyText(taxonomySamplesBinaryCombination);
   }
 
   // Function to handle updates when selectedExtraStore changes
@@ -321,7 +322,20 @@
   };
 
   let sharedRoot;
-  let updateTreeTaxonomy = (selected) => {
+  let updateTreeTaxonomy = (selected) => {     
+    sharedRoot.each((node) => {
+      let isSelected = selected.includes(node.data.name);
+      let superTribeColor = findSuperTribeColor(node.data.name);
+
+      node.ancestors().forEach((ancestor) => {
+        d3.select(ancestor.linkNode)
+          .attr("stroke", isSelected ? superTribeColor : "black")
+          .attr("stroke-width", isSelected ? "2px" : ".35px");
+      });
+    });
+  };
+
+  let updateTreeTaxonomyText = (selected) => {
     // Set font size to '.7rem' and font weight to 'bold' for each selected sample
     d3.selectAll('text')
       .transition()
@@ -336,19 +350,7 @@
         const isSelected = d.data && selected.includes(d.data.name);
         return isSelected ? 'bold' : 'normal';
       });
-      
-    sharedRoot.each((node) => {
-      let isSelected = selected.includes(node.data.name);
-      let superTribeColor = findSuperTribeColor(node.data.name);
-
-      node.ancestors().forEach((ancestor) => {
-        d3.select(ancestor.linkNode)
-          .attr("stroke", isSelected ? superTribeColor : "black")
-          .attr("stroke-width", isSelected ? "2px" : ".35px");
-      });
-    });
-  };
-
+  }
 
   let updateTreeLifeform = (selected) => {
     console.log("update second ring")
