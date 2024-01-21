@@ -294,9 +294,9 @@
         ...taxonomySamplesSupertribe,
         ...taxonomySamplesTribes,
         ...taxonomySamplesGenus,
-        ...taxonomySamplesBinaryCombination,
       ];
       updateTreeTaxonomy(combinedSamples);
+      updateTreeTaxonomy(taxonomySamplesBinaryCombination);
   }
 
   // Function to handle updates when selectedExtraStore changes
@@ -322,9 +322,24 @@
 
   let sharedRoot;
   let updateTreeTaxonomy = (selected) => {
+    // Set font size to '.7rem' and font weight to 'bold' for each selected sample
+    d3.selectAll('text')
+      .transition()
+      .duration(500)
+      .attr('font-size', (d) => {
+        // Check if d.data is defined before accessing its properties
+        const isSelected = d.data && selected.includes(d.data.name);
+        return isSelected ? '.7rem' : '.35rem';
+      })
+      .attr('font-weight', (d) => {
+        // Check if d.data is defined before accessing its properties
+        const isSelected = d.data && selected.includes(d.data.name);
+        return isSelected ? 'bold' : 'normal';
+      });
+      
     sharedRoot.each((node) => {
       let isSelected = selected.includes(node.data.name);
-      let superTribeColor = findSuperTribeColor(node.data.name)
+      let superTribeColor = findSuperTribeColor(node.data.name);
 
       node.ancestors().forEach((ancestor) => {
         d3.select(ancestor.linkNode)
@@ -333,6 +348,7 @@
       });
     });
   };
+
 
   let updateTreeLifeform = (selected) => {
     console.log("update second ring")
