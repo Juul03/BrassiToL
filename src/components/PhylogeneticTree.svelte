@@ -563,8 +563,7 @@
           .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
           .attr("font-size", ".3rem")
           .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
-          .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData))
-          .text((d) => d.data.name);
+          .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
 
         // Use transition to get notified when rendering is complete
         text.transition().on("end", () => {
