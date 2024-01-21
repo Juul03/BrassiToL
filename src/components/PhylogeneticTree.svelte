@@ -723,7 +723,6 @@ function createTimeRings(svg, data) {
 
     timelabels.transition().duration(500)
     .attr("x", (d) => timeScale(d));
-    
 }
 
 // Function to remove time rings

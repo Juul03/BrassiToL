@@ -7,6 +7,9 @@
   } from "$lib/selectedTaxonomyStore";
 
   let metaData = [];
+
+  // Stores the unique values in the metadata file (possible options to filter on)
+  // Taxonomy unique values
   let uniqueFamilies = [];
   let uniqueSubFamilies = [];
   let uniqueSupertribes = [];
@@ -14,10 +17,22 @@
   let uniqueGenus = [];
   let uniqueBinaryCombination = [];
 
+  // Geography unique values
+  let uniqueContinents = [];
+  let uniqueGeographicalAreas = [];
+
+  // Extra unique values
+  let uniqueLifeforms = [];
+  let uniqueClimates = [];
+  let uniqueGrowthforms = [];
+  let uniqueSocietalUses = [];
+  let uniqueRedlistCategories = [];
+
   // Stores which filter is active, default taxonomy, other values are Geographical or Extra
-  let selectedFilterType = "Extra"
+  let selectedFilterType = "Taxonomy"
 
   let selectedTaxonomyLevel = "all";
+  let selectedGeographicalLevel = "all";
 
   const fetchJSONData = async () => {
     try {
@@ -52,18 +67,29 @@
     }
   };
 
-  let getSelectedTaxonomyLevel = (dropdownElement) => {
-    selectedTaxonomyLevel = dropdownElement.value;
+  // Function to find the selected value in the dropdown menu
+  let getSelectedTaxonomyLevel = (dropdownElement, storeVar) => {
+    storeVar = dropdownElement.value;
+    console.log("storevar", storeVar)
   };
 
   onMount(async () => {
     fetchJSONData();
 
     const dropdownTaxonomyElement = document.getElementById("taxonomy-select");
-    dropdownTaxonomyElement.addEventListener("change", () =>
-      getSelectedTaxonomyLevel(dropdownTaxonomyElement)
+    if(dropdownTaxonomyElement !== null) {
+      dropdownTaxonomyElement.addEventListener("change", () =>
+      getSelectedTaxonomyLevel(dropdownTaxonomyElement, selectedTaxonomyLevel)
     );
-
+    }
+    
+    const dropdownGeographicalElement = document.getElementById("geography-select");
+    if(dropdownGeographicalElement !== null) {
+      dropdownGeographicalElement.addEventListener("change", () => {
+      getSelectedTaxonomyLevel(dropdownGeographicalElement, selectedGeographicalLevel);
+    })
+    }
+   
     const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
       console.log("Updated selectedTaxonomyStore:", value);
       // You can perform further actions whenever selectedTaxonomyStore changes
