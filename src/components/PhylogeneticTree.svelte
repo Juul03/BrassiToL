@@ -296,26 +296,7 @@
         ...taxonomySamplesGenus,
         ...taxonomySamplesBinaryCombination,
       ];
-      updateTree(combinedSamples);
-  }
-
-  let matchLifeformWithSample = (extra, extraType) => {
-    console.log("we are gonna match", extraType)
-    console.log("selected", extra)
-    switch (extraType) {
-      case "lifeform":
-        return (extra.lifeforms || [])
-            .map((lifeform) => {
-              // Implement your logic to find the samples for the given tribe
-              // This is a placeholder; adapt it based on your actual data structure
-              const lifeformSamples = allSpecieData
-                .filter((data) => data.WCVP_lifeform_description.includes(lifeform))
-                .map((data) => data.SAMPLE);
-              console.log("lifeformsamples", lifeformSamples);
-              return lifeformSamples;
-            })
-            .flat();
-    }
+      updateTreeTaxonomy(combinedSamples);
   }
 
   // Function to handle updates when selectedExtraStore changes
@@ -328,6 +309,8 @@
       selectedExtra,
       'lifeform'
     )
+
+    updateTreeLifeform(extraSamplesLifeform);
   };
   
   let findSuperTribeColor = (sample) => {
@@ -338,7 +321,7 @@
   };
 
   let sharedRoot;
-  let updateTree = (selected) => {
+  let updateTreeTaxonomy = (selected) => {
     sharedRoot.each((node) => {
       let isSelected = selected.includes(node.data.name);
       let superTribeColor = findSuperTribeColor(node.data.name)
@@ -350,6 +333,19 @@
       });
     });
   };
+
+  let updateTreeLifeform = (selected) => {
+    console.log("update second ring")
+    // Select all rectangles and update their fill based on whether they are selected samples
+    const svg = d3.select('svg');
+
+    svg
+      .selectAll("g > rect")
+      .attr("fill", (d) => {
+        const isHighlighted = selected.includes(d.data.name);
+        return isHighlighted ? "red" : "";
+      });
+  }
 
   // Find taxonomy filter selected cooresponding samples
   let matchTaxonomyWithSample = (taxonomy, taxonomyType) => {
@@ -423,6 +419,25 @@
         return [];
     }
   };
+
+  let matchLifeformWithSample = (extra, extraType) => {
+    console.log("we are gonna match", extraType)
+    console.log("selected", extra)
+    switch (extraType) {
+      case "lifeform":
+        return (extra.lifeforms || [])
+            .map((lifeform) => {
+              // Implement your logic to find the samples for the given tribe
+              // This is a placeholder; adapt it based on your actual data structure
+              const lifeformSamples = allSpecieData
+                .filter((data) => data.WCVP_lifeform_description.includes(lifeform))
+                .map((data) => data.SAMPLE);
+              console.log("lifeformsamples", lifeformSamples);
+              return lifeformSamples;
+            })
+            .flat();
+    }
+  }
 
   // Data manipulation function
   let matchSampleWithSpecie = (sample, data) => {
@@ -507,60 +522,60 @@
       .attr("d", linkVariable);
 
     svg
-  .append("g")
-  .selectAll("g")
-  .data(root.leaves())
-  .join("g")
-  .attr(
-    "transform",
-    (d) =>
-      `rotate(${d.x}) ${
-        d.x < 180
-          ? `translate(${innerRadius + 4},0)`
-          : `translate(${innerRadius + 4},0) rotate(180)`
-      }`
-  )
-  .each(function (d) {
-    let isHighlighted = d.data.name === "ERR4210213";
+      .append("g")
+      .selectAll("g")
+      .data(root.leaves())
+      .join("g")
+      .attr(
+        "transform",
+        (d) =>
+          `rotate(${d.x}) ${
+            d.x < 180
+              ? `translate(${innerRadius + 4},0)`
+              : `translate(${innerRadius + 4},0) rotate(180)`
+          }`
+      )
+      .each(function (d) {
+        let isHighlighted = d.data.name === "ERR4210213";
 
-    // Append text
-    const text = d3.select(this)
-      .append("text")
-      .attr("dy", ".31em")
-      .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
-      .attr("font-size", ".3rem")
-      .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
-      .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
+        // Append text
+        const text = d3.select(this)
+          .append("text")
+          .attr("dy", ".31em")
+          .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
+          .attr("font-size", ".3rem")
+          .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
+          .text((d) => matchSampleWithSpecie(d.data.name, allSpecieData));
 
-    // Use transition to get notified when rendering is complete
-    text.transition().on("end", () => {
-      const textWidth = text.node().getBBox().width;
+        // Use transition to get notified when rendering is complete
+        text.transition().on("end", () => {
+          const textWidth = text.node().getBBox().width;
 
-       // Track the maximum width
-       if (!maxTextWidth || textWidth > maxTextWidth) {
-        maxTextWidth = textWidth;
-        console.log("max",maxTextWidth)
-      }
+          // Track the maximum width
+          if (!maxTextWidth || textWidth > maxTextWidth) {
+            maxTextWidth = textWidth;
+            console.log("max",maxTextWidth)
+          }
 
-      // Append square
-      d3.select(this)
-      .append("rect")
-      .attr("x", 0 - maxTextWidth - 25) // Position at the end of the maximum text width
-      .attr("y", -1) // Adjust the y position as needed
-      .attr("width", maxTextWidth - textWidth + 20) // Adjust the width as needed
-      .attr("height", 2) // Adjust the height as needed
-      .attr("fill", isHighlighted ? "red" : "black")
-      .attr("transform", d.x < 180 ? "scale(-1)" : " ");
+          // Append square
+          d3.select(this)
+          .append("rect")
+          .attr("x", 0 - maxTextWidth - 25) // Position at the end of the maximum text width
+          .attr("y", -1) // Adjust the y position as needed
+          .attr("width", maxTextWidth - textWidth + 20) // Adjust the width as needed
+          .attr("height", 2) // Adjust the height as needed
+          .attr("fill", isHighlighted ? "red" : "black")
+          .attr("transform", d.x < 180 ? "scale(-1)" : " ");
     });
 
     svg.selectAll("text")
-  .on("mouseover", function(event, d) {
-    mouseovered(true, event, d);
-  })
-  .on("mouseout", function(event, d) {
-    mouseovered(false, event, d);
-  });
-  });
+      .on("mouseover", function(event, d) {
+        mouseovered(true, event, d);
+      })
+      .on("mouseout", function(event, d) {
+        mouseovered(false, event, d);
+      });
+    });
 
     function update(checked) {
       const t = d3.transition().duration(750);
