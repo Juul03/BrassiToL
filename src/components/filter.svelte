@@ -454,7 +454,7 @@
           <!-- Render the corresponding options based on the selected taxonomy level -->
           <div class="filtercontainer">
             {#each uniqueBinaryCombination as binaryComb}
-              <label>
+              <label class="species">
                 <input
                   type="checkbox"
                   bind:checked={selectedItems.binaryCombination[binaryComb]}
@@ -560,6 +560,10 @@
 
   .filtercontainer .filtercontainer {
     box-shadow: inset 0px -8px 8px -8px rgba(0, 0, 0, 0.25);
+  }
+
+  .species {
+    font-style:italic;
   }
 
   nav {

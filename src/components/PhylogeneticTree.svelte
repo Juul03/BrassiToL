@@ -337,7 +337,7 @@
 
   let updateTreeTaxonomyText = (selected) => {
     // Set font size to '.7rem' and font weight to 'bold' for each selected sample
-    d3.selectAll('text')
+    d3.selectAll('text:not(.time-label)')
       .transition()
       .duration(500)
       .attr('font-size', (d) => {
