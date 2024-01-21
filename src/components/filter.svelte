@@ -43,6 +43,8 @@
         metaData = data;
 
         findUniqueValuesTaxonomy();
+        // findUniqueValuesGeography();
+        findUniqueValuesExtra();
       } else {
         console.error("Failed to fetch the data");
       }
@@ -52,25 +54,60 @@
   };
 
   let findUniqueValuesTaxonomy = () => {
-        // Find all unique taxonomy and store them in variables
-        uniqueFamilies = findUniqueValues("FAMILY");
-        uniqueFamilies.sort();
+    // Find all unique taxonomy and store them in variables
+    uniqueFamilies = findUniqueValues("FAMILY");
+    uniqueFamilies.sort();
 
-        uniqueSubFamilies = findUniqueValues("SUBFAMILY");
-        uniqueSubFamilies.sort();
+    uniqueSubFamilies = findUniqueValues("SUBFAMILY");
+    uniqueSubFamilies.sort();
 
-        uniqueSupertribes = findUniqueValues("SUPERTRIBE");
-        uniqueSupertribes.sort();
+    uniqueSupertribes = findUniqueValues("SUPERTRIBE");
+    uniqueSupertribes.sort();
 
-        uniqueTribes = findUniqueValues("TRIBE");
-        uniqueTribes.sort();
+    uniqueTribes = findUniqueValues("TRIBE");
+    uniqueTribes.sort();
 
-        uniqueGenus = findUniqueValues("GENUS");
-        uniqueGenus.sort();
+    uniqueGenus = findUniqueValues("GENUS");
+    uniqueGenus.sort();
 
-        uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
-        uniqueBinaryCombination.sort();
+    uniqueBinaryCombination = findUniqueValues("SPECIES_NAME_PRINT");
+    uniqueBinaryCombination.sort();
   }
+
+  let findUniqueValuesExtra = () => {
+    // Find all unique extras and store them in the variables
+    let uniqueLifeformsRaw = findUniqueValues("WCVP_lifeform_description");
+    let uniqueLifeformsSet = new Set();
+
+    // Remove the "," and "or" and place the values in an array seperately
+    uniqueLifeformsRaw.forEach((value) => {
+      const types = extractLifeforms(value);
+      types.forEach((type) => uniqueLifeformsSet.add(type));
+    });
+
+    // Convert the Set back to an array
+    uniqueLifeforms = [...uniqueLifeformsSet];
+
+
+    uniqueClimates = findUniqueValues("WCVP_climate_description") ;
+    uniqueGrowthforms = findUniqueValues("GROWTH_FORM");
+    uniqueSocietalUses = findUniqueValues("SOCIETAL_USE");
+    uniqueRedlistCategories = findUniqueValues("IUCN_redlistCategory");
+  }
+
+  // Function to extract individual lifeform types
+  const extractLifeforms = (value) => {
+  // Split the value by commas and "or"
+  const types = value.split(/,| or /);
+
+  // Remove leading and trailing spaces from each type
+  const cleanedTypes = types.map((type) => type.trim());
+
+  // Filter out empty strings and remove duplicate types
+  const uniqueTypes = [...new Set(cleanedTypes.filter((type) => type !== ''))];
+
+  return uniqueTypes;
+};
 
   // Function to find the selected value in the dropdown menu
   let getSelectedTaxonomyLevel = (dropdownElement, storeVar) => {
