@@ -1,6 +1,7 @@
 <script>
 	import Filter from '../components/filter.svelte'
 	import Treemapj from '../components/PhylogeneticTree.svelte';
+	import MagnifierButton from '../components/MagnifierButton.svelte';
     
 </script>
 
@@ -13,6 +14,7 @@
 <main>
 	<Filter/>
 	<Treemapj/>
+	<MagnifierButton/>
 </main>
 
 <style>
