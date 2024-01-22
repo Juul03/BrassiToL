@@ -13,6 +13,7 @@
 
 <main>
 	<Filter/>
+	<!-- <Popup/> -->
 	<Worldmap/>
 </main>
 
