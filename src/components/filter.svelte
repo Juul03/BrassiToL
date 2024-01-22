@@ -591,7 +591,7 @@ $: liStylesGenus = (selectedGenus) => {
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li style="background-color: {getNodeColor(selected)}" on:click={() => removeSelectedItem("binaryCombination", selected)} >
-          Species: {selected} <img src="icons/removeIcon.svg" alt="remove" />
+          <span>Species: <span class="species">{selected}</span></span> <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
     </ul>
