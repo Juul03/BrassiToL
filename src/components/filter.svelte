@@ -323,6 +323,32 @@
       selectedNavItem.classList.add(selectedClass);
     }
   };
+
+    // Data manipulation function
+    let matchSpecieWithSample = (name, data) => {
+    const foundDataPoint = data.find(
+      (datapoint) => datapoint.SPECIES_NAME_PRINT === name
+    );
+    if (foundDataPoint) {
+      return foundDataPoint.SAMPLE;
+    }
+    return sample;
+  };
+
+  /* Function to get node color based on the selected taxonomy */
+let getNodeColor = (selected) => {
+  let correspondingSample = matchSpecieWithSample(selected, metaData)
+  let nodeColorsObject = nodeColors[correspondingSample];
+  let colorSpecie = nodeColorsObject.color;
+  return colorSpecie
+};
+
+$: liStyles = (selected) => {
+  console.log("Updating liStyles for", selected);
+  return {
+    'background-color': getNodeColor(selected),
+  };
+};
 </script>
 
 <section id="filters">
@@ -533,7 +559,7 @@
         </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
-        <li on:click={() => removeSelectedItem("binaryCombination", selected)}>
+        <li style="background-color: {getNodeColor(selected)}" on:click={() => removeSelectedItem("binaryCombination", selected)} >
           Species: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
@@ -688,6 +714,7 @@
 
   #selectioncontainer ul li {
     font-size: var(--standard-font-size-body);
+    color:white;
     width:85%;
     padding: 0.25rem;
     margin: 0.25rem;
