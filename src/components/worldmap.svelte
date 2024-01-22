@@ -64,7 +64,7 @@
 
         function createMap(worldmapgeojson) {
             let svg = d3
-                .select("svg")
+                .select("#worldmap")
                 .attr("width", "1050px")
                 .attr("height", "650px")
                 .style("padding-top", "10px")
@@ -189,9 +189,46 @@ let matchCountryCodeWithCountryName = (codes, data) => {
 
 </script>
 
+<nav>
+    <ul>
+        <li><img src="/icons/arrowIcon.svg" alt="openmap" />Map</li>
+    </ul>
+</nav>
+
 <div id="content">
-    <svg>
+    <svg id="worldmap">
         <g class="map"></g>
     </svg>
 </div>
 
+<style>
+    #content {
+        transform:translate(100%);
+        display:none;
+        z-index:100;
+    }
+
+    nav {
+        background:var(--primary-color-light-2);
+        height:2rem;
+        padding:.5rem;
+        border-radius:var(--standard-border-radius) var(--standard-border-radius) 0 0;
+        transform:rotate(-90deg) translateY(50%) translateX(-20%);
+    }
+
+    nav ul {
+        display:flex;
+        list-style:none;
+        padding:.25rem;
+    }
+
+    nav ul li {
+        transform:rotate(180deg);
+        display:flex;
+        gap:.7rem;
+    }
+
+    nav ul li img {
+        transform:rotate(-90deg);
+    }
+</style>

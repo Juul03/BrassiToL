@@ -1,12 +1,11 @@
 
 <script>
     // import Popup from '../components/popup.svelte';
-  import Worldmap from '../components/worldmap.svelte'
 	import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
 	import Filter from '../components/filter.svelte'
 	import Treemapj from '../components/PhylogeneticTree.svelte';
 	import MagnifierButton from '../components/MagnifierButton.svelte';
-    
+	import Worldmap from '../components/worldmap.svelte';  
 </script>
 
 <!-- <h1>Phylogentic Tree Brassicaceae</h1> -->
@@ -17,10 +16,12 @@
 
 <main>
 	<Filter/>
-	<Worldmap/>
 	<Treemapj/>
 	<MagnifierButton/>
+	<Worldmap/>
 </main>
+
+
 
 <style>
 	header {
