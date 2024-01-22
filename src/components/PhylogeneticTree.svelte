@@ -186,7 +186,7 @@
       .style("border-radius", "var(--standard-border-radius")
       .style("left", "calc(50px + 100vw / 4)");
       
-    legendContainer.append("h3").text("Supertribe legend").style("font-size", "var(--standard-font-size-header-small)");;
+    legendContainer.append("h3").text("Supertribe").style("font-size", "var(--standard-font-size-header-small)");;
   }
 }
 
