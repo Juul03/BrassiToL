@@ -147,6 +147,7 @@
 
     return () => {
       unsubscribe(); // Unsubscribe when the component is destroyed
+      unsubscribeColors();
     };
   });
 
@@ -324,8 +325,8 @@
     }
   };
 
-    // Data manipulation function
-    let matchSpecieWithSample = (name, data) => {
+  // Data manipulation function
+  let matchSpecieWithSample = (name, data) => {
     const foundDataPoint = data.find(
       (datapoint) => datapoint.SPECIES_NAME_PRINT === name
     );
@@ -343,10 +344,40 @@ let getNodeColor = (selected) => {
   return colorSpecie
 };
 
+let getNodeColorGenus = (selectedGenus) => {
+  // Assuming there is a property in metaData that represents the genus
+  const foundDataPoint = metaData.find(
+    (datapoint) => datapoint.GENUS === selectedGenus
+  );
+
+  if (foundDataPoint) {
+    // Assuming there is a property in metaData that represents the supertribe
+    const supertribe = foundDataPoint.SUPERTRIBE;
+    console.log("supertribe", supertribe)
+
+    // Assuming nodeColors is an object with colors for each supertribe
+    const nodeColorsObject = nodeColors[supertribe];
+
+    if (nodeColorsObject) {
+      return nodeColorsObject.color;
+    }
+  }
+
+  // Return a default color if not found
+  return "defaultColor";
+};
+
 $: liStyles = (selected) => {
   console.log("Updating liStyles for", selected);
   return {
     'background-color': getNodeColor(selected),
+  };
+};
+
+$: liStylesGenus = (selectedGenus) => {
+  console.log("Updating liStylesGenus for", selectedGenus);
+  return {
+    'background-color': getNodeColorGenus(selectedGenus),
   };
 };
 </script>
@@ -554,7 +585,7 @@ $: liStyles = (selected) => {
         </li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
-        <li on:click={() => removeSelectedItem("genus", selected)}>
+        <li style="background-color: {getNodeColorGenus(selected)}" on:click={() => removeSelectedItem("genus", selected)}>
           Genus: {selected} <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
