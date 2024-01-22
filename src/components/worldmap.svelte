@@ -3,12 +3,15 @@
     import * as d3 from "d3";
     import { onMount } from "svelte";
     import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
+    import nodeColorsStore from "$lib/nodeColorsStore";
 
     let worldmapgeojson = {};
     let selectedTaxonomy = {};
     let allSpeciesData = {};
     let countryCodeToNamejson = {};
     let prevSelectedSpecies = [];
+
+    let nodeColors;
 
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
@@ -106,8 +109,14 @@
             // colorCountry(countryNamesArray);
         });
 
+        const unsubscribeColors = nodeColorsStore.subscribe(value => {
+            nodeColors = value;
+            console.log("COLORS", nodeColors)
+        })
+
         return () => {
             unsubscribe();
+            unsubscribeColors();
         };
     });
 

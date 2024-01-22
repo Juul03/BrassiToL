@@ -3,6 +3,7 @@
 	import Filter from '../components/filter.svelte';
     // import Popup from '../components/popup.svelte';
     import Worldmap from '../components/worldmap.svelte'
+	import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
 </script>
 
 <!-- <h1>Phylogentic Tree Brassicaceae</h1> -->
@@ -15,6 +16,7 @@
 	<Filter/>
 	<!-- <Popup/> -->
 	<Worldmap/>
+	<PhylogeneticTree/>
 </main>
 
 <style>
