@@ -336,7 +336,7 @@
     return sample;
   };
 
-  /* Function to get node color based on the selected taxonomy */
+/* Function to get node color based on the selected taxonomy */
 let getNodeColor = (selected) => {
   let correspondingSample = matchSpecieWithSample(selected, metaData)
   let nodeColorsObject = nodeColors[correspondingSample];
@@ -392,7 +392,7 @@ $: liStylesGenus = (selectedGenus) => {
         <!-- TODO: Add and remove the class in js based on which item is clicked -->
       <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")} on:click={() => setupEventListeners()}>Taxonomy</li>
       <li on:click={() => handleFilterTypeClick("Geography")} on:click={() => setupEventListeners()}>Geographical</li>
-      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Extra</li>
+      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Miscellaneous</li>
     </ul>
   </nav>
 
@@ -635,7 +635,7 @@ $: liStylesGenus = (selectedGenus) => {
   }
 
   nav {
-    transform: rotate(90deg) translate(45%, calc(-493%));
+    transform: rotate(90deg) translate(45.35%, calc(-588%));
     position: absolute;
     top: 0;
     right: 0;
