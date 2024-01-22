@@ -19,6 +19,7 @@
 <style>
 	header {
 		height:10vh;
+		width:calc(100vw/3.7);
 		background:var(--primary-color-dark-1);
 		display:flex;
 		align-items:center;
