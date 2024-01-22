@@ -1,4 +1,8 @@
+
 <script>
+    // import Popup from '../components/popup.svelte';
+  import Worldmap from '../components/worldmap.svelte'
+	import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
 	import Filter from '../components/filter.svelte'
 	import Treemapj from '../components/PhylogeneticTree.svelte';
 	import MagnifierButton from '../components/MagnifierButton.svelte';
@@ -13,6 +17,7 @@
 
 <main>
 	<Filter/>
+	<Worldmap/>
 	<Treemapj/>
 	<MagnifierButton/>
 </main>
