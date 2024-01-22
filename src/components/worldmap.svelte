@@ -13,6 +13,8 @@
 
     let nodeColors;
 
+    let worldMapElement;
+
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
         if (response.ok) {
@@ -68,8 +70,7 @@
                 .attr("width", "1050px")
                 .attr("height", "650px")
                 .style("padding-top", "10px")
-                .style("background-color", "var(--primary-color-dark-2)")
-                .attr("transform", "translate(200, 20)");
+                .style("background-color", "var(--primary-color-dark-2)");
             let u = d3
                 .select("#content g.map")
                 .selectAll("path")
@@ -113,6 +114,8 @@
             nodeColors = value;
             console.log("COLORS", nodeColors)
         })
+
+        worldMapElement = d3.select("#content");
 
         return () => {
             unsubscribe();
@@ -187,13 +190,13 @@ let matchCountryCodeWithCountryName = (codes, data) => {
     return countryNames;
 };
 
-</script>
+let showMap = () => {
 
-<nav>
-    <ul>
-        <li><img src="/icons/arrowIcon.svg" alt="openmap" />Map</li>
-    </ul>
-</nav>
+    console.log("worldmap", worldMapElement)
+    worldMapElement.classList.add('show');
+}
+
+</script>
 
 <div id="content">
     <svg id="worldmap">
@@ -203,45 +206,10 @@ let matchCountryCodeWithCountryName = (codes, data) => {
 
 <style>
     #content {
-        transform:translate(100%);
-        display:none;
-        z-index:100;
-    }
-
-    nav {
-        background:var(--primary-color-light-2);
-        height:2rem;
-        padding:.5rem;
-        border-radius:var(--standard-border-radius) var(--standard-border-radius) 0 0;
-        transform:rotate(-90deg) translateY(50%) translateX(-20%);
-
-        transition:var(--standard-transition-time);
-    }
-
-    nav:hover {
-        cursor:pointer;
-        background:var(--primary-color-dark-1);
-    }
-
-    nav ul {
-        display:flex;
-        list-style:none;
-        padding:.25rem;
-    }
-
-    nav ul li {
-        transform:rotate(180deg);
-        display:flex;
-        gap:.7rem;
-    }
-
-    nav:hover ul li img {
-        transform:rotate(90deg);
-    }
-
-    nav ul li img {
-        transform:rotate(-90deg);
-
-        transition:var(--standard-transition-time);
+        /* transform:translate(126%); */
+        /* position:absolute;
+        top:7.35%; */
+        /* display:none; */
+        /* z-index:100; */
     }
 </style>
