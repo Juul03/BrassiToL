@@ -506,7 +506,7 @@ $: liStylesGenus = (selectedGenus) => {
           <!-- Render the corresponding options based on the selected taxonomy level -->
           <div class="filtercontainer">
             {#each uniqueGenus as genus}
-              <label>
+              <label class="species">
                 <input
                   type="checkbox"
                   bind:checked={selectedItems.genus[genus]}
@@ -586,7 +586,7 @@ $: liStylesGenus = (selectedGenus) => {
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
         <li style="background-color: {getNodeColorGenus(selected)}" on:click={() => removeSelectedItem("genus", selected)}>
-          Genus: {selected} <img src="icons/removeIcon.svg" alt="remove" />
+          <span>Genus: <span class='species'>{selected}</span></span><img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
