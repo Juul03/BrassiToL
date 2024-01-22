@@ -662,6 +662,10 @@ $: liStylesGenus = (selectedGenus) => {
     background:var(--primary-color-dark-2);
   }
 
+  nav ul li:first-child img:last-of-type {
+    transform:rotate(-90deg);
+  }
+
   nav ul li:first-child:hover {
     background:var(--primary-color-dark-1);
   }
