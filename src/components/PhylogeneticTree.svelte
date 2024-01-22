@@ -3,11 +3,10 @@
   import * as d3 from "d3";
   import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
   import { selectedExtraStore } from '$lib/selectedExtraStore';
+  import nodeColorsStore from '$lib/nodeColorsStore';
 
   let selectedTaxonomy = {};
   let selectedExtra = {};
-  console.log("extra in phylo", selectedTaxonomy)
-  console.log("extra in phylo", selectedExtra)
 
   let phyloTreeDataWithOutgroups;
   let phyloTreeDataWithoutOutgroups;
@@ -253,6 +252,12 @@
     // Subscribe to selectedExtraStore
     const unsubscribeExtra = selectedExtraStore.subscribe(handleSelectedExtraUpdate);
 
+    // Subscribe to nodeColorsStore
+    nodeColorsStore.subscribe(value => {
+      nodeColors = value;
+      console.log("colors tree",nodeColors)
+    });
+
     return () => {
       unsubscribeTaxonomy(); // Unsubscribe when the component is destroyed
       unsubscribeExtra();
@@ -338,6 +343,7 @@
   let updateTreeTaxonomyText = (selected) => {
     // Set font size to '.7rem' and font weight to 'bold' for each selected sample
     d3.selectAll('text:not(.time-label)')
+      .raise()
       .transition()
       .duration(500)
       .attr('font-size', (d) => {
@@ -664,6 +670,11 @@
 
     if (d.children) d.children.forEach(setColor);
   };
+
+  // Subscribe to nodeColorsStore
+  nodeColorsStore.subscribe(value => {
+      nodeColors = value;
+  });
 
   let getSupertribe = (sample) => {
     const foundDataPoint = allSpecieData.find(

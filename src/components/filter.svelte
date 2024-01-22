@@ -6,6 +6,7 @@
     updateSelectedTaxonomy,
   } from "$lib/selectedTaxonomyStore";
   import { selectedExtraStore, updateSelectedExtra } from "$lib/selectedExtraStore";
+  import nodeColorsStore from '$lib/nodeColorsStore';
 
   let metaData = [];
 
@@ -35,6 +36,8 @@
   let selectedTaxonomyLevel = "all";
   let selectedGeographyLevel = "all";
   let selectedExtraLevel = "all";
+
+  let nodeColors;
 
   const fetchJSONData = async () => {
     try {
@@ -133,6 +136,14 @@
       // You can perform further actions whenever selectedTaxonomyStore changes
       // For instance, update other components or trigger other functions here
     });
+
+    // Subscribe to nodeColorsStore
+      const unsubscribeColors = nodeColorsStore.subscribe(value => {
+      nodeColors = value;
+      console.log("COLORS", nodeColors)
+    });
+
+    $: console.log("Updated nodeColors:", nodeColors);
 
     return () => {
       unsubscribe(); // Unsubscribe when the component is destroyed
