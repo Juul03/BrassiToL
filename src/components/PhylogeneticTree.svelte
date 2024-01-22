@@ -796,7 +796,7 @@ function createTimeRings(svg, data) {
     .domain([0, d3.max(branchLengths)]) 
     .range([0, innerRadius]);
 
-  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
+  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6', 'white'];
 
   // Append circles for time rings
   let timerings = svg.selectAll(".time-ring")
