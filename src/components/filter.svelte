@@ -147,6 +147,7 @@
 
     return () => {
       unsubscribe(); // Unsubscribe when the component is destroyed
+      unsubscribeColors();
     };
   });
 
@@ -324,8 +325,8 @@
     }
   };
 
-    // Data manipulation function
-    let matchSpecieWithSample = (name, data) => {
+  // Data manipulation function
+  let matchSpecieWithSample = (name, data) => {
     const foundDataPoint = data.find(
       (datapoint) => datapoint.SPECIES_NAME_PRINT === name
     );
@@ -335,7 +336,7 @@
     return sample;
   };
 
-  /* Function to get node color based on the selected taxonomy */
+/* Function to get node color based on the selected taxonomy */
 let getNodeColor = (selected) => {
   let correspondingSample = matchSpecieWithSample(selected, metaData)
   let nodeColorsObject = nodeColors[correspondingSample];
@@ -343,10 +344,40 @@ let getNodeColor = (selected) => {
   return colorSpecie
 };
 
+let getNodeColorGenus = (selectedGenus) => {
+  // Assuming there is a property in metaData that represents the genus
+  const foundDataPoint = metaData.find(
+    (datapoint) => datapoint.GENUS === selectedGenus
+  );
+
+  if (foundDataPoint) {
+    // Assuming there is a property in metaData that represents the supertribe
+    const supertribe = foundDataPoint.SUPERTRIBE;
+    console.log("supertribe", supertribe)
+
+    // Assuming nodeColors is an object with colors for each supertribe
+    const nodeColorsObject = nodeColors[supertribe];
+
+    if (nodeColorsObject) {
+      return nodeColorsObject.color;
+    }
+  }
+
+  // Return a default color if not found
+  return "defaultColor";
+};
+
 $: liStyles = (selected) => {
   console.log("Updating liStyles for", selected);
   return {
     'background-color': getNodeColor(selected),
+  };
+};
+
+$: liStylesGenus = (selectedGenus) => {
+  console.log("Updating liStylesGenus for", selectedGenus);
+  return {
+    'background-color': getNodeColorGenus(selectedGenus),
   };
 };
 </script>
@@ -361,7 +392,7 @@ $: liStyles = (selected) => {
         <!-- TODO: Add and remove the class in js based on which item is clicked -->
       <li class="selected" on:click={() => handleFilterTypeClick("Taxonomy")} on:click={() => setupEventListeners()}>Taxonomy</li>
       <li on:click={() => handleFilterTypeClick("Geography")} on:click={() => setupEventListeners()}>Geographical</li>
-      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Extra</li>
+      <li on:click={() => handleFilterTypeClick("Extra")} on:click={() => setupEventListeners()}>Miscellaneous</li>
     </ul>
   </nav>
 
@@ -475,7 +506,7 @@ $: liStyles = (selected) => {
           <!-- Render the corresponding options based on the selected taxonomy level -->
           <div class="filtercontainer">
             {#each uniqueGenus as genus}
-              <label>
+              <label class="species">
                 <input
                   type="checkbox"
                   bind:checked={selectedItems.genus[genus]}
@@ -554,13 +585,13 @@ $: liStyles = (selected) => {
         </li>
       {/each}
       {#each Object.keys(selectedItems.genus).filter((key) => selectedItems.genus[key]) as selected}
-        <li on:click={() => removeSelectedItem("genus", selected)}>
-          Genus: {selected} <img src="icons/removeIcon.svg" alt="remove" />
+        <li style="background-color: {getNodeColorGenus(selected)}" on:click={() => removeSelectedItem("genus", selected)}>
+          <span>Genus: <span class='species'>{selected}</span></span><img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
       {#each Object.keys(selectedItems.binaryCombination).filter((key) => selectedItems.binaryCombination[key]) as selected}
         <li style="background-color: {getNodeColor(selected)}" on:click={() => removeSelectedItem("binaryCombination", selected)} >
-          Species: {selected} <img src="icons/removeIcon.svg" alt="remove" />
+          <span>Species: <span class="species">{selected}</span></span> <img src="icons/removeIcon.svg" alt="remove" />
         </li>
       {/each}
     </ul>
@@ -604,7 +635,7 @@ $: liStyles = (selected) => {
   }
 
   nav {
-    transform: rotate(90deg) translate(45%, calc(-493%));
+    transform: rotate(90deg) translate(45.35%, calc(-588%));
     position: absolute;
     top: 0;
     right: 0;
@@ -629,6 +660,10 @@ $: liStyles = (selected) => {
 
   nav ul li:first-child {
     background:var(--primary-color-dark-2);
+  }
+
+  nav ul li:first-child img:last-of-type {
+    transform:rotate(-90deg);
   }
 
   nav ul li:first-child:hover {

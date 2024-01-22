@@ -186,7 +186,7 @@
       .style("border-radius", "var(--standard-border-radius")
       .style("left", "calc(50px + 100vw / 4)");
       
-    legendContainer.append("h3").text("Supertribe legend").style("font-size", "var(--standard-font-size-header-small)");;
+    legendContainer.append("h3").text("Supertribe").style("font-size", "var(--standard-font-size-header-small)");;
   }
 }
 
@@ -588,7 +588,7 @@
           .attr("x", 0 - maxTextWidth - 35) // Position at the end of the maximum text width
           .attr("y", -1)
           .attr("width", maxTextWidth - textWidth + 20)
-          .attr("height", 2)
+          .attr("height", 4)
           .attr("fill", "white")
           .attr("transform", d.x < 180 ? "scale(-1)" : " ");
     });
@@ -796,7 +796,7 @@ function createTimeRings(svg, data) {
     .domain([0, d3.max(branchLengths)]) 
     .range([0, innerRadius]);
 
-  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
+  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6', 'white'];
 
   // Append circles for time rings
   let timerings = svg.selectAll(".time-ring")
