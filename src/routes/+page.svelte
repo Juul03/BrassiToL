@@ -13,7 +13,7 @@
 
 <main>
 	<Filter/>
-	<Treemapj/>
+	<Worldmap/>
 </main>
 
 <style>

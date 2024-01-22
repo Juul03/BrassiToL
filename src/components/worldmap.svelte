@@ -61,7 +61,8 @@
                 .select("svg")
                 .attr("width", "1050px")
                 .attr("height", "650px")
-                .style("background-color", "blue")
+                .style("padding-top", "10px")
+                .style("background-color", "var(--primary-color-dark-2)")
                 .attr("transform", "translate(200, 20)");
             let u = d3
                 .select("#content g.map")
@@ -71,9 +72,9 @@
             u.enter()
                 .append("path")
                 .attr("d", geoGenerator)
-                .style("fill", "green")
-                .style("stroke", "white")
-                .style("stroke-width", "0.5px");
+                .style("fill", "white")
+                .style("stroke", "black")
+                .style("stroke-width", "0.3px");
         }
 
         createMap(worldmapgeojson);
@@ -164,3 +165,11 @@ let matchCountryCodeWithCountryName = (codes, data) => {
         <g class="map"></g>
     </svg>
 </div>
+
+
+<style>
+
+</style>
+
+
+<!-- map stijlen met stylesheet julia branch en main -->
