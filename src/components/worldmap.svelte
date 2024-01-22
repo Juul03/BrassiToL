@@ -214,6 +214,13 @@ let matchCountryCodeWithCountryName = (codes, data) => {
         padding:.5rem;
         border-radius:var(--standard-border-radius) var(--standard-border-radius) 0 0;
         transform:rotate(-90deg) translateY(50%) translateX(-20%);
+
+        transition:var(--standard-transition-time);
+    }
+
+    nav:hover {
+        cursor:pointer;
+        background:var(--primary-color-dark-1);
     }
 
     nav ul {
@@ -228,7 +235,13 @@ let matchCountryCodeWithCountryName = (codes, data) => {
         gap:.7rem;
     }
 
+    nav:hover ul li img {
+        transform:rotate(90deg);
+    }
+
     nav ul li img {
         transform:rotate(-90deg);
+
+        transition:var(--standard-transition-time);
     }
 </style>
