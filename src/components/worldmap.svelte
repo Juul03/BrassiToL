@@ -8,6 +8,7 @@
     let selectedTaxonomy = {};
     let allSpeciesData = {};
     let countryCodeToNamejson = {};
+    let prevSelectedSpecies = [];
 
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
@@ -46,6 +47,8 @@
         await fetchgeoJSONData("data/worldmapl2.geojson");
         await fetchData("data/metadataBrassiToL.json");
         await fetchCodeData("data/countryCodeToName.json");
+
+        prevSelectedSpecies = selectedTaxonomy.binaryCombination || [];
 
         // matchSpecieWithCountry("Arabis scabra", allSpeciesData);
         // selectedTaxonomy.binaryCombination.forEach((specie) => {
@@ -109,16 +112,33 @@
     });
 
     function colorCountry(countryNames) {
-    console.log('kaas+worst', countryNames);
+        console.log('kaas+worst', countryNames);
 
-    // Add the new selected countries and color them
-    countryNames.forEach((countryName) => {
-        d3.select("#content g.map")
-            .selectAll("path")
-            .filter((d) => d.properties.name === countryName)
-            .style("fill", "orange");
-    });
-}
+        // Reset all countries to the original style
+        d3.select("#content g.map").selectAll("path").style("fill", "white");
+
+        // Add the new selected countries and color them
+        countryNames.forEach((countryName) => {
+            d3.select("#content g.map")
+                .selectAll("path")
+                .filter((d) => d.properties.name === countryName)
+                .style("fill", "orange");
+        });
+
+        // Remove the fill color for unselected countries
+        const unselectedCountryNames = prevSelectedSpecies.filter((name) => !countryNames.includes(name));
+
+        unselectedCountryNames.forEach((countryName) => {
+            d3.select("#content g.map")
+                .selectAll("path")
+                .filter((d) => d.properties.name === countryName)
+                .style("fill", "white");
+        });
+
+        // Update the previous selected species
+        prevSelectedSpecies = countryNames;
+    }
+    
 
     let matchSpecieWithCountryCode = (speciename, data) => {
     let countryCodes = [];
@@ -166,10 +186,3 @@ let matchCountryCodeWithCountryName = (codes, data) => {
     </svg>
 </div>
 
-
-<style>
-
-</style>
-
-
-<!-- map stijlen met stylesheet julia branch en main -->
