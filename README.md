@@ -12,10 +12,10 @@ In the Taxonomy category you can select a sample, genus, tribe, supertribe and s
 The application is build for desktop screens. 
 
 ## Build with...
-git
-Sveltekit
-d3.js
-deployment: vercel
+* git
+* Sveltekit
+* d3.js
+* deployment: vercel
 
 ## Installation guide
 ### Node
@@ -31,15 +31,22 @@ or check if it is installed already by running the following code
 ## Clone repository
 Clone repository by this link: https://github.com/Juul03/BrassiToL.git with the following command:
 
+```bash
 -- git clone https://github.com/Juul03/BrassiToL.git
+```
+
 After that, run
 
+```bash
 -- npm install
+```
 to install all the dependencies
 
 Check if it works by running the application
 
-npm run dev
+```bash
+-- npm run dev
+```
 Open the link provided in the terminal for your localhost and you should be able to see the application.
 
 ## License
