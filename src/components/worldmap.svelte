@@ -13,6 +13,8 @@
 
     let nodeColors;
 
+    let worldMapElement;
+
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
         if (response.ok) {
@@ -64,12 +66,11 @@
 
         function createMap(worldmapgeojson) {
             let svg = d3
-                .select("svg")
+                .select("#worldmap")
                 .attr("width", "1050px")
                 .attr("height", "650px")
                 .style("padding-top", "10px")
-                .style("background-color", "var(--primary-color-dark-2)")
-                .attr("transform", "translate(200, 20)");
+                .style("background-color", "var(--primary-color-dark-2)");
             let u = d3
                 .select("#content g.map")
                 .selectAll("path")
@@ -113,6 +114,8 @@
             nodeColors = value;
             console.log("COLORS", nodeColors)
         })
+
+        worldMapElement = d3.select("#content");
 
         return () => {
             unsubscribe();
@@ -187,11 +190,26 @@ let matchCountryCodeWithCountryName = (codes, data) => {
     return countryNames;
 };
 
+let showMap = () => {
+
+    console.log("worldmap", worldMapElement)
+    worldMapElement.classList.add('show');
+}
+
 </script>
 
 <div id="content">
-    <svg>
+    <svg id="worldmap">
         <g class="map"></g>
     </svg>
 </div>
 
+<style>
+    #content {
+        /* transform:translate(126%); */
+        /* position:absolute;
+        top:7.35%; */
+        /* display:none; */
+        /* z-index:100; */
+    }
+</style>
