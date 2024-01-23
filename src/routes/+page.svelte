@@ -1,11 +1,10 @@
 <script>
     // import Popup from '../components/popup.svelte';
-	// import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
-	// import Filter from '../components/filter.svelte'
-	// import Treemapj from '../components/PhylogeneticTree.svelte';
-	// import MagnifierButton from '../components/MagnifierButton.svelte';
-	import Worldmap from '../components/worldmap2.svelte'; 
-	import Converter from '../components/converter.svelte' 
+	import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
+	import Filter from '../components/filter.svelte'
+	import Treemapj from '../components/PhylogeneticTree.svelte';
+	import MagnifierButton from '../components/MagnifierButton.svelte';
+	import Worldmap from '../components/worldmap.svelte';  
 
 	function showWorldMap() {
         const worldMapContainer = document.querySelector('.worldmap-container');
@@ -23,10 +22,7 @@
 	<img class="logo" src="/logofull.svg" alt="Brassicaceae tree of life">
 </header>
 
-<!-- <Converter/> -->
-<Worldmap/>
-
-<!-- <main>
+<main>
 	<Filter/>
 	<Treemapj/>
 	<MagnifierButton/>
@@ -42,7 +38,7 @@
 			<Worldmap/>
 		</section>
 	</div>
-</main> -->
+</main>
 
 <style>
 	header {
