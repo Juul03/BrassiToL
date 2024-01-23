@@ -3,11 +3,10 @@
   import * as d3 from "d3";
   import { selectedTaxonomyStore } from "$lib/selectedTaxonomyStore";
   import { selectedExtraStore } from '$lib/selectedExtraStore';
+  import nodeColorsStore from '$lib/nodeColorsStore';
 
   let selectedTaxonomy = {};
   let selectedExtra = {};
-  console.log("extra in phylo", selectedTaxonomy)
-  console.log("extra in phylo", selectedExtra)
 
   let phyloTreeDataWithOutgroups;
   let phyloTreeDataWithoutOutgroups;
@@ -253,6 +252,12 @@
     // Subscribe to selectedExtraStore
     const unsubscribeExtra = selectedExtraStore.subscribe(handleSelectedExtraUpdate);
 
+    // Subscribe to nodeColorsStore
+    nodeColorsStore.subscribe(value => {
+      nodeColors = value;
+      console.log("colors tree",nodeColors)
+    });
+
     return () => {
       unsubscribeTaxonomy(); // Unsubscribe when the component is destroyed
       unsubscribeExtra();
@@ -338,6 +343,7 @@
   let updateTreeTaxonomyText = (selected) => {
     // Set font size to '.7rem' and font weight to 'bold' for each selected sample
     d3.selectAll('text:not(.time-label)')
+      .raise()
       .transition()
       .duration(500)
       .attr('font-size', (d) => {
@@ -665,6 +671,11 @@
     if (d.children) d.children.forEach(setColor);
   };
 
+  // Subscribe to nodeColorsStore
+  nodeColorsStore.subscribe(value => {
+      nodeColors = value;
+  });
+
   let getSupertribe = (sample) => {
     const foundDataPoint = allSpecieData.find(
       (datapoint) => datapoint.SAMPLE === sample
@@ -775,15 +786,16 @@ function createTimeRings(svg, data) {
   const ringInterval = maxBranchLength / numberOfRings;
 
   // Create an array of evenly distributed values for the rings
-  const ringValues = Array.from({ length: numberOfRings }, (_, i) => i * ringInterval);
+  const ringValues = Array.from({ length: numberOfRings }, (_, i) => maxBranchLength - i * ringInterval);
 
   // Sort ringValues in descending order
   const sortedRingValues = ringValues.slice().reverse();
 
+
   // Set up a linear scale based on branch lengths
   const timeScale = d3.scaleLinear()
-    .domain([0, d3.max(branchLengths)]) 
-    .range([0, innerRadius]);
+    .domain([0, maxBranchLength]) 
+    .range([innerRadius, 0]);
 
   const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
 
@@ -796,7 +808,7 @@ function createTimeRings(svg, data) {
     .attr("cx", 0) 
     .attr("cy", 0)
     .attr("r", 0)
-    .attr("fill", (d, i) => colorScale[i - 1 % colorScale.length])
+    .attr("fill", (d, i) => colorScale[i % colorScale.length])
     .attr("stroke", "lightgrey")
     .attr("stroke-dasharray", "3,3")
     .lower();
@@ -807,7 +819,7 @@ function createTimeRings(svg, data) {
 
     // Append text labels for time rings
   let timelabels = svg.selectAll(".time-label")
-    .data(sortedRingValues)
+    .data(ringValues)
     .enter()
     .append("text")
     .attr("class", "time-label")
@@ -820,7 +832,8 @@ function createTimeRings(svg, data) {
     .text((d) => `${Math.round(d)} MA`);
 
     timelabels.transition().duration(500)
-    .attr("x", (d) => timeScale(d));
+    .attr("x", (d) => timeScale(d))
+    .attr("y", 0);
 }
 
 // Function to remove time rings

@@ -48,3 +48,7 @@ h3 {
     font-style:var(--standard-font-style-header);
     font-weight:var(--standard-font-weight-header);
 }
+
+body {
+    overflow: hidden;
+}
