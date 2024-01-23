@@ -1,4 +1,4 @@
-# Brassitol
+# BrassiToL
 
 Welcome to our repository of BrassiToL. This is a project for projectleader Kasper Hendriks from Naturalis, build in a 6 week study program in the third year of the bachelor Communication and Multimedia Design (CMD) at HvA.
 
