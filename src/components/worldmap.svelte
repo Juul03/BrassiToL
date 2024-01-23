@@ -91,22 +91,32 @@
         const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
             selectedTaxonomy = value;
             console.log("selected", selectedTaxonomy);
+            let countryCodesArray
 
-            let countryCodesArray = selectedTaxonomy.binaryCombination.map(
+            if(selectedTaxonomy.binaryCombination) {
+                countryCodesArray = selectedTaxonomy.binaryCombination.map(
                 (specie) => {
                     return matchSpecieWithCountryCode(specie, allSpeciesData);
                 },
             );
-
-            let countryNamesArray = countryCodesArray.map((country) => {
+            }
+           
+            let countryNamesArray
+            if(countryCodesArray) {
+                countryNamesArray = countryCodesArray.map((country) => {
                 return matchCountryCodeWithCountryName(country, countryCodeToNamejson
                 );
             });
+            }
+            
 
             // Call the colorCountry function after the subscription updates the selectedTaxonomy
-            countryNamesArray.forEach(array => {
+            if(countryNamesArray) {
+                countryNamesArray.forEach(array => {
                 colorCountry(array)
             })
+            }
+           
             // colorCountry(countryNamesArray);
         });
 
