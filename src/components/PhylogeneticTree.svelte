@@ -186,7 +186,7 @@
       .style("border-radius", "var(--standard-border-radius")
       .style("left", "calc(50px + 100vw / 4)");
       
-    legendContainer.append("h3").text("Supertribe").style("font-size", "var(--standard-font-size-header-small)");;
+    legendContainer.append("h3").text("Supertribe legend").style("font-size", "var(--standard-font-size-header-small)");;
   }
 }
 
@@ -588,7 +588,7 @@
           .attr("x", 0 - maxTextWidth - 35) // Position at the end of the maximum text width
           .attr("y", -1)
           .attr("width", maxTextWidth - textWidth + 20)
-          .attr("height", 4)
+          .attr("height", 2)
           .attr("fill", "white")
           .attr("transform", d.x < 180 ? "scale(-1)" : " ");
     });
@@ -786,17 +786,18 @@ function createTimeRings(svg, data) {
   const ringInterval = maxBranchLength / numberOfRings;
 
   // Create an array of evenly distributed values for the rings
-  const ringValues = Array.from({ length: numberOfRings }, (_, i) => i * ringInterval);
+  const ringValues = Array.from({ length: numberOfRings }, (_, i) => maxBranchLength - i * ringInterval);
 
   // Sort ringValues in descending order
   const sortedRingValues = ringValues.slice().reverse();
 
+
   // Set up a linear scale based on branch lengths
   const timeScale = d3.scaleLinear()
-    .domain([0, d3.max(branchLengths)]) 
-    .range([0, innerRadius]);
+    .domain([0, maxBranchLength]) 
+    .range([innerRadius, 0]);
 
-  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6', 'white'];
+  const colorScale = ['#b6c3ab', '#c3ceba', '#d0d8c9', '#dde3d8', '#eaeee7', '#f7f8f6'];
 
   // Append circles for time rings
   let timerings = svg.selectAll(".time-ring")
@@ -807,7 +808,7 @@ function createTimeRings(svg, data) {
     .attr("cx", 0) 
     .attr("cy", 0)
     .attr("r", 0)
-    .attr("fill", (d, i) => colorScale[i - 1 % colorScale.length])
+    .attr("fill", (d, i) => colorScale[i % colorScale.length])
     .attr("stroke", "lightgrey")
     .attr("stroke-dasharray", "3,3")
     .lower();
@@ -818,7 +819,7 @@ function createTimeRings(svg, data) {
 
     // Append text labels for time rings
   let timelabels = svg.selectAll(".time-label")
-    .data(sortedRingValues)
+    .data(ringValues)
     .enter()
     .append("text")
     .attr("class", "time-label")
@@ -831,7 +832,8 @@ function createTimeRings(svg, data) {
     .text((d) => `${Math.round(d)} MA`);
 
     timelabels.transition().duration(500)
-    .attr("x", (d) => timeScale(d));
+    .attr("x", (d) => timeScale(d))
+    .attr("y", 0);
 }
 
 // Function to remove time rings
