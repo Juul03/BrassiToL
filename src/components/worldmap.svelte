@@ -52,28 +52,28 @@
     // }
 
     function createMap(worldmap) {
-        let projection = d3.geoMercator().fitSize([1000, 600], worldmap);
+        let projection = d3.geoMercator().fitSize([1000, 600], geojsonConvertedRightFormat);
 
         let geoGenerator = d3.geoPath().projection(projection);
         
-        console.log("we are creating map", worldmap)
-        let svg = d3
-            .select("#worldmap")
-            .attr("width", "1050px")
-            .attr("height", "650px")
-            .style("padding-top", "10px")
-            .style("background-color", "var(--primary-color-dark-2)");
-        let u = d3
-            .select("#content g.map")
-            .selectAll("path")
-            .data(worldmap.features);
+        // console.log("we are creating map", worldmap)
+        // let svg = d3
+        //     .select("#worldmap")
+        //     .attr("width", "1050px")
+        //     .attr("height", "650px")
+        //     .style("padding-top", "10px")
+        //     .style("background-color", "var(--primary-color-dark-2)");
+        // let u = d3
+        //     .select("#content g.map")
+        //     .selectAll("path")
+        //     .data(worldmap.features);
 
-        u.enter()
-            .append("path")
-            .attr("d", geoGenerator)
-            .style("fill", "white")
-            .style("stroke", "black")
-            .style("stroke-width", "0.3px");
+        // u.enter()
+        //     .append("path")
+        //     .attr("d", geoGenerator)
+        //     .style("fill", "white")
+        //     .style("stroke", "black")
+        //     .style("stroke-width", "0.3px");
     }
 
 
@@ -88,7 +88,7 @@
           type: 'Feature',
           geometry: {
             type: 'Polygon',
-            coordinates: worldmapgeojson.geometry[i].coordinates,
+            coordinates: feature.coordinates,
           },
           properties: {
             LEVEL1_COD: worldmapgeojson.LEVEL1_COD[i],
