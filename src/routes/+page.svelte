@@ -4,16 +4,29 @@
 	import Filter from '../components/filter.svelte'
 	import Treemapj from '../components/PhylogeneticTree.svelte';
 	import MagnifierButton from '../components/MagnifierButton.svelte';
-	import Worldmap from '../components/worldmap.svelte';  
+	import Worldmap from '../components/worldmap.svelte'; 
+	
+	let isWorldmapOpen = false;
 
 	function showWorldMap() {
         const worldMapContainer = document.querySelector('.worldmap-container');
         const worldMapSection = document.querySelector('.worldmap-section');
         const navElement = document.querySelector('#worldmapNav');
-        
-        worldMapContainer.style.transform = 'translateX(-65vw) rotate(0deg)';
-        worldMapSection.style.width = '-65vw';
-        worldMapSection.style.zIndex = '1';
+
+		if(isWorldmapOpen == false) {
+			worldMapContainer.style.transform = 'translateX(-65vw) rotate(0deg)';
+			worldMapSection.style.width = '-65vw';
+			worldMapSection.style.zIndex = '1';
+
+			isWorldmapOpen = true
+		} else if (isWorldmapOpen == true) {
+			worldMapContainer.style.transform = 'translateX(0) rotate(0deg)';
+			worldMapSection.style.width = '0';
+			worldMapSection.style.zIndex = '1';
+
+			isWorldmapOpen = false;
+		}
+            
     }
 
 </script>
@@ -57,6 +70,7 @@
 	main {
 		display: flex;
 		justify-content: space-between;
+		overflow:hidden;
 	}
 
 	.worldmap-container {
