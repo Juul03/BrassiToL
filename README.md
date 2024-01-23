@@ -1,40 +1,47 @@
 # Brassitol
 
-## create-svelte
+BrassiToL
+Welcome to our repository of BrassiToL. This is a project for projectleader Kasper Hendriks from Naturalis, build in a 6 week study program in the third year of the bachelor Communication and Multimedia Design (CMD) at HvA.
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+What is the BrassiToL?
+The BrassiToL is a tree of life, made by Kasper Hendriks, for the family from the Brassicaceae. We were asked to develop a website where this tree will become interactive and where you can filter between different Taxonomy, Geographical and Miscellaneous categories.
 
-### Creating a project
+BrassiToL contains a dropdown menu, a search bar, filters, d3 visualization (phylogenetic tree and geographical map). 
 
-If you're seeing this, you've probably already done this step. Congrats!
+In the Taxonomy category you can select a sample, genus, tribe, supertribe and subfamily. When users do this, what you select lights up in the tree with bold and color. 
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+The application is build for desktop screens. 
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+Build with...
+git
+Sveltekit
+d3.js
+deployment: vercel
 
-### Developing
+Installation guide
+Node
+Install node.js
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+-- node install
+or check if it is installed already by running the following code
 
-```bash
+-- node version
+Clone repository
+Clone repository by this link: https://github.com/Juul03/BrassiToL.git with the following command:
+
+-- git clone https://github.com/Juul03/BrassiToL.git
+After that, run
+
+-- npm install
+to install all the dependencies
+
+Check if it works by running the application
+
 npm run dev
+Open the link provided in the terminal for your localhost and you should be able to see the application.
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+License
+2023 Julia Hoek & Donna Baijens MIT
 
-### Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+Datacollector
+Kasper Hendriks
