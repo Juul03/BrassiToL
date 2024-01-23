@@ -3,7 +3,7 @@
 	import PhylogeneticTree from '../components/PhylogeneticTree.svelte';
 	import Filter from '../components/filter.svelte'
 	import Treemapj from '../components/PhylogeneticTree.svelte';
-	import MagnifierButton from '../components/MagnifierButton.svelte';
+	import MagnifierButton from '../components/magnifierButton.svelte';
 	import Worldmap from '../components/worldmap.svelte'; 
 	
 	let isWorldmapOpen = false;
