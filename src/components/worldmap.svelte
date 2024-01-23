@@ -10,6 +10,7 @@
     let allSpeciesData = {};
     let countryCodeToNamejson = {};
     let prevSelectedSpecies = [];
+    let prevSelectedGenus = [];
 
     let nodeColors;
 
@@ -54,6 +55,7 @@
         await fetchCodeData("data/countryCodeToName.json");
 
         prevSelectedSpecies = selectedTaxonomy.binaryCombination || [];
+        prevSelectedGenus = selectedTaxonomy.genus || [];
 
         // matchSpecieWithCountry("Arabis scabra", allSpeciesData);
         // selectedTaxonomy.binaryCombination.forEach((specie) => {
@@ -100,8 +102,6 @@
                 return matchCountryCodeWithCountryName(country, countryCodeToNamejson
                 );
             });
-
-            console.log("worst", countryNamesArray);
 
             // Call the colorCountry function after the subscription updates the selectedTaxonomy
             countryNamesArray.forEach(array => {
