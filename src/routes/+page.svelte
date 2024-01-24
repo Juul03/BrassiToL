@@ -5,6 +5,7 @@
 	import Treemapj from '../components/PhylogeneticTree.svelte';
 	import MagnifierButton from '../components/MagnifierButton.svelte';
 	import Worldmap from '../components/worldmap.svelte';  
+	import Popup from '../components/popup.svelte'
 
 	function showWorldMap() {
         const worldMapContainer = document.querySelector('.worldmap-container');
@@ -26,6 +27,7 @@
 	<Filter/>
 	<Treemapj/>
 	<MagnifierButton/>
+	<Popup/>
 
 	<div class="worldmap-container">
 		<nav id="worldmapNav" on:click="{showWorldMap}">
