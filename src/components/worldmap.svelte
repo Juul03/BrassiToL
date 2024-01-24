@@ -24,7 +24,6 @@
         if (response.ok) {
             const data = await response.json();
             worldmapgeojson = data;
-            console.log(worldmapgeojson);
         } else {
             console.error("Failed to fetch the data");
         }
@@ -35,7 +34,6 @@
         if (response.ok) {
             const data = await response.json();
             allSpeciesData = data;
-            console.log(allSpeciesData);
         } else {
             console.error("Failed to fetch the data");
         }
@@ -46,7 +44,6 @@
         if (response.ok) {
             const data = await response.json();
             countryCodeToNamejson = data;
-            console.log(countryCodeToNamejson);
         } else {
             console.error("Failed to fetch the data");
         }
@@ -72,7 +69,6 @@
 
     let findCorrespondingCountriesAndColor = (value) => {
             selectedTaxonomy = value;
-            console.log("selected", selectedTaxonomy);
             let countryCodesArray
 
             if(selectedTaxonomy.binaryCombination) {
@@ -127,14 +123,12 @@
 
         const unsubscribeColors = nodeColorsStore.subscribe(value => {
             nodeColors = value;
-            console.log("COLORS", nodeColors)
         })
 
         const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
             if(value.binaryCombination) {
                 lastSelectedSpecies = value.binaryCombination[value.binaryCombination.length - 1];
                 lastSelectedSpeciesCorrespondingSupertribe = findSupertribe(allSpeciesData, lastSelectedSpecies);
-                console.log("SUPERTARIBE", lastSelectedSpeciesCorrespondingSupertribe )
                 findCorrespondingCountriesAndColor(value);
             }
         });
@@ -165,7 +159,6 @@
     // Get the supertribe for the last selected species
     const supertribe = lastSelectedSpeciesCorrespondingSupertribe;
     const supertribeColor = getColorBySupertribe(supertribe);
-    console.log("NEEDED COLOR", supertribeColor);
 
     // Apply the color to the selected countries
     countryNames.forEach((countryName) => {
@@ -237,8 +230,6 @@
     }
 
 let showMap = () => {
-
-    console.log("worldmap", worldMapElement)
     worldMapElement.classList.add('show');
 }
 

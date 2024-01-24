@@ -368,12 +368,21 @@
       const supertribe = foundDataPoint.SUPERTRIBE;
       console.log("supertribe", supertribe);
 
-      // Assuming nodeColors is an object with colors for each supertribe
-      const nodeColorsObject = nodeColors[supertribe];
-
-      if (nodeColorsObject) {
-        return nodeColorsObject.color;
+      // Function to find the color based on supertribe
+      let findColorBySupertribe = (targetSupertribe) => {
+        for (const identifier in nodeColors) {
+          if (nodeColors.hasOwnProperty(identifier)) {
+            const object = nodeColors[identifier];
+            if (object.supertribe === targetSupertribe) {
+              return object.color;
+            }
+          }
+        }
+        return 'Supertribe not found';
       }
+
+      const genusColor = findColorBySupertribe(supertribe);
+      return genusColor
     }
 
     // Return a default color if not found
@@ -785,7 +794,7 @@
     background: var(--primary-color-dark-1);
   }
 
-  nav ul li.selected {
+  .selected {
     background: var(--primary-color-dark-2);
   }
 
