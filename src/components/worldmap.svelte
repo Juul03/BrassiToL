@@ -13,6 +13,8 @@
     let prevSelectedGenus = [];
 
     let nodeColors;
+    let lastSelectedSpecies;
+    let lastSelectedSpeciesCorrespondingSupertribe;
 
     let worldMapElement;
     let selectedActiveCategory = "native"
@@ -49,6 +51,24 @@
             console.error("Failed to fetch the data");
         }
     }
+
+    let findSupertribe = (allSpeciesData, lastSelectedSpecies) => {
+    if (lastSelectedSpecies) {
+        // Find the corresponding species data
+        const correspondingSpecies = allSpeciesData.find(species => species.SPECIES_NAME_PRINT === lastSelectedSpecies);
+        
+        // Check if the species is found and return the corresponding supertribe
+        if (correspondingSpecies) {
+            return correspondingSpecies.SUPERTRIBE;
+        } else {
+            // Handle the case when the species is not found
+            console.error(`Species not found: ${lastSpeciesName}`);
+        }
+    }
+
+        // Return null or handle the case when lastSelectedSpecies is not defined
+        return null;
+    };
 
     let findCorrespondingCountriesAndColor = (value) => {
             selectedTaxonomy = value;
@@ -105,14 +125,19 @@
 
         createMap(worldmapgeojson);
 
-        const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
-            findCorrespondingCountriesAndColor(value);
-        });
-
         const unsubscribeColors = nodeColorsStore.subscribe(value => {
             nodeColors = value;
             console.log("COLORS", nodeColors)
         })
+
+        const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
+            if(value.binaryCombination) {
+                lastSelectedSpecies = value.binaryCombination[value.binaryCombination.length - 1];
+                lastSelectedSpeciesCorrespondingSupertribe = findSupertribe(allSpeciesData, lastSelectedSpecies);
+                console.log("SUPERTARIBE", lastSelectedSpeciesCorrespondingSupertribe )
+                findCorrespondingCountriesAndColor(value);
+            }
+        });
 
         worldMapElement = d3.select("#content");
 
@@ -122,31 +147,49 @@
         };
     });
 
-    function colorCountry(countryNames) {
-        // Reset all countries to the original style
-        d3.select("#content g.map").selectAll("path").style("fill", "white");
+    let getColorBySupertribe = (supertribe) =>  {
+        let colorInfo;
 
-        // Add the new selected countries and color them
-        countryNames.forEach((countryName) => {
-            d3.select("#content g.map")
-                .selectAll("path")
-                .filter((d) => d.properties.LEVEL3_COD === countryName)
-                .style("fill", "orange");
-        });
+        if(nodeColors) {
+            colorInfo = Object.values(nodeColors).find(entry => entry.supertribe === supertribe);
+        }
 
-        // Remove the fill color for unselected countries
-        const unselectedCountryNames = prevSelectedSpecies.filter((name) => !countryNames.includes(name));
-
-        unselectedCountryNames.forEach((countryName) => {
-            d3.select("#content g.map")
-                .selectAll("path")
-                .filter((d) => d.properties.name === countryName)
-                .style("fill", "white");
-        });
-
-        // Update the previous selected species
-        prevSelectedSpecies = countryNames;
+        // If colorInfo is found, return the color, otherwise return a default color
+        return colorInfo ? colorInfo.color : 'white'; // You can change 'white' to any default color you prefer
     }
+
+    let colorCountry = (countryNames) => {
+    // Reset all countries to the original style
+    d3.select("#content g.map").selectAll("path").style("fill", "white");
+
+    // Get the supertribe for the last selected species
+    const supertribe = lastSelectedSpeciesCorrespondingSupertribe;
+    const supertribeColor = getColorBySupertribe(supertribe);
+    console.log("NEEDED COLOR", supertribeColor);
+
+    // Apply the color to the selected countries
+    countryNames.forEach((countryName) => {
+        d3.select("#content g.map")
+            .selectAll("path")
+            .filter((d) => d.properties.LEVEL3_COD === countryName)
+            .style("fill", supertribeColor);
+    });
+
+    // Remove the fill color for unselected countries
+    const unselectedCountryNames = prevSelectedSpecies.filter((name) => !countryNames.includes(name));
+
+    unselectedCountryNames.forEach((countryName) => {
+        d3.select("#content g.map")
+            .selectAll("path")
+            .filter((d) => d.properties.name === countryName)
+            .style("fill", "white");
+    });
+
+    // Update the previous selected species
+    prevSelectedSpecies = countryNames;
+}
+
+
     
 
     let matchSpecieWithCountryCode = (speciename, data) => {
