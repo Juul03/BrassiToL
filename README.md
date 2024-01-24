@@ -2,8 +2,8 @@
 
 Welcome to our repository of BrassiToL. This is a project for projectleader Kasper Hendriks from Naturalis, build in a 6 week study program in the third year of the bachelor Communication and Multimedia Design (CMD) at HvA.
 
-<img src="https://github.com/Juul03/BrassiToL/assets/118166691/fa21986e-d657-4bd4-9d67-ce565ffdd366" alt="" width"40%"/>
-<img src="https://github.com/Juul03/BrassiToL/assets/118166691/9a25482d-3dce-4fb6-b4f6-ec0369d23f84" alt="" width"40%"/>
+<img src="https://github.com/Juul03/BrassiToL/assets/118166691/fa21986e-d657-4bd4-9d67-ce565ffdd366" alt="zero" width="40%"/>
+<img src="https://github.com/Juul03/BrassiToL/assets/118166691/9a25482d-3dce-4fb6-b4f6-ec0369d23f84" alt="map" width="40%"/>
 
 
 ## What is the BrassiToL?
