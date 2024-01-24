@@ -70,7 +70,6 @@
 	main {
 		display: flex;
 		justify-content: space-between;
-		overflow:hidden;
 	}
 
 	.worldmap-container {

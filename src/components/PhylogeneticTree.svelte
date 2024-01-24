@@ -194,7 +194,6 @@
     legendContainer = document.getElementById("legendContainer");
 
     await fetchAllSpecieData();
-    // await fetchPhylotreeData();
     await fetchPhylotreeData();
     await fetchPhylotreeData2();
     findOutgroups();
@@ -552,21 +551,13 @@
       .selectAll("g")
       .data(root.leaves())
       .join("g")
-      .attr(
-        "transform",
-        (d) =>
-          `rotate(${d.x}) ${
-            d.x < 180
-              ? `translate(${innerRadius + 4},0)`
-              : `translate(${innerRadius + 4},0) rotate(180)`
-          }`
-      )
+      .attr("transform", d => `rotate(${d.x}) translate(${innerRadius + 4},0)${d.x < 90 || d.x > 270 ? "" : " rotate(180)"}`)
       .each(function (d) {
         // Append text
         const text = d3.select(this)
           .append("text")
           .attr("dy", ".31em")
-          .attr("text-anchor", (d) => (d.x < 180 ? "start" : "end"))
+          .attr("text-anchor", d => d.x < 90 || d.x > 270 ? "start" : "end")
           .attr("font-size", ".3rem")
           .attr("font-style", "italic")
           .attr("fill", (d) => (isTextHighlighted ? d.color : "black"))
@@ -590,7 +581,7 @@
           .attr("width", maxTextWidth - textWidth + 20)
           .attr("height", 2)
           .attr("fill", "white")
-          .attr("transform", d.x < 180 ? "scale(-1)" : " ");
+          .attr("transform", d.x < 90 ? "scale(-1)" : " ");
     });
 
     svg.selectAll("text")
