@@ -50,7 +50,7 @@
     }
 
     onMount(async () => {
-        await fetchgeoJSONData("data/worldmapl2.geojson");
+        await fetchgeoJSONData("data/TDWG_level3_map(1).json");
         await fetchData("data/metadataBrassiToL.json");
         await fetchCodeData("data/countryCodeToName.json");
 
@@ -100,19 +100,21 @@
                 },
             );
             }
+
+            console.log("COUNTRY CODES", countryCodesArray)
            
-            let countryNamesArray
-            if(countryCodesArray) {
-                countryNamesArray = countryCodesArray.map((country) => {
-                return matchCountryCodeWithCountryName(country, countryCodeToNamejson
-                );
-            });
-            }
+            // let countryNamesArray
+            // if(countryCodesArray) {
+            //     countryNamesArray = countryCodesArray.map((country) => {
+            //     return matchCountryCodeWithCountryName(country, countryCodeToNamejson
+            //     );
+            // });
+            // }
             
 
             // Call the colorCountry function after the subscription updates the selectedTaxonomy
-            if(countryNamesArray) {
-                countryNamesArray.forEach(array => {
+            if(countryCodesArray) {
+                countryCodesArray.forEach(array => {
                 colorCountry(array)
             })
             }
@@ -134,8 +136,6 @@
     });
 
     function colorCountry(countryNames) {
-        console.log('kaas+worst', countryNames);
-
         // Reset all countries to the original style
         d3.select("#content g.map").selectAll("path").style("fill", "white");
 
@@ -143,7 +143,7 @@
         countryNames.forEach((countryName) => {
             d3.select("#content g.map")
                 .selectAll("path")
-                .filter((d) => d.properties.name === countryName)
+                .filter((d) => d.properties.LEVEL3_COD === countryName)
                 .style("fill", "orange");
         });
 
@@ -184,21 +184,21 @@
 };
 
 
-let matchCountryCodeWithCountryName = (codes, data) => {
-    console.log("hoi", codes);
-    const countryNames = [];
+// let matchCountryCodeWithCountryName = (codes, data) => {
+//     console.log("hoi", codes);
+//     const countryNames = [];
 
-    codes.forEach((code) => {
-        data.forEach((datapoint) => {
-            if (datapoint.Code === code) {
-                countryNames.push(datapoint.WGSRPD_name);
-            }
-        });
-    });
+//     codes.forEach((code) => {
+//         data.forEach((datapoint) => {
+//             if (datapoint.Code === code) {
+//                 countryNames.push(datapoint.WGSRPD_name);
+//             }
+//         });
+//     });
 
-    console.log("kaas", countryNames);
-    return countryNames;
-};
+//     console.log("kaas", countryNames);
+//     return countryNames;
+// };
 
 let showMap = () => {
 
