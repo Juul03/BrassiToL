@@ -255,7 +255,6 @@
     // Subscribe to nodeColorsStore
     nodeColorsStore.subscribe(value => {
       nodeColors = value;
-      console.log("colors tree",nodeColors)
     });
 
     return () => {
@@ -266,7 +265,6 @@
 
   const handleSelectedTaxonomyUpdate = (value) => {
     selectedTaxonomy = value || {}; // Make sure selectedTaxonomy is not null or undefined
-      console.log('selected', selectedTaxonomy)
 
       let taxonomySamplesSubfamily = matchTaxonomyWithSample(
         selectedTaxonomy,
@@ -308,7 +306,6 @@
   // Function to handle updates when selectedExtraStore changes
   const handleSelectedExtraUpdate = (value) => {
     selectedExtra = value || {}; // Make sure selectedExtra is not null or undefined
-    console.log('selectedExtra', selectedExtra)
 
     // Implement your logic to update the tree or perform any other actions
     let extraSamplesLifeform = matchLifeformWithSample(
@@ -359,7 +356,6 @@
   }
 
   let updateTreeLifeform = (selected) => {
-    console.log("update second ring")
     // Select all rectangles and update their fill based on whether they are selected samples
     const svg = d3.select('svg');
 
@@ -447,8 +443,6 @@
   };
 
   let matchLifeformWithSample = (extra, extraType) => {
-    console.log("we are gonna match", extraType)
-    console.log("selected", extra)
     switch (extraType) {
       case "lifeform":
         return (extra.lifeforms || [])
@@ -458,7 +452,6 @@
               const lifeformSamples = allSpecieData
                 .filter((data) => data.WCVP_lifeform_description.includes(lifeform))
                 .map((data) => data.SAMPLE);
-              console.log("lifeformsamples", lifeformSamples);
               return lifeformSamples;
             })
             .flat();
