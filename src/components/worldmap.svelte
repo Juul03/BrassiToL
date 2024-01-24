@@ -266,6 +266,8 @@ let showMap = () => {
     #content > nav ul li {
         border-radius: var(--standard-border-radius) var(--standard-border-radius) 0 0;
         padding:.5rem;
+
+        transition: var(--standard-transition-time);
     }
 
     #content > nav ul li.selected {
