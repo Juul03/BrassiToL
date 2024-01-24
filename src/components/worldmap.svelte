@@ -15,6 +15,7 @@
     let nodeColors;
 
     let worldMapElement;
+    let selectedActiveCategory = "native"
 
     async function fetchgeoJSONData(url) {
         const response = await fetch(url);
@@ -49,6 +50,27 @@
         }
     }
 
+    let findCorrespondingCountriesAndColor = (value) => {
+            selectedTaxonomy = value;
+            console.log("selected", selectedTaxonomy);
+            let countryCodesArray
+
+            if(selectedTaxonomy.binaryCombination) {
+                countryCodesArray = selectedTaxonomy.binaryCombination.map(
+                (specie) => {
+                    return matchSpecieWithCountryCode(specie, allSpeciesData);
+                },
+            );
+            }
+            
+            // Call the colorCountry function after the subscription updates the selectedTaxonomy
+            if(countryCodesArray) {
+                countryCodesArray.forEach(array => {
+                colorCountry(array)
+            })
+            }
+        }
+
     onMount(async () => {
         await fetchgeoJSONData("data/TDWG_level3_map(1).json");
         await fetchData("data/metadataBrassiToL.json");
@@ -57,16 +79,11 @@
         prevSelectedSpecies = selectedTaxonomy.binaryCombination || [];
         prevSelectedGenus = selectedTaxonomy.genus || [];
 
-        // matchSpecieWithCountry("Arabis scabra", allSpeciesData);
-        // selectedTaxonomy.binaryCombination.forEach((specie) => {
-        //     matchSpecieWithCountry(specie, allSpeciesData);
-        // });
-
         let projection = d3.geoMercator().fitSize([1000, 600], worldmapgeojson);
 
         let geoGenerator = d3.geoPath().projection(projection);
 
-        function createMap(worldmapgeojson) {
+        let createMap = (worldmapgeojson) => {
             let svg = d3
                 .select("#worldmap")
                 .attr("width", "1050px")
@@ -89,37 +106,7 @@
         createMap(worldmapgeojson);
 
         const unsubscribe = selectedTaxonomyStore.subscribe((value) => {
-            selectedTaxonomy = value;
-            console.log("selected", selectedTaxonomy);
-            let countryCodesArray
-
-            if(selectedTaxonomy.binaryCombination) {
-                countryCodesArray = selectedTaxonomy.binaryCombination.map(
-                (specie) => {
-                    return matchSpecieWithCountryCode(specie, allSpeciesData);
-                },
-            );
-            }
-
-            console.log("COUNTRY CODES", countryCodesArray)
-           
-            // let countryNamesArray
-            // if(countryCodesArray) {
-            //     countryNamesArray = countryCodesArray.map((country) => {
-            //     return matchCountryCodeWithCountryName(country, countryCodeToNamejson
-            //     );
-            // });
-            // }
-            
-
-            // Call the colorCountry function after the subscription updates the selectedTaxonomy
-            if(countryCodesArray) {
-                countryCodesArray.forEach(array => {
-                colorCountry(array)
-            })
-            }
-           
-            // colorCountry(countryNamesArray);
+            findCorrespondingCountriesAndColor(value);
         });
 
         const unsubscribeColors = nodeColorsStore.subscribe(value => {
@@ -166,39 +153,45 @@
     let countryCodes = [];
 
     data.forEach((datapoint) => {
-        if (datapoint.SPECIES_NAME_PRINT === speciename) {
-            countryCodes.push(datapoint.WCVP_WGSRPD_LEVEL_3_native);
-        }
-    });
+            if (datapoint.SPECIES_NAME_PRINT === speciename) {
+                if (selectedActiveCategory === "native") {
+                    countryCodes.push(datapoint.WCVP_WGSRPD_LEVEL_3_native);
 
-    console.log(countryCodes);
-    
-    // Join the array elements into a string and remove square brackets
-    let joinedString = countryCodes.join(', ').replace(/[\[\]']+/g, "");
-    
-    // Split the string into an array
-    countryCodes = joinedString.split(", ");
-    
-    console.log("kaas", countryCodes);
-    return countryCodes;
-};
+                } else if (selectedActiveCategory === "introduced") {
+                    countryCodes.push(datapoint.WCVP_WGSRPD_LEVEL_3_introduced);
 
+                } else if (selectedActiveCategory === "extinct") {
+                    countryCodes.push(datapoint.WCVP_WGSRPD_LEVEL_3_extinct);
 
-// let matchCountryCodeWithCountryName = (codes, data) => {
-//     console.log("hoi", codes);
-//     const countryNames = [];
+                }
+            }
+        });
+        
+        // Join the array elements into a string and remove square brackets
+        let joinedString = countryCodes.join(', ').replace(/[\[\]']+/g, "");
+        
+        // Split the string into an array
+        countryCodes = joinedString.split(", ");
+        
+        return countryCodes;
+    };
 
-//     codes.forEach((code) => {
-//         data.forEach((datapoint) => {
-//             if (datapoint.Code === code) {
-//                 countryNames.push(datapoint.WGSRPD_name);
-//             }
-//         });
-//     });
+    let selectCategory = (category) => {
+        // Update selectedActiveCategory
+        selectedActiveCategory = category;
 
-//     console.log("kaas", countryNames);
-//     return countryNames;
-// };
+        // Remove 'selected' class from all li elements
+        document.querySelectorAll("#content nav ul li").forEach((li) => {
+            li.classList.remove("selected");
+        });
+
+        // Add 'selected' class to the clicked li element
+        document.querySelector(`#content nav ul li[data-category="${category}"]`).classList.add("selected");
+
+        // Call the function to update the map based on the selected category
+        findCorrespondingCountriesAndColor(selectedTaxonomy);
+
+    }
 
 let showMap = () => {
 
@@ -209,17 +202,40 @@ let showMap = () => {
 </script>
 
 <div id="content">
+    <nav>
+        <ul>
+            <li on:click={() => selectCategory("native")} class:selected={selectedActiveCategory === "native"} data-category="native">Native</li>
+            <li on:click={() => selectCategory("introduced")} class:selected={selectedActiveCategory === "introduced"} data-category="introduced">Introduced</li>
+            <li on:click={() => selectCategory("extinct")} class:selected={selectedActiveCategory === "extinct"} data-category="extinct">Extinct</li>
+        </ul>
+    </nav>
     <svg id="worldmap">
         <g class="map"></g>
     </svg>
 </div>
 
 <style>
-    #content {
-        /* transform:translate(126%); */
-        /* position:absolute;
-        top:7.35%; */
-        /* display:none; */
-        /* z-index:100; */
+    #content > nav {
+        position:absolute;
+    }
+
+    #content > nav ul {
+        position:relative;
+        top:.5rem;
+        left:1rem;
+        background:var(--primary-color-dark-2);
+        list-style:none;
+        display:flex;
+        gap:1rem;
+    }
+
+    #content > nav ul li {
+        border-radius: var(--standard-border-radius) var(--standard-border-radius) 0 0;
+        padding:.5rem;
+    }
+
+    #content > nav ul li.selected {
+        text-decoration:underline;
+        background:var(--primary-color-light-2);
     }
 </style>
