@@ -579,7 +579,7 @@
           .attr("x", 0 - maxTextWidth - 35) // Position at the end of the maximum text width
           .attr("y", -1)
           .attr("width", maxTextWidth - textWidth + 20)
-          .attr("height", 2)
+          .attr("height", 4)
           .attr("fill", "white")
           .attr("transform", d.x < 90 || d.x > 270 ? "scale(-1)" : " ");
     });
