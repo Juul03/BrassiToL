@@ -581,7 +581,7 @@
           .attr("width", maxTextWidth - textWidth + 20)
           .attr("height", 2)
           .attr("fill", "white")
-          .attr("transform", d.x < 90 ? "scale(-1)" : " ");
+          .attr("transform", d.x < 90 || d.x > 270 ? "scale(-1)" : " ");
     });
 
     svg.selectAll("text")
