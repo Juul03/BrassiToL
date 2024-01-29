@@ -33,6 +33,10 @@
 
 <header>
 	<img class="logo" src="/logofull.svg" alt="Brassicaceae tree of life">
+
+	<p>In co-production with 3rd years students of the minor Information Design at the University of Applied Sciences Amsterdam (2023)</p>
+	<p>Designers: Enis Okic and Tamara Schukking. Developers: Donna Baijens and Julia Hoek</p>
+	<p>Datacollector: Kasper Hendriks</p>
 </header>
 
 <main>
@@ -65,6 +69,34 @@
 	.logo {
 		padding: 1rem;
 		height: 80%;
+	}
+
+	header > p:nth-of-type(1) {
+		font-size:.5rem;
+		position:fixed;
+		top:0;
+		right:0;
+
+		padding:1rem;
+	}
+
+	header > p:nth-of-type(2) {
+		font-size:.5rem;
+		position:fixed;
+		top:10;
+		right:0;
+
+		padding:1rem;
+	}
+
+	header > p:nth-of-type(3) {
+		font-size:.5rem;
+		position:fixed;
+		top:0;
+		right:0;
+
+		padding:1rem;
+		margin-top:1.8rem;
 	}
 
 	main {
